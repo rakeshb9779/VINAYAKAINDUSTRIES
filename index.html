@@ -16,11 +16,14 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
         }
 
@@ -122,7 +125,8 @@
             max-height: 400px;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            margin: 20px 0;
+            margin: 20px auto; /* Center the image */
+            display: block; /* Ensure it's a block element for margin: auto */
         }
 
         .video-container {
@@ -137,13 +141,14 @@
             max-width: 100%;
             max-height: 400px;
             display: block;
+            background-color: #000; /* Black background for video feed */
         }
 
         .capture-overlay {
             position: absolute;
-            top: 50%;
+            bottom: 20px; /* Position button at the bottom */
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%);
             background: rgba(102, 126, 234, 0.9);
             color: white;
             border: none;
@@ -153,11 +158,12 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 10; /* Ensure it's above the video */
         }
 
         .capture-overlay:hover {
             background: rgba(102, 126, 234, 1);
-            transform: translate(-50%, -50%) scale(1.05);
+            transform: translateX(-50%) scale(1.05);
         }
 
         .analysis-controls {
@@ -170,22 +176,58 @@
 
         .control-group {
             margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
         }
 
         .control-group label {
             display: inline-block;
             width: 150px;
-            text-align: left;
+            text-align: right; /* Align labels to the right */
             font-weight: 600;
             color: #2c3e50;
+            margin-right: 15px;
         }
 
-        .control-group input {
-            width: 200px;
-            padding: 8px 12px;
-            border: 2px solid #dee2e6;
-            border-radius: 25px;
-            font-size: 1em;
+        .control-group input[type="range"] {
+            width: calc(100% - 200px); /* Adjust width to fit */
+            max-width: 300px; /* Max width for slider */
+            margin: 0 10px;
+            -webkit-appearance: none;
+            height: 8px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+            transition: opacity .2s;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .control-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .control-group span {
+            min-width: 30px; /* Give value display some space */
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
         }
 
         .results-section {
@@ -246,6 +288,7 @@
             display: none;
             text-align: center;
             margin: 30px 0;
+            color: #495057;
         }
 
         .spinner {
@@ -296,8 +339,10 @@
 
         .canvas-item canvas {
             max-width: 100%;
+            height: auto; /* Maintain aspect ratio */
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background-color: #fff; /* Ensure canvas background is white */
         }
 
         @media (max-width: 768px) {
@@ -320,6 +365,17 @@
             
             .teeth-count {
                 font-size: 3em;
+            }
+
+            .control-group label {
+                text-align: left;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .control-group input[type="range"] {
+                width: 100%;
+                max-width: none;
             }
         }
     </style>
@@ -352,23 +408,23 @@
             <div class="analysis-controls" id="analysisControls" style="display: none;">
                 <h3 style="margin-bottom: 20px; color: #2c3e50;">Analysis Parameters</h3>
                 <div class="control-group">
-                    <label>Blur Kernel Size:</label>
+                    <label for="blurSize">Blur Kernel Size:</label>
                     <input type="range" id="blurSize" min="3" max="15" value="5" step="2">
                     <span id="blurValue">5</span>
                 </div>
                 <div class="control-group">
-                    <label>Canny Threshold 1:</label>
-                    <input type="range" id="cannyThresh1" min="50" max="200" value="100">
+                    <label for="cannyThresh1">Canny Threshold 1:</label>
+                    <input type="range" id="cannyThresh1" min="10" max="250" value="100">
                     <span id="cannyValue1">100</span>
                 </div>
                 <div class="control-group">
-                    <label>Canny Threshold 2:</label>
-                    <input type="range" id="cannyThresh2" min="100" max="300" value="200">
+                    <label for="cannyThresh2">Canny Threshold 2:</label>
+                    <input type="range" id="cannyThresh2" min="50" max="350" value="200">
                     <span id="cannyValue2">200</span>
                 </div>
                 <div class="control-group">
-                    <label>Min Contour Area:</label>
-                    <input type="range" id="minArea" min="100" max="2000" value="500">
+                    <label for="minArea">Min Contour Area:</label>
+                    <input type="range" id="minArea" min="100" max="10000" value="500">
                     <span id="minAreaValue">500</span>
                 </div>
                 <button class="btn" onclick="reanalyzeWithParams()" style="margin-top: 15px;">Re-analyze</button>
@@ -386,7 +442,7 @@
             <div class="processing" id="processing">
                 <div class="spinner"></div>
                 <p>Analyzing gear teeth using advanced computer vision...</p>
-                <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.8;">Processing contours, applying Hough transforms, and detecting geometric features...</p>
+                <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.8;">Processing contours, applying radial profiling, and detecting geometric features...</p>
             </div>
 
             <div class="error-message" id="errorMessage"></div>
@@ -441,7 +497,9 @@
 
     <script>
         let stream = null;
-        let currentImageData = null;
+        let originalImageData = null; // Store the original image data for re-analysis
+        let currentImageCanvas = null; // Store a canvas representation of the current image
+
         let analysisParams = {
             blurSize: 5,
             cannyThresh1: 100,
@@ -449,7 +507,7 @@
             minArea: 500
         };
 
-        // Initialize parameter controls
+        // Initialize parameter controls and update values
         document.getElementById('blurSize').oninput = function() {
             analysisParams.blurSize = parseInt(this.value);
             document.getElementById('blurValue').textContent = this.value;
@@ -493,11 +551,37 @@
             document.getElementById('canvasContainer').style.display = 'block';
         }
 
+        // Helper to draw ImageData to a canvas
+        function drawImageDataToCanvas(canvasElement, imageData) {
+            canvasElement.width = imageData.width;
+            canvasElement.height = imageData.height;
+            const ctx = canvasElement.getContext('2d');
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        // Helper to create ImageData from a grayscale array
+        function createGrayscaleImageData(data, width, height) {
+            const imageData = new ImageData(width, height);
+            for (let i = 0; i < data.length; i++) {
+                const pixelValue = data[i];
+                imageData.data[i * 4 + 0] = pixelValue; // R
+                imageData.data[i * 4 + 1] = pixelValue; // G
+                imageData.data[i * 4 + 2] = pixelValue; // B
+                imageData.data[i * 4 + 3] = 255;      // A
+            }
+            return imageData;
+        }
+
         async function startCamera() {
             try {
+                // Stop any existing camera stream
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+
                 const constraints = {
                     video: {
-                        facingMode: 'environment',
+                        facingMode: 'environment', // Prefer rear camera
                         width: { ideal: 1280 },
                         height: { ideal: 720 }
                     }
@@ -508,6 +592,20 @@
                 video.srcObject = stream;
                 document.getElementById('videoContainer').style.display = 'inline-block';
                 document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('resultsSection').classList.remove('show');
+                document.getElementById('canvasContainer').style.display = 'none';
+                document.getElementById('analysisControls').style.display = 'none'; // Hide controls until image is captured/uploaded
+
+                // Reset parameters to default visually
+                document.getElementById('blurSize').value = 5;
+                document.getElementById('blurValue').textContent = 5;
+                document.getElementById('cannyThresh1').value = 100;
+                document.getElementById('cannyValue1').textContent = 100;
+                document.getElementById('cannyThresh2').value = 200;
+                document.getElementById('cannyValue2').textContent = 200;
+                document.getElementById('minArea').value = 500;
+                document.getElementById('minAreaValue').textContent = 500;
+                
             } catch (error) {
                 showError('Unable to access camera. Please check permissions or try uploading an image instead.');
                 console.error('Camera error:', error);
@@ -521,15 +619,18 @@
             canvas.height = video.videoHeight;
             
             const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
-            currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            currentImageCanvas = canvas; // Store the canvas for re-analysis
             analyzeGearImage(canvas);
             
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
                 document.getElementById('videoContainer').style.display = 'none';
             }
+            document.getElementById('imagePreview').src = canvas.toDataURL();
+            document.getElementById('imagePreview').style.display = 'block';
         }
 
         function handleFileUpload(event) {
@@ -541,6 +642,12 @@
                 return;
             }
 
+            // Stop any existing camera stream
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                document.getElementById('videoContainer').style.display = 'none';
+            }
+
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
@@ -549,15 +656,14 @@
                     preview.src = e.target.result;
                     preview.style.display = 'block';
                     
-                    document.getElementById('videoContainer').style.display = 'none';
-                    
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     
-                    currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    currentImageCanvas = canvas; // Store the canvas for re-analysis
                     analyzeGearImage(canvas);
                 };
                 img.src = e.target.result;
@@ -566,13 +672,10 @@
         }
 
         function reanalyzeWithParams() {
-            if (currentImageData) {
-                const canvas = document.createElement('canvas');
-                canvas.width = currentImageData.width;
-                canvas.height = currentImageData.height;
-                const ctx = canvas.getContext('2d');
-                ctx.putImageData(currentImageData, 0, 0);
-                analyzeGearImage(canvas);
+            if (currentImageCanvas) {
+                analyzeGearImage(currentImageCanvas);
+            } else {
+                showError("No image loaded to re-analyze.");
             }
         }
 
@@ -580,13 +683,20 @@
             showProcessing(true);
             document.getElementById('resultsSection').classList.remove('show');
             document.getElementById('canvasContainer').style.display = 'none';
-            document.getElementById('analysisControls').style.display = 'block';
+            document.getElementById('analysisControls').style.display = 'block'; // Show controls after an image is loaded
 
+            // Simulate processing time for better UX
             setTimeout(() => {
-                const results = performAdvancedGearAnalysis(canvas);
-                showProcessing(false);
-                showResults(results);
-            }, 1500);
+                try {
+                    const results = performAdvancedGearAnalysis(canvas);
+                    showProcessing(false);
+                    showResults(results);
+                } catch (e) {
+                    showProcessing(false);
+                    showError("Analysis failed: " + e.message);
+                    console.error("Analysis error:", e);
+                }
+            }, 100); // Reduced simulated delay
         }
 
         function performAdvancedGearAnalysis(canvas) {
@@ -615,25 +725,34 @@
             // Step 5: Find the main gear contour
             const gearContour = findGearContour(contours, analysisParams.minArea);
 
-            // Step 6: Analyze gear geometry
-            const gearAnalysis = analyzeGearGeometry(gearContour, width, height);
+            if (!gearContour || gearContour.length < 50) { // Minimum points for a valid gear contour
+                throw new Error("Could not detect a prominent gear. Adjust parameters or use a clearer image.");
+            }
 
-            // Step 7: Count teeth using multiple methods
-            const teethCount = countTeeth(gearContour, gearAnalysis, blurred, width, height);
+            // Step 6: Analyze gear geometry (center, radius)
+            const gearAnalysis = analyzeGearGeometry(gearContour);
+
+            // Step 7: Count teeth using radial profile
+            const teethCountResult = countTeeth(gearContour, gearAnalysis, blurred, width, height);
 
             // Step 8: Visualize results
-            visualizeAnalysis(canvas, edges, contours, gearContour, gearAnalysis, teethCount);
+            visualizeAnalysis(canvas, originalImageData, edges, contours, gearContour, gearAnalysis, teethCountResult.count);
 
             return {
-                teethCount: teethCount.count,
-                method: teethCount.method,
-                confidence: teethCount.confidence,
+                teethCount: teethCountResult.count,
+                method: teethCountResult.method,
+                confidence: teethCountResult.confidence,
                 center: gearAnalysis.center,
                 radius: Math.round(gearAnalysis.radius)
             };
         }
 
+        // --- Image Processing Functions ---
+
         function applyGaussianBlur(data, width, height, kernelSize) {
+            // Ensure kernelSize is odd
+            if (kernelSize % 2 === 0) kernelSize++;
+
             const kernel = createGaussianKernel(kernelSize);
             const result = new Uint8ClampedArray(width * height);
             const half = Math.floor(kernelSize / 2);
@@ -656,24 +775,31 @@
                     result[y * width + x] = Math.round(sum / weightSum);
                 }
             }
-
             return result;
         }
 
-        function createGaussianKernel(size) {
+        function createGaussianKernel(size, sigma = size / 6) {
             const kernel = [];
-            const sigma = size / 6;
             const center = Math.floor(size / 2);
+            let sum = 0;
 
             for (let y = 0; y < size; y++) {
                 kernel[y] = [];
                 for (let x = 0; x < size; x++) {
                     const dx = x - center;
                     const dy = y - center;
-                    kernel[y][x] = Math.exp(-(dx * dx + dy * dy) / (2 * sigma * sigma));
+                    const value = Math.exp(-(dx * dx + dy * dy) / (2 * sigma * sigma));
+                    kernel[y][x] = value;
+                    sum += value;
                 }
             }
 
+            // Normalize the kernel
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    kernel[y][x] /= sum;
+                }
+            }
             return kernel;
         }
 
@@ -700,7 +826,7 @@
                     
                     const idx = y * width + x;
                     gradientMag[idx] = Math.sqrt(gx * gx + gy * gy);
-                    gradientDir[idx] = Math.atan2(gy, gx);
+                    gradientDir[idx] = Math.atan2(gy, gx); // Angle in radians
                 }
             }
 
@@ -712,23 +838,25 @@
                     const angle = gradientDir[idx];
                     const mag = gradientMag[idx];
                     
-                    let neighbor1, neighbor2;
+                    let neighbor1_mag, neighbor2_mag;
                     
-                    if (angle >= -Math.PI / 8 && angle < Math.PI / 8) {
-                        neighbor1 = gradientMag[idx - 1];
-                        neighbor2 = gradientMag[idx + 1];
-                    } else if (angle >= Math.PI / 8 && angle < 3 * Math.PI / 8) {
-                        neighbor1 = gradientMag[(y - 1) * width + x + 1];
-                        neighbor2 = gradientMag[(y + 1) * width + x - 1];
-                    } else if (angle >= 3 * Math.PI / 8 || angle < -3 * Math.PI / 8) {
-                        neighbor1 = gradientMag[(y - 1) * width + x];
-                        neighbor2 = gradientMag[(y + 1) * width + x];
-                    } else {
-                        neighbor1 = gradientMag[(y - 1) * width + x - 1];
-                        neighbor2 = gradientMag[(y + 1) * width + x + 1];
+                    // Quantize angle to 4 directions
+                    const angleDeg = angle * 180 / Math.PI;
+                    if ((angleDeg >= -22.5 && angleDeg < 22.5) || (angleDeg >= 157.5) || (angleDeg < -157.5)) { // 0 degrees (horizontal)
+                        neighbor1_mag = gradientMag[y * width + (x - 1)];
+                        neighbor2_mag = gradientMag[y * width + (x + 1)];
+                    } else if ((angleDeg >= 22.5 && angleDeg < 67.5) || (angleDeg >= -157.5 && angleDeg < -112.5)) { // 45 degrees
+                        neighbor1_mag = gradientMag[(y - 1) * width + (x + 1)];
+                        neighbor2_mag = gradientMag[(y + 1) * width + (x - 1)];
+                    } else if ((angleDeg >= 67.5 && angleDeg < 112.5) || (angleDeg >= -112.5 && angleDeg < -67.5)) { // 90 degrees (vertical)
+                        neighbor1_mag = gradientMag[(y - 1) * width + x];
+                        neighbor2_mag = gradientMag[(y + 1) * width + x];
+                    } else { // 135 degrees
+                        neighbor1_mag = gradientMag[(y - 1) * width + (x - 1)];
+                        neighbor2_mag = gradientMag[(y + 1) * width + (x + 1)];
                     }
                     
-                    if (mag >= neighbor1 && mag >= neighbor2) {
+                    if (mag >= neighbor1_mag && mag >= neighbor2_mag) {
                         suppressed[idx] = Math.min(255, mag);
                     }
                 }
@@ -740,38 +868,45 @@
             
             for (let i = 0; i < suppressed.length; i++) {
                 if (suppressed[i] >= highThreshold) {
-                    edges[i] = 255;
+                    edges[i] = 255; // Strong edge
                     strongEdges.push(i);
                 } else if (suppressed[i] >= lowThreshold) {
-                    edges[i] = 128;
+                    edges[i] = 128; // Weak edge
+                } else {
+                    edges[i] = 0; // Not an edge
                 }
             }
 
             // Hysteresis - connect weak edges to strong edges
-            const visited = new Set();
-            const directions = [-width - 1, -width, -width + 1, -1, 1, width - 1, width, width + 1];
+            const visitedHysteresis = new Set();
+            const directions = [-width - 1, -width, -width + 1, -1, 1, width - 1, width, width + 1]; // 8-directional neighbors
             
-            for (const strongEdge of strongEdges) {
-                const stack = [strongEdge];
+            // Use a queue for BFS-like traversal to ensure connection
+            const queue = [...strongEdges]; // Start with all strong edges
+            
+            while (queue.length > 0) {
+                const current = queue.shift(); // Dequeue
+                if (visitedHysteresis.has(current)) continue;
+                visitedHysteresis.add(current);
                 
-                while (stack.length > 0) {
-                    const current = stack.pop();
-                    if (visited.has(current)) continue;
-                    visited.add(current);
-                    
-                    for (const dir of directions) {
-                        const neighbor = current + dir;
-                        if (neighbor >= 0 && neighbor < edges.length && !visited.has(neighbor)) {
-                            if (edges[neighbor] === 128) {
-                                edges[neighbor] = 255;
-                                stack.push(neighbor);
-                            }
+                // Mark as strong edge
+                edges[current] = 255; 
+
+                for (const dir of directions) {
+                    const neighbor = current + dir;
+                    const nx = current % width + (dir % width); // x coordinate of neighbor
+                    const ny = Math.floor(current / width) + Math.floor(dir / width); // y coordinate of neighbor
+
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height && !visitedHysteresis.has(neighbor)) {
+                        if (edges[neighbor] === 128) { // If it's a weak edge, promote it and add to queue
+                            edges[neighbor] = 255;
+                            queue.push(neighbor);
                         }
                     }
                 }
             }
 
-            // Clean up weak edges that weren't connected
+            // Discard remaining weak edges
             for (let i = 0; i < edges.length; i++) {
                 if (edges[i] === 128) edges[i] = 0;
             }
@@ -788,20 +923,419 @@
                     const idx = y * width + x;
                     if (edges[idx] === 255 && !visited.has(idx)) {
                         const contour = traceContour(edges, width, height, x, y, visited);
-                        if (contour.length > 20) { // Minimum contour length
+                        // Filter out very small contours that are likely noise
+                        if (contour.length > 30) { // Increased minimum contour length
                             contours.push(contour);
                         }
                     }
                 }
             }
-            
             return contours;
         }
 
+        // Improved traceContour using simple neighbor checking
         function traceContour(edges, width, height, startX, startY, visited) {
             const contour = [];
-            const stack = [{x: startX, y: startY}];
+            const queue = [{x: startX, y: startY}];
             const directions = [
-                {x: -1, y: -1}, {x: 0, y: -1}, {x: 1, y: -1},
-                {x: -1, y: 0}, {x: 1, y: 0},
-                {x: -1, y: 1}, {x: 0, y: 1}, {x: 1, y: 1}
+                {x: 0, y: -1}, {x: 1, y: -1}, {x: 1, y: 0}, {x: 1, y: 1},
+                {x: 0, y: 1}, {x: -1, y: 1}, {x: -1, y: 0}, {x: -1, y: -1}
+            ]; // 8-directional, clockwise
+
+            while (queue.length > 0) {
+                const current = queue.shift();
+                const idx = current.y * width + current.x;
+
+                if (visited.has(idx)) continue;
+                visited.add(idx);
+                contour.push(current);
+
+                for (const dir of directions) {
+                    const nextX = current.x + dir.x;
+                    const nextY = current.y + dir.y;
+                    const nextIdx = nextY * width + nextX;
+
+                    if (nextX >= 0 && nextX < width && nextY >= 0 && nextY < height &&
+                        edges[nextIdx] === 255 && !visited.has(nextIdx)) {
+                        queue.push({x: nextX, y: nextY});
+                        visited.add(nextIdx); // Mark as visited immediately to avoid duplicates in queue
+                    }
+                }
+            }
+            return contour;
+        }
+
+        function findGearContour(contours, minArea) {
+            let largestContour = null;
+            let maxArea = 0;
+
+            for (const contour of contours) {
+                // Approximate contour area using Shoelace formula (for simplicity, not precise)
+                // A better approach would be to use cv2.contourArea if OpenCV.js were loaded
+                let area = 0;
+                for (let i = 0; i < contour.length; i++) {
+                    const p1 = contour[i];
+                    const p2 = contour[(i + 1) % contour.length];
+                    area += (p1.x * p2.y) - (p1.y * p2.x);
+                }
+                area = Math.abs(area / 2);
+
+                if (area > maxArea && area > minArea) {
+                    largestContour = contour;
+                    maxArea = area;
+                }
+            }
+            return largestContour;
+        }
+
+        function analyzeGearGeometry(contour) {
+            if (!contour || contour.length === 0) {
+                return { center: { x: 0, y: 0 }, radius: 0 };
+            }
+
+            // Calculate centroid (simple average of points)
+            let sumX = 0;
+            let sumY = 0;
+            for (const p of contour) {
+                sumX += p.x;
+                sumY += p.y;
+            }
+            const centerX = Math.round(sumX / contour.length);
+            const centerY = Math.round(sumY / contour.length);
+
+            // Calculate average radius
+            let sumDist = 0;
+            for (const p of contour) {
+                sumDist += Math.sqrt(Math.pow(p.x - centerX, 2) + Math.pow(p.y - centerY, 2));
+            }
+            const radius = sumDist / contour.length;
+
+            return { center: { x: centerX, y: centerY }, radius: radius };
+        }
+
+        function countTeeth(gearContour, gearAnalysis, blurredImage, width, height) {
+            if (!gearContour || gearContour.length === 0 || gearAnalysis.radius === 0) {
+                return { count: 0, method: "N/A", confidence: 0 };
+            }
+
+            const { center, radius } = gearAnalysis;
+            const radialProfile = [];
+            const numSpokes = 360; // Number of spokes/samples around the gear
+
+            // Sample pixel intensities along spokes radiating from the center
+            for (let i = 0; i < numSpokes; i++) {
+                const angle = (i / numSpokes) * 2 * Math.PI; // Radians
+                let avgIntensity = 0;
+                let sampleCount = 0;
+
+                // Sample pixels just outside the estimated radius for gear teeth
+                const startRadius = radius * 0.8; // Start sampling a bit inside
+                const endRadius = radius * 1.2;   // End sampling a bit outside
+
+                for (let r = startRadius; r <= endRadius; r++) {
+                    const x = Math.round(center.x + r * Math.cos(angle));
+                    const y = Math.round(center.y + r * Math.sin(angle));
+
+                    if (x >= 0 && x < width && y >= 0 && y < height) {
+                        avgIntensity += blurredImage[y * width + x];
+                        sampleCount++;
+                    }
+                }
+                radialProfile.push(sampleCount > 0 ? avgIntensity / sampleCount : 0);
+            }
+
+            // Find peaks in the radial profile (simplified peak detection)
+            // A peak signifies a tooth. We look for a rise then a fall in intensity.
+            let peaks = 0;
+            let lastTrend = 0; // 0: flat, 1: rising, -1: falling
+
+            for (let i = 0; i < radialProfile.length; i++) {
+                const prev = radialProfile[(i - 1 + radialProfile.length) % radialProfile.length];
+                const current = radialProfile[i];
+                const next = radialProfile[(i + 1) % radialProfile.length];
+
+                // Simple peak detection: current is higher than immediate neighbors
+                if (current > prev + 5 && current > next + 5) { // Threshold for significant change
+                    peaks++;
+                }
+            }
+
+            // Adjust peak count for common overcounting/undercounting issues
+            // This is a heuristic and might need tuning based on image quality
+            let finalCount = Math.round(peaks / 2); // Each tooth often creates two 'peaks' in a simple profile (leading/trailing edge)
+            finalCount = Math.max(0, finalCount); // Ensure non-negative
+
+            // Another approach: count transitions from dark to light (tooth start)
+            let transitions = 0;
+            const threshold = (Math.max(...radialProfile) + Math.min(...radialProfile)) / 2; // Midpoint threshold
+            for (let i = 0; i < radialProfile.length; i++) {
+                const prev = radialProfile[(i - 1 + radialProfile.length) % radialProfile.length];
+                const current = radialProfile[i];
+
+                if (prev < threshold && current >= threshold) {
+                    transitions++;
+                }
+            }
+            // If the gear is complete, transitions should be equal to teeth count
+            const transitionCount = transitions;
+
+
+            // Try to combine/average results if they are close
+            let confidence = 70; // Base confidence
+            let chosenCount = finalCount;
+
+            if (Math.abs(finalCount - transitionCount) < 5) { // If methods are in agreement
+                chosenCount = Math.round((finalCount + transitionCount) / 2);
+                confidence = 90;
+            } else if (transitionCount > 0) { // If simple peak detection is way off, trust transitions more if any detected
+                 chosenCount = transitionCount;
+                 confidence = 75; // Lower confidence if methods disagree significantly
+            }
+            
+            // Refine confidence based on how "clean" the radial profile is
+            const profileRange = Math.max(...radialProfile) - Math.min(...radialProfile);
+            if (profileRange < 50) { // If profile is too flat, maybe no clear teeth
+                confidence -= 20;
+            }
+            confidence = Math.max(0, Math.min(100, confidence)); // Clamp confidence
+
+            return { count: chosenCount, method: "Radial Profile Analysis", confidence: confidence, profile: radialProfile };
+        }
+
+
+        // --- Visualization Functions ---
+
+        function visualizeAnalysis(originalCanvas, originalImageData, edges, contours, gearContour, gearAnalysis, teethCount) {
+            const width = originalCanvas.width;
+            const height = originalCanvas.height;
+
+            // Result Canvas (Original with detection overlay)
+            const resultCanvas = document.getElementById('resultCanvas');
+            resultCanvas.width = width;
+            resultCanvas.height = height;
+            const resultCtx = resultCanvas.getContext('2d');
+            resultCtx.putImageData(originalImageData, 0, 0); // Draw original image
+
+            if (gearContour) {
+                // Draw gear contour
+                resultCtx.strokeStyle = 'lime';
+                resultCtx.lineWidth = 2;
+                resultCtx.beginPath();
+                resultCtx.moveTo(gearContour[0].x, gearContour[0].y);
+                for (let i = 1; i < gearContour.length; i++) {
+                    resultCtx.lineTo(gearContour[i].x, gearContour[i].y);
+                }
+                resultCtx.closePath();
+                resultCtx.stroke();
+
+                // Draw center
+                resultCtx.fillStyle = 'red';
+                resultCtx.beginPath();
+                resultCtx.arc(gearAnalysis.center.x, gearAnalysis.center.y, 5, 0, 2 * Math.PI);
+                resultCtx.fill();
+
+                // Draw estimated radius circle
+                resultCtx.strokeStyle = 'blue';
+                resultCtx.setLineDash([5, 5]); // Dashed line
+                resultCtx.beginPath();
+                resultCtx.arc(gearAnalysis.center.x, gearAnalysis.center.y, gearAnalysis.radius, 0, 2 * Math.PI);
+                resultCtx.stroke();
+                resultCtx.setLineDash([]); // Reset line dash
+
+                // Display teeth count on the image
+                resultCtx.fillStyle = 'white';
+                resultCtx.font = 'bold 30px Arial';
+                resultCtx.fillText(`Teeth: ${teethCount}`, 10, 40);
+                resultCtx.strokeStyle = 'black';
+                resultCtx.lineWidth = 2;
+                resultCtx.strokeText(`Teeth: ${teethCount}`, 10, 40);
+            }
+
+            // Edge Canvas
+            const edgeCanvas = document.getElementById('edgeCanvas');
+            const edgeImageData = createGrayscaleImageData(edges, width, height);
+            drawImageDataToCanvas(edgeCanvas, edgeImageData);
+
+            // Contour Canvas
+            const contourCanvas = document.getElementById('contourCanvas');
+            contourCanvas.width = width;
+            contourCanvas.height = height;
+            const contourCtx = contourCanvas.getContext('2d');
+            contourCtx.fillStyle = '#000'; // Black background
+            contourCtx.fillRect(0, 0, width, height);
+            
+            contourCtx.strokeStyle = 'white'; // White contours
+            contourCtx.lineWidth = 1;
+            for (const c of contours) {
+                contourCtx.beginPath();
+                if (c.length > 0) {
+                    contourCtx.moveTo(c[0].x, c[0].y);
+                    for (let i = 1; i < c.length; i++) {
+                        contourCtx.lineTo(c[i].x, c[i].y);
+                    }
+                    contourCtx.closePath();
+                    contourCtx.stroke();
+                }
+            }
+            if (gearContour) { // Highlight the detected gear contour
+                contourCtx.strokeStyle = 'yellow';
+                contourCtx.lineWidth = 3;
+                contourCtx.beginPath();
+                contourCtx.moveTo(gearContour[0].x, gearContour[0].y);
+                for (let i = 1; i < gearContour.length; i++) {
+                    contourCtx.lineTo(gearContour[i].x, gearContour[i].y);
+                }
+                contourCtx.closePath();
+                contourCtx.stroke();
+            }
+
+            // Radial Canvas
+            const radialCanvas = document.getElementById('radialCanvas');
+            radialCanvas.width = width;
+            radialCanvas.height = height;
+            const radialCtx = radialCanvas.getContext('2d');
+            radialCtx.fillStyle = '#eee'; // Light background
+            radialCtx.fillRect(0, 0, width, height);
+
+            if (gearAnalysis.radius > 0) {
+                // Draw gear center and radius
+                radialCtx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+                radialCtx.beginPath();
+                radialCtx.arc(gearAnalysis.center.x, gearAnalysis.center.y, gearAnalysis.radius, 0, 2 * Math.PI);
+                radialCtx.stroke();
+                radialCtx.fillStyle = 'red';
+                radialCtx.beginPath();
+                radialCtx.arc(gearAnalysis.center.x, gearAnalysis.center.y, 3, 0, 2 * Math.PI);
+                radialCtx.fill();
+
+                // Draw spokes and indicate intensity
+                const numSpokes = 360;
+                const teethCountResult = countTeeth(gearContour, gearAnalysis, createGrayscaleImageData(originalImageData.data, width, height).data, width, height); // Recalculate profile for visualization
+                const profile = teethCountResult.profile;
+
+                // Scale profile to fit canvas height
+                const maxIntensity = Math.max(...profile);
+                const minIntensity = Math.min(...profile);
+                const intensityRange = maxIntensity - minIntensity;
+                const scaleFactor = height / (intensityRange || 1); // Avoid division by zero
+
+                for (let i = 0; i < numSpokes; i++) {
+                    const angle = (i / numSpokes) * 2 * Math.PI;
+                    const normalizedIntensity = (profile[i] - minIntensity) / intensityRange; // Normalize to 0-1
+                    const intensityMappedToRadius = gearAnalysis.radius * (0.8 + normalizedIntensity * 0.4); // Map to radius range
+
+                    const x = gearAnalysis.center.x + intensityMappedToRadius * Math.cos(angle);
+                    const y = gearAnalysis.center.y + intensityMappedToRadius * Math.sin(angle);
+
+                    radialCtx.strokeStyle = `hsl(${i / numSpokes * 360}, 80%, 50%)`; // Color based on angle
+                    radialCtx.beginPath();
+                    radialCtx.moveTo(gearAnalysis.center.x, gearAnalysis.center.y);
+                    radialCtx.lineTo(x, y);
+                    radialCtx.stroke();
+                }
+
+                 // Draw the radial profile graph
+                 if (profile && profile.length > 0) {
+                    const graphHeight = height / 3; // Height for the graph within the canvas
+                    const graphStartX = 20;
+                    const graphWidth = width - 40;
+                    const graphY = height - graphHeight - 20; // Position at bottom
+
+                    // Draw graph background
+                    radialCtx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    radialCtx.fillRect(graphStartX, graphY, graphWidth, graphHeight);
+                    radialCtx.strokeStyle = '#333';
+                    radialCtx.strokeRect(graphStartX, graphY, graphWidth, graphHeight);
+
+                    // Draw profile line
+                    radialCtx.strokeStyle = '#007bff';
+                    radialCtx.lineWidth = 2;
+                    radialCtx.beginPath();
+                    const pointWidth = graphWidth / profile.length;
+                    
+                    for (let i = 0; i < profile.length; i++) {
+                        const x = graphStartX + i * pointWidth;
+                        const y = graphY + graphHeight - ((profile[i] - minIntensity) / intensityRange) * graphHeight;
+                        if (i === 0) {
+                            radialCtx.moveTo(x, y);
+                        } else {
+                            radialCtx.lineTo(x, y);
+                        }
+                    }
+                    radialCtx.stroke();
+
+                    // Draw peak markers (simple approach)
+                    const threshold = (Math.max(...profile) + Math.min(...profile)) / 2; // Midpoint threshold
+                    radialCtx.fillStyle = 'red';
+                    for (let i = 0; i < profile.length; i++) {
+                        const prev = profile[(i - 1 + profile.length) % profile.length];
+                        const current = profile[i];
+                        const next = profile[(i + 1) % profile.length];
+
+                        if (current > prev + 5 && current > next + 5) { // Same peak detection as in countTeeth
+                            const x = graphStartX + i * pointWidth;
+                            const y = graphY + graphHeight - ((profile[i] - minIntensity) / intensityRange) * graphHeight;
+                            radialCtx.beginPath();
+                            radialCtx.arc(x, y, 4, 0, 2 * Math.PI);
+                            radialCtx.fill();
+                        }
+                    }
+                }
+            }
+        }
+
+        function resetAnalysis() {
+            // Hide all dynamic sections
+            document.getElementById('videoContainer').style.display = 'none';
+            document.getElementById('imagePreview').style.display = 'none';
+            document.getElementById('processing').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('canvasContainer').style.display = 'none';
+            document.getElementById('analysisControls').style.display = 'none';
+
+            // Clear stored image data
+            originalImageData = null;
+            currentImageCanvas = null;
+
+            // Stop camera if it was active
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+
+            // Clear canvases
+            const canvases = ['resultCanvas', 'edgeCanvas', 'contourCanvas', 'radialCanvas'];
+            canvases.forEach(id => {
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    canvas.width = 1; // Shrink to clear
+                    canvas.height = 1;
+                }
+            });
+
+            // Reset file input (optional, prevents re-uploading same file without re-selecting)
+            document.getElementById('fileInput').value = '';
+
+            // Reset parameter controls to default values visually and logically
+            document.getElementById('blurSize').value = 5;
+            document.getElementById('blurValue').textContent = 5;
+            document.getElementById('cannyThresh1').value = 100;
+            document.getElementById('cannyValue1').textContent = 100;
+            document.getElementById('cannyThresh2').value = 200;
+            document.getElementById('cannyValue2').textContent = 200;
+            document.getElementById('minArea').value = 500;
+            document.getElementById('minAreaValue').textContent = 500;
+            analysisParams = { // Reset JS object too
+                blurSize: 5,
+                cannyThresh1: 100,
+                cannyThresh2: 200,
+                minArea: 500
+            };
+        }
+
+    </script>
+</body>
+</html>
