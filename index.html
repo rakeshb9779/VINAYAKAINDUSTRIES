@@ -1,382 +1,11 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vinayaka Industries - Internal Catalog</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-            color: white;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* Header Styles */
-        .header {
-            padding: 16px 0;
-            border-bottom: 1px solid #334155;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-        }
-
-        .logo-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-icon-inner {
-            width: 32px;
-            height: 32px;
-            background: white;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-icon-dot {
-            width: 24px;
-            height: 24px;
-            background: #3b82f6;
-            border-radius: 2px;
-        }
-
-        .logo-text h1 {
-            font-size: 24px;
-            font-weight: bold;
-        }
-
-        .logo-text p {
-            font-size: 12px;
-            color: #60a5fa;
-            letter-spacing: 2px;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 16px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: #2563eb;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #1d4ed8;
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: white;
-            border: 1px solid transparent;
-        }
-
-        .btn-ghost:hover {
-            background: #374151;
-        }
-
-        /* Page Styles */
-        .page {
-            display: none;
-            padding: 32px 0;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        .page-title {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 16px;
-        }
-
-        .page-subtitle {
-            font-size: 18px;
-            color: #d1d5db;
-            margin-bottom: 32px;
-        }
-
-        /* Card Styles */
-        .card {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid #475569;
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        .card-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 16px;
-        }
-
-        /* Grid Styles */
-        .grid {
-            display: grid;
-            gap: 24px;
-        }
-
-        .grid-2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .grid-3 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        /* Select Styles */
-        .select {
-            background: #374151;
-            border: 1px solid #4b5563;
-            color: white;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 16px;
-            max-width: 300px;
-        }
-
-        /* Table Styles */
-        .table-container {
-            overflow-x: auto;
-            border-radius: 8px;
-            border: 1px solid #475569;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .table th {
-            background: #7c3aed;
-            color: white;
-            padding: 12px;
-            text-align: left;
-            font-weight: bold;
-        }
-
-        .table td {
-            padding: 12px;
-            border-bottom: 1px solid #475569;
-        }
-
-        .table tr:hover {
-            background: rgba(55, 65, 81, 0.5);
-            cursor: pointer;
-        }
-
-        /* Statistics */
-        .stat-card {
-            text-align: center;
-            padding: 24px;
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid #475569;
-            border-radius: 8px;
-        }
-
-        .stat-number {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-
-        .stat-number.blue { color: #60a5fa; }
-        .stat-number.orange { color: #fb923c; }
-        .stat-number.green { color: #4ade80; }
-
-        .stat-label {
-            color: #9ca3af;
-        }
-
-        /* Brand Grid */
-        .brand-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .brand-item {
-            background: rgba(55, 65, 81, 0.5);
-            padding: 12px;
-            border-radius: 6px;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        /* Product Detail Styles */
-        .back-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: transparent;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
-            margin-bottom: 24px;
-        }
-
-        .back-btn:hover {
-            background: #374151;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-        }
-
-        .product-image {
-            aspect-ratio: 1;
-            background: rgba(55, 65, 81, 0.5);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9ca3af;
-            font-size: 18px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .badge-orange {
-            background: #ea580c;
-            color: white;
-        }
-
-        .badge-blue {
-            background: transparent;
-            color: #60a5fa;
-            border: 1px solid #2563eb;
-        }
-
-        .price {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 32px;
-            font-weight: bold;
-            color: #4ade80;
-            margin: 16px 0;
-        }
-
-        .specs-grid {
-            display: grid;
-            gap: 16px;
-        }
-
-        .spec-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #475569;
-        }
-
-        .spec-row:last-child {
-            border-bottom: none;
-        }
-
-        .spec-label {
-            color: #9ca3af;
-            text-transform: capitalize;
-        }
-
-        .spec-value {
-            font-weight: 500;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 16px;
-            margin-top: 24px;
-        }
-
-        .btn-full {
-            flex: 1;
-            padding: 12px;
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid #4b5563;
-            color: white;
-        }
-
-        .btn-outline:hover {
-            background: #1f2937;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .header-content {
-                flex-direction: column;
-                gap: 16px;
-            }
-
-            .grid-2, .grid-3 {
-                grid-template-columns: 1fr;
-            }
-
-            .product-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .brand-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VINAYAKA INDUSTRIES Catalog</title>
+    <link rel="stylesheet" href="VI.css" />
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -384,15 +13,14 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo" onclick="showPage('home')">
-                    <div class="logo-icon">
-                        <div class="logo-icon-inner">
-                            <div class="logo-icon-dot"></div>
-                        </div>
-                    </div>
-                    <div class="logo-text">
-                        <h1>VINAYAKA</h1>
-                        <p>INDUSTRIES</p>
-                    </div>
+                    <img src="https://drive.google.com/uc?export=view&id=19zQb3a6P-_yqS5ifygk9bzpgfhjdTaZr" alt="Company Logo" />
+                </div>
+                <div class="search-container">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" class="search-input" placeholder="Search For Product" />
                 </div>
                 <div class="nav-buttons">
                     <button class="btn btn-ghost" onclick="showPage('catalog')">Catalog</button>
@@ -404,9 +32,8 @@
     <div class="container">
         <!-- Home Page -->
         <div id="home" class="page active">
-            <div class="page-title">Vinayaka Industries - Internal Catalog</div>
+            <div class="page-title">Internal Catalog</div>
             <div class="page-subtitle">Excavator Swing & Travel Device Spare Parts Management System</div>
-
             <div class="grid grid-2">
                 <div class="card">
                     <div class="card-title">Product Catalog</div>
@@ -415,12 +42,11 @@
                     </p>
                     <button class="btn btn-primary" onclick="showPage('catalog')">Open Catalog</button>
                 </div>
-
                 <div class="card">
                     <div class="card-title">Supported Brands</div>
                     <div class="brand-grid">
-                        <div class="brand-item">TATA EX</div>
-                        <div class="brand-item">TATA HITACHI ZAXIS</div>
+                        <div class="brand-item">EX</div>
+                        <div class="brand-item">ZAXIS</div>
                         <div class="brand-item">HYUNDAI</div>
                         <div class="brand-item">SANY</div>
                         <div class="brand-item">PC</div>
@@ -431,49 +57,27 @@
                     </div>
                 </div>
             </div>
-
-            <div class="grid grid-3" style="margin-top: 48px;">
-                <div class="stat-card">
-                    <div class="stat-number blue">150+</div>
-                    <div class="stat-label">Part Models</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number orange">9</div>
-                    <div class="stat-label">Brands Supported</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number green">24/7</div>
-                    <div class="stat-label">System Access</div>
-                </div>
-            </div>
         </div>
 
         <!-- Catalog Page -->
         <div id="catalog" class="page">
             <div class="page-title">Product Catalog</div>
             <div class="page-subtitle">Select a model to view available spare parts</div>
-
             <div class="card">
                 <div class="card-title">Select Model</div>
                 <select class="select" id="modelSelect" onchange="loadParts()">
                     <option value="">Choose a model</option>
-                    <option value="EX 60">EX 60</option>
-                    <option value="EX 100">EX 100</option>
-                    <option value="EX 200">EX 200</option>
-                    <option value="EX 350">EX 350</option>
-                    <option value="ZAXIS 70">ZAXIS 70</option>
-                    <option value="ZAXIS 200">ZAXIS 200</option>
-                    <option value="HYUNDAI 55">HYUNDAI 55</option>
-                    <option value="HYUNDAI 140">HYUNDAI 140</option>
-                    <option value="SANY 60">SANY 60</option>
-                    <option value="PC 200">PC 200</option>
-                    <option value="JS 160">JS 160</option>
-                    <option value="TMX 18">TMX 18</option>
-                    <option value="KUBOTA KX080">KUBOTA KX080</option>
-                    <option value="BOBCAT E35">BOBCAT E35</option>
+                    <option value="EX">EX</option>
+                    <option value="ZAXIS">ZAXIS</option>
+                    <option value="HYUNDAI">HYUNDAI</option>
+                    <option value="SANY">SANY</option>
+                    <option value="PC">PC</option>
+                    <option value="JS">JS</option>
+                    <option value="TMX">TMX</option>
+                    <option value="KUBOTA">KUBOTA</option>
+                    <option value="BOBCAT">BOBCAT</option>
                 </select>
             </div>
-
             <div id="partsTable" class="card" style="display: none;">
                 <div class="card-title" id="partsTitle">Spare Parts</div>
                 <div class="table-container">
@@ -488,15 +92,13 @@
                                 <th>PRICE</th>
                             </tr>
                         </thead>
-                        <tbody id="partsBody">
-                        </tbody>
+                        <tbody id="partsBody"></tbody>
                     </table>
                 </div>
             </div>
-
             <div id="noData" class="card" style="display: none;">
                 <div style="text-align: center; padding: 48px 0;">
-                    <p style="color: #9ca3af; font-size: 18px; margin-bottom: 8px;">No parts data available</p>
+                    <p style="color: #9ca3af; font-size: 18px; margin-bottom: 8px;">No parts data available for <span id="selectedModelName"></span></p>
                     <p style="color: #6b7280;">Parts data will be added soon.</p>
                 </div>
             </div>
@@ -504,17 +106,11 @@
 
         <!-- Product Detail Page -->
         <div id="productDetail" class="page">
-            <button class="back-btn" onclick="showPage('catalog')">
-                ← Back to Catalog
-            </button>
-
+            <button class="back-btn" onclick="showPage('catalog')">← Back to Catalog</button>
             <div class="product-grid">
                 <div class="card">
-                    <div class="product-image">
-                        Product Image Coming Soon
-                    </div>
+                    <div class="product-image">Product Image Coming Soon</div>
                 </div>
-
                 <div>
                     <div class="card">
                         <div id="productBadges"></div>
@@ -522,206 +118,18 @@
                         <div id="productModel" style="color: #9ca3af; margin-bottom: 16px;"></div>
                         <div id="productPrice" class="price"></div>
                     </div>
-
                     <div class="card">
                         <div class="card-title">Detailed Specifications</div>
                         <div id="productSpecs" class="specs-grid"></div>
                     </div>
-
                     <div class="action-buttons">
                         <button class="btn btn-primary btn-full">Update Inventory</button>
                         <button class="btn btn-outline btn-full">Edit Specifications</button>
                     </div>
                 </div>
             </div>
-
-            <div class="card" style="margin-top: 32px;">
-                <div class="card-title">Internal Notes</div>
-                <div style="color: #d1d5db; line-height: 1.6;">
-                    <p style="margin-bottom: 16px;">
-                        This product is specifically designed for excavators. 
-                        Manufactured by Vinayaka Industries with precision engineering and high-quality materials 
-                        to ensure optimal performance and durability.
-                    </p>
-                    <p style="margin-bottom: 24px;">
-                        Our swing and travel device components are built to withstand heavy-duty operations 
-                        and provide reliable service in challenging construction environments.
-                    </p>
-                    <div class="grid grid-3">
-                        <div style="text-align: center; padding: 16px; background: rgba(55, 65, 81, 0.5); border-radius: 8px;">
-                            <h4 style="font-weight: 600; margin-bottom: 8px;">Quality Control</h4>
-                            <p style="font-size: 14px; color: #9ca3af;">ISO 9001:2015 Certified Process</p>
-                        </div>
-                        <div style="text-align: center; padding: 16px; background: rgba(55, 65, 81, 0.5); border-radius: 8px;">
-                            <h4 style="font-weight: 600; margin-bottom: 8px;">Production Status</h4>
-                            <p style="font-size: 14px; color: #9ca3af;">In Stock & Ready</p>
-                        </div>
-                        <div style="text-align: center; padding: 16px; background: rgba(55, 65, 81, 0.5); border-radius: 8px;">
-                            <h4 style="font-weight: 600; margin-bottom: 8px;">Last Updated</h4>
-                            <p style="font-size: 14px; color: #9ca3af;">Manufacturing specs current</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
-
-    <script>
-        // Sample parts data
-        const partsData = {
-            'EX 60': [
-                { id: 1, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'SMALL', itemName: 'Carrier Assembly With Sungear', price: 4500 },
-                { id: 2, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'SMALL', itemName: 'Sun Gear', price: 500 },
-                { id: 3, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'SMALL', itemName: 'Planetary Gear', price: 400 },
-                { id: 4, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'SMALL', itemName: 'Needle Bearing', price: 150 },
-                { id: 5, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'SMALL', itemName: 'Planetary Pin', price: 70 },
-                { id: 6, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'BIG', itemName: 'Carrier Assembly', price: 5000 },
-                { id: 7, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'BIG', itemName: 'Carrier', price: 2500 },
-                { id: 8, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'BIG', itemName: 'Planetary Gear (359)', price: 500 },
-                { id: 9, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'BIG', itemName: 'Sun Gear (678)', price: 600 },
-                { id: 10, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'BIG', itemName: 'Planetary Pin', price: 75 },
-                { id: 11, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: 'BIG', itemName: 'Pin Spring', price: 12 },
-                { id: 12, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'Pinion Shaft', price: 3600 },
-                { id: 13, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'Ring Gear', price: 6500 },
-                { id: 14, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'Housing', price: 5000 },
-                { id: 15, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'Seal Cover', price: 850 },
-                { id: 16, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'Sleeve', price: 850 },
-                { id: 17, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'TT Piston', price: 550 },
-                { id: 18, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'TT Flage', price: 300 },
-                { id: 19, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'Rod & Nut', price: 900 },
-                { id: 20, model: 'EX', modelNumber: '60', device: 'SWING DEVICE', size: '', itemName: 'Grease Adaptor', price: 70 }
-            ]
-        };
-
-        // Current state
-        let currentModel = '';
-        let currentProduct = null;
-
-        // Navigation functions
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            document.getElementById(pageId).classList.add('active');
-        }
-
-        // Load parts for selected model
-        function loadParts() {
-            const select = document.getElementById('modelSelect');
-            const selectedModel = select.value;
-            currentModel = selectedModel;
-
-            const partsTable = document.getElementById('partsTable');
-            const noData = document.getElementById('noData');
-            const partsTitle = document.getElementById('partsTitle');
-            const partsBody = document.getElementById('partsBody');
-
-            if (selectedModel && partsData[selectedModel]) {
-                partsTitle.textContent = `${selectedModel} - Spare Parts`;
-                partsBody.innerHTML = '';
-
-                partsData[selectedModel].forEach(part => {
-                    const row = document.createElement('tr');
-                    row.onclick = () => showProductDetail(part);
-                    row.innerHTML = `
-                        <td>${part.model}</td>
-                        <td>${part.modelNumber}</td>
-                        <td>${part.device}</td>
-                        <td>${part.size}</td>
-                        <td>${part.itemName}</td>
-                        <td>₹${part.price}</td>
-                    `;
-                    partsBody.appendChild(row);
-                });
-
-                partsTable.style.display = 'block';
-                noData.style.display = 'none';
-            } else if (selectedModel) {
-                partsTitle.textContent = `${selectedModel} - Spare Parts`;
-                noData.style.display = 'block';
-                partsTable.style.display = 'none';
-            } else {
-                partsTable.style.display = 'none';
-                noData.style.display = 'none';
-            }
-        }
-
-        // Show product detail
-        function showProductDetail(product) {
-            currentProduct = product;
-
-            // Update badges
-            const badges = document.getElementById('productBadges');
-            badges.innerHTML = `
-                <span class="badge badge-orange">${product.device}</span>
-                ${product.size ? `<span class="badge badge-blue">${product.size}</span>` : ''}
-            `;
-
-            // Update title and model
-            document.getElementById('productTitle').textContent = product.itemName;
-            document.getElementById('productModel').textContent = `Model: ${currentModel}`;
-
-            // Update price
-            document.getElementById('productPrice').innerHTML = `₹${product.price}`;
-
-            // Update specifications
-            const specs = getDetailedSpecs(product.id);
-            const specsContainer = document.getElementById('productSpecs');
-            specsContainer.innerHTML = '';
-
-            Object.entries(specs).forEach(([key, value]) => {
-                const specRow = document.createElement('div');
-                specRow.className = 'spec-row';
-                specRow.innerHTML = `
-                    <span class="spec-label">${key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                    <span class="spec-value">${value}</span>
-                `;
-                specsContainer.appendChild(specRow);
-            });
-
-            showPage('productDetail');
-        }
-
-        // Get detailed specifications
-        function getDetailedSpecs(productId) {
-            const commonSpecs = {
-                'Material': 'High-Grade Steel',
-                'Warranty': '12 Months',
-                'Compatibility': `${currentModel} Series`,
-                'Manufacturer': 'Vinayaka Industries',
-                'Country of Origin': 'India',
-                'Quality Standard': 'ISO 9001:2015'
-            };
-
-            const specificSpecs = {
-                1: {
-                    'Weight': '15.5 kg',
-                    'Dimensions': '220mm x 180mm x 95mm',
-                    'Part Number': 'VI-EX60-CA-001',
-                    'Teeth Count': '42 Teeth',
-                    'Hardness': '58-62 HRC',
-                    'Finish': 'Heat Treated'
-                },
-                2: {
-                    'Weight': '2.3 kg',
-                    'Dimensions': '85mm x 85mm x 45mm',
-                    'Part Number': 'VI-EX60-SG-002',
-                    'Teeth Count': '18 Teeth',
-                    'Hardness': '60-64 HRC',
-                    'Finish': 'Precision Machined'
-                }
-            };
-
-            return {
-                ...commonSpecs,
-                ...(specificSpecs[productId] || {
-                    'Weight': 'Contact for details',
-                    'Dimensions': 'Contact for details',
-                    'Part Number': `VI-EX60-${productId.toString().padStart(3, '0')}`,
-                    'Finish': 'Standard Industrial'
-                })
-            };
-        }
-    </script>
+    <script src="VI.js"></script>
 </body>
 </html>
