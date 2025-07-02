@@ -57,6 +57,7 @@
           <table class="min-w-full text-sm">
             <thead class="bg-gray-100 text-left">
               <tr>
+                <th class="px-4 py-2 font-semibold text-gray-700">IMAGE</th>
                 <th class="px-4 py-2 font-semibold text-gray-700">MODEL</th>
                 <th class="px-4 py-2 font-semibold text-gray-700">MODEL NUMBER</th>
                 <th class="px-4 py-2 font-semibold text-gray-700">DEVICE</th>
@@ -98,9 +99,15 @@
       const tbody = document.getElementById('productTable');
       tbody.innerHTML = '';
       products.forEach((product, index) => {
+        const imageId = product['IMAGE LINK']?.trim();
+        const imageUrl = imageId ? `https://drive.google.com/thumbnail?id=${imageId}` : '';
+
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50 cursor-pointer';
         row.innerHTML = `
+          <td class="px-4 py-2">
+            ${imageUrl ? `<img src="${imageUrl}" class="w-16 h-16 object-contain rounded" alt="Product Image">` : '-'}
+          </td>
           <td class="px-4 py-2">${product['MODEL']}</td>
           <td class="px-4 py-2">${product['MODEL NUMBER']}</td>
           <td class="px-4 py-2">${product['DEVICE']}</td>
