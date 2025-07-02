@@ -1,215 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vinayaka Industries Catalog</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-      margin: 0;
-    }
-    header {
-      background-color: #1e293b;
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-bottom: 1px solid #334155;
-    }
-    header img {
-      width: 48px;
-      height: 48px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 1rem;
-    }
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-    select {
-      background: #1e293b;
-      color: white;
-      border: 1px solid #475569;
-      padding: 0.5rem;
-      border-radius: 0.375rem;
-      min-width: 200px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      background-color: #1e293b;
-      border-radius: 0.5rem;
-      overflow: hidden;
-    }
-    th, td {
-      text-align: left;
-      padding: 0.75rem;
-      border-bottom: 1px solid #334155;
-    }
-    th {
-      background-color: #334155;
-      color: #f1f5f9;
-    }
-    tr:hover {
-      background-color: #334155;
-      cursor: pointer;
-    }
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-    .modal-content {
-      background: #1e293b;
-      padding: 2rem;
-      border-radius: 0.5rem;
-      max-width: 90%;
-      max-height: 90%;
-      overflow-y: auto;
-      color: #f1f5f9;
-    }
-    .modal-content img {
-      max-width: 100%;
-      margin-bottom: 1rem;
-      border-radius: 0.25rem;
-    }
-    .close-btn {
-      float: right;
-      font-size: 1.25rem;
-      background: none;
-      border: none;
-      color: #f1f5f9;
-      cursor: pointer;
-    }
-    @media (max-width: 768px) {
-      .filters {
-        flex-direction: column;
-      }
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 </head>
-<body>
-  <header>
-    <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Vinayaka Industries Logo">
-  </header>
-  <div class="container">
-    <div class="filters">
-      <select id="modelFilter"></select>
-      <select id="modelNumberFilter"></select>
-      <select id="deviceFilter"></select>
+<body class="bg-gray-100 font-sans">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-16 bg-blue-900 flex flex-col items-center py-4">
+      <img
+        src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W"
+        alt="Logo"
+        class="w-12 h-12 rounded-full border-2 border-white"
+      />
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Topbar -->
+      <header class="bg-white shadow px-4 py-3 flex justify-between items-center">
+        <input
+          type="text"
+          placeholder="Search parts..."
+          class="w-full max-w-xs border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-500"
+        />
+      </header>
+
+      <!-- Content -->
+      <main class="p-4 space-y-6">
+        <!-- Filters -->
+        <div class="bg-white p-4 rounded shadow">
+          <h2 class="text-lg font-semibold mb-4">Filter Parts</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">MODEL</label>
+              <select id="modelFilter" class="w-full px-3 py-2 border border-gray-300 rounded">
+                <option value="">All Models</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">MODEL NUMBER</label>
+              <select id="modelNumberFilter" class="w-full px-3 py-2 border border-gray-300 rounded">
+                <option value="">All Model Numbers</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">DEVICE</label>
+              <select id="deviceFilter" class="w-full px-3 py-2 border border-gray-300 rounded">
+                <option value="">All Devices</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product List (Basic Table) -->
+        <div class="bg-white rounded shadow overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-gray-100 text-left">
+              <tr>
+                <th class="px-4 py-2 font-semibold text-gray-700">MODEL</th>
+                <th class="px-4 py-2 font-semibold text-gray-700">MODEL NUMBER</th>
+                <th class="px-4 py-2 font-semibold text-gray-700">ITEM NAME</th>
+              </tr>
+            </thead>
+            <tbody id="productTable" class="divide-y divide-gray-200"></tbody>
+          </table>
+        </div>
+      </main>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>MODEL</th>
-          <th>MODEL NUMBER</th>
-          <th>DEVICE</th>
-          <th>SIZE</th>
-          <th>ITEM NAME</th>
-          <th>PRICE</th>
-        </tr>
-      </thead>
-      <tbody id="productTable"></tbody>
-    </table>
   </div>
-  <div id="productModal" class="modal">
-    <div class="modal-content">
-      <button class="close-btn" onclick="closeModal()">×</button>
-      <img id="productImage" src="" alt="Product Image">
-      <div id="productSpecs"></div>
+
+  <!-- Modal -->
+  <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white p-6 rounded-lg max-w-lg w-full">
+      <button onclick="closeModal()" class="float-right text-gray-500">✕</button>
+      <div id="modalContent"></div>
     </div>
   </div>
+
   <script>
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv';
+    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv';
     let allProducts = [];
 
-    function loadCSV() {
-      fetch(SHEET_URL)
-        .then(res => res.text())
-        .then(csv => {
-          const [headerLine, ...lines] = csv.split('\n');
-          const headers = headerLine.split(',');
-          allProducts = lines.map(line => {
-            const values = line.split(',');
-            const product = {};
-            headers.forEach((key, i) => product[key.trim()] = values[i]?.trim() || '');
-            return product;
-          });
-          populateFilters();
-          renderTable();
-        });
-    }
-
-    function populateFilters() {
-      populateSelect('modelFilter', [...new Set(allProducts.map(p => p['MODEL']))]);
-      populateSelect('modelNumberFilter', [...new Set(allProducts.map(p => p['MODEL NUMBER']))]);
-      populateSelect('deviceFilter', [...new Set(allProducts.map(p => p['DEVICE']))]);
-    }
-
-    function populateSelect(id, options) {
-      const sel = document.getElementById(id);
-      sel.innerHTML = '<option value="">All</option>';
-      options.filter(Boolean).sort().forEach(opt => {
-        sel.innerHTML += `<option value="${opt}">${opt}</option>`;
-      });
-      sel.addEventListener('change', renderTable);
-    }
-
-    function renderTable() {
-      const model = document.getElementById('modelFilter').value;
-      const modelNum = document.getElementById('modelNumberFilter').value;
-      const device = document.getElementById('deviceFilter').value;
-      const filtered = allProducts.filter(p =>
-        (!model || p['MODEL'] === model) &&
-        (!modelNum || p['MODEL NUMBER'] === modelNum) &&
-        (!device || p['DEVICE'] === device)
-      );
+    function renderProductTable(products) {
       const tbody = document.getElementById('productTable');
       tbody.innerHTML = '';
-      filtered.forEach((p, index) => {
+      products.forEach((product, index) => {
         const row = document.createElement('tr');
-        row.onclick = () => showModal(index);
+        row.className = 'hover:bg-gray-50 cursor-pointer';
         row.innerHTML = `
-          <td>${p['MODEL']}</td>
-          <td>${p['MODEL NUMBER']}</td>
-          <td>${p['DEVICE']}</td>
-          <td>${p['SIZE']}</td>
-          <td style="color: #60a5fa;">${p['ITEM NAME']}</td>
-          <td>₹${p['PRICE']}</td>
+          <td class="px-4 py-2">${product['MODEL']}</td>
+          <td class="px-4 py-2">${product['MODEL NUMBER']}</td>
+          <td class="px-4 py-2 text-blue-600 underline" onclick="showDetails(${index})">${product['ITEM NAME']}</td>
         `;
         tbody.appendChild(row);
       });
     }
 
-    function showModal(index) {
-      const p = allProducts[index];
-      const imgSrc = p['IMAGE DIRECT LINK'] || '';
-      document.getElementById('productImage').src = imgSrc;
-      document.getElementById('productSpecs').innerHTML = Object.entries(p).map(([k, v]) => `<p><strong>${k}:</strong> ${v}</p>`).join('');
-      document.getElementById('productModal').style.display = 'flex';
+    function showDetails(index) {
+      const product = allProducts[index];
+      const modal = document.getElementById('productModal');
+      const content = document.getElementById('modalContent');
+
+      content.innerHTML = `
+        <img src="${product['IMAGE LINK'] || ''}" class="w-full mb-4 rounded" alt="Product Image">
+        <table class="min-w-full text-sm table-auto border">
+          <tbody>
+            <tr><td class="font-semibold px-2 py-1 border">ITEM NAME</td><td class="px-2 py-1 border">${product['ITEM NAME']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">MODEL</td><td class="px-2 py-1 border">${product['MODEL']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">MODEL NUMBER</td><td class="px-2 py-1 border">${product['MODEL NUMBER']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">DEVICE</td><td class="px-2 py-1 border">${product['DEVICE']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">SIZE</td><td class="px-2 py-1 border">${product['SIZE']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">PRICE</td><td class="px-2 py-1 border">₹${product['PRICE']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">AVAILABILITY</td><td class="px-2 py-1 border">${product['AVAILABILITY']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">INNER DIAMETER</td><td class="px-2 py-1 border">${product['INNER DIAMETER']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">OUTER DIAMETER</td><td class="px-2 py-1 border">${product['OUTER DIAMETER']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">LENGTH</td><td class="px-2 py-1 border">${product['LENGHT']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">OUTSIDE TEETH</td><td class="px-2 py-1 border">${product['OUTSIDE TEETH']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">INSIDE TEETH</td><td class="px-2 py-1 border">${product['INSIDE TEETH']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">SIDE TEETH</td><td class="px-2 py-1 border">${product['SIDE TEETH']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">OTHER</td><td class="px-2 py-1 border">${product['OTHER']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">OTHERS</td><td class="px-2 py-1 border">${product['OTHERS']}</td></tr>
+          </tbody>
+        </table>
+      `;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
     function closeModal() {
-      document.getElementById('productModal').style.display = 'none';
+      document.getElementById('productModal').classList.add('hidden');
+      document.getElementById('productModal').classList.remove('flex');
     }
 
-    window.onload = loadCSV;
+    function populateDropdowns(products) {
+      const modelFilter = document.getElementById('modelFilter');
+      const modelNumberFilter = document.getElementById('modelNumberFilter');
+      const deviceFilter = document.getElementById('deviceFilter');
+
+      const models = [...new Set(products.map(p => p['MODEL']).filter(Boolean))];
+      const modelNumbers = [...new Set(products.map(p => p['MODEL NUMBER']).filter(Boolean))];
+      const devices = [...new Set(products.map(p => p['DEVICE']).filter(Boolean))];
+
+      models.forEach(value => {
+        modelFilter.innerHTML += `<option value="${value}">${value}</option>`;
+      });
+
+      modelNumbers.forEach(value => {
+        modelNumberFilter.innerHTML += `<option value="${value}">${value}</option>`;
+      });
+
+      devices.forEach(value => {
+        deviceFilter.innerHTML += `<option value="${value}">${value}</option>`;
+      });
+    }
+
+    function applyFilters() {
+      const model = document.getElementById('modelFilter').value;
+      const modelNumber = document.getElementById('modelNumberFilter').value;
+      const device = document.getElementById('deviceFilter').value;
+
+      let filtered = allProducts;
+      if (model) filtered = filtered.filter(p => p['MODEL'] === model);
+      if (modelNumber) filtered = filtered.filter(p => p['MODEL NUMBER'] === modelNumber);
+      if (device) filtered = filtered.filter(p => p['DEVICE'] === device);
+
+      renderProductTable(filtered);
+    }
+
+    document.getElementById('modelFilter').addEventListener('change', applyFilters);
+    document.getElementById('modelNumberFilter').addEventListener('change', applyFilters);
+    document.getElementById('deviceFilter').addEventListener('change', applyFilters);
+
+    Papa.parse(SHEET_CSV_URL, {
+      download: true,
+      header: true,
+      complete: function (results) {
+        allProducts = results.data.filter(row => row['ITEM NAME']);
+        populateDropdowns(allProducts);
+        renderProductTable(allProducts);
+      },
+      error: function (error) {
+        console.error('Error loading CSV:', error);
+      }
+    });
   </script>
 </body>
 </html>
