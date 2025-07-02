@@ -56,14 +56,17 @@
           </div>
         </div>
 
-        <!-- Product List (Basic Table) -->
+        <!-- Product Table -->
         <div class="bg-white rounded shadow overflow-x-auto">
           <table class="min-w-full text-sm">
             <thead class="bg-gray-100 text-left">
               <tr>
                 <th class="px-4 py-2 font-semibold text-gray-700">MODEL</th>
                 <th class="px-4 py-2 font-semibold text-gray-700">MODEL NUMBER</th>
+                <th class="px-4 py-2 font-semibold text-gray-700">DEVICE</th>
+                <th class="px-4 py-2 font-semibold text-gray-700">SIZE</th>
                 <th class="px-4 py-2 font-semibold text-gray-700">ITEM NAME</th>
+                <th class="px-4 py-2 font-semibold text-gray-700">PRICE</th>
               </tr>
             </thead>
             <tbody id="productTable" class="divide-y divide-gray-200"></tbody>
@@ -75,8 +78,8 @@
 
   <!-- Modal -->
   <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg max-w-lg w-full">
-      <button onclick="closeModal()" class="float-right text-gray-500">✕</button>
+    <div class="bg-white p-6 rounded-lg max-w-lg w-full relative">
+      <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 text-xl">✕</button>
       <div id="modalContent"></div>
     </div>
   </div>
@@ -94,7 +97,10 @@
         row.innerHTML = `
           <td class="px-4 py-2">${product['MODEL']}</td>
           <td class="px-4 py-2">${product['MODEL NUMBER']}</td>
+          <td class="px-4 py-2">${product['DEVICE']}</td>
+          <td class="px-4 py-2">${product['SIZE']}</td>
           <td class="px-4 py-2 text-blue-600 underline" onclick="showDetails(${index})">${product['ITEM NAME']}</td>
+          <td class="px-4 py-2">₹${product['PRICE']}</td>
         `;
         tbody.appendChild(row);
       });
@@ -109,21 +115,16 @@
         <img src="${product['IMAGE LINK'] || ''}" class="w-full mb-4 rounded" alt="Product Image">
         <table class="min-w-full text-sm table-auto border">
           <tbody>
-            <tr><td class="font-semibold px-2 py-1 border">ITEM NAME</td><td class="px-2 py-1 border">${product['ITEM NAME']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">MODEL</td><td class="px-2 py-1 border">${product['MODEL']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">MODEL NUMBER</td><td class="px-2 py-1 border">${product['MODEL NUMBER']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">DEVICE</td><td class="px-2 py-1 border">${product['DEVICE']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">SIZE</td><td class="px-2 py-1 border">${product['SIZE']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">PRICE</td><td class="px-2 py-1 border">₹${product['PRICE']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">AVAILABILITY</td><td class="px-2 py-1 border">${product['AVAILABILITY']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">INNER DIAMETER</td><td class="px-2 py-1 border">${product['INNER DIAMETER']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">OUTER DIAMETER</td><td class="px-2 py-1 border">${product['OUTER DIAMETER']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">LENGTH</td><td class="px-2 py-1 border">${product['LENGHT']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">OUTSIDE TEETH</td><td class="px-2 py-1 border">${product['OUTSIDE TEETH']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">INSIDE TEETH</td><td class="px-2 py-1 border">${product['INSIDE TEETH']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">SIDE TEETH</td><td class="px-2 py-1 border">${product['SIDE TEETH']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">OTHER</td><td class="px-2 py-1 border">${product['OTHER']}</td></tr>
-            <tr><td class="font-semibold px-2 py-1 border">OTHERS</td><td class="px-2 py-1 border">${product['OTHERS']}</td></tr>
+            ${[
+              'ITEM NAME', 'MODEL', 'MODEL NUMBER', 'DEVICE', 'SIZE', 'PRICE', 'AVAILABILITY',
+              'INNER DIAMETER', 'OUTER DIAMETER', 'LENGHT', 'OUTSIDE TEETH',
+              'INSIDE TEETH', 'SIDE TEETH', 'OTHER', 'OTHERS'
+            ].map(key => `
+              <tr>
+                <td class="font-semibold px-2 py-1 border">${key}</td>
+                <td class="px-2 py-1 border">${product[key] || '-'}</td>
+              </tr>
+            `).join('')}
           </tbody>
         </table>
       `;
@@ -145,17 +146,9 @@
       const modelNumbers = [...new Set(products.map(p => p['MODEL NUMBER']).filter(Boolean))];
       const devices = [...new Set(products.map(p => p['DEVICE']).filter(Boolean))];
 
-      models.forEach(value => {
-        modelFilter.innerHTML += `<option value="${value}">${value}</option>`;
-      });
-
-      modelNumbers.forEach(value => {
-        modelNumberFilter.innerHTML += `<option value="${value}">${value}</option>`;
-      });
-
-      devices.forEach(value => {
-        deviceFilter.innerHTML += `<option value="${value}">${value}</option>`;
-      });
+      models.forEach(value => modelFilter.innerHTML += `<option value="${value}">${value}</option>`);
+      modelNumbers.forEach(value => modelNumberFilter.innerHTML += `<option value="${value}">${value}</option>`);
+      devices.forEach(value => deviceFilter.innerHTML += `<option value="${value}">${value}</option>`);
     }
 
     function applyFilters() {
