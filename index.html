@@ -1,135 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VINAYAKA INDUSTRIES Catalog</title>
-    <link rel="stylesheet" href="VI.css" />
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vinayaka Industries | Excavator Spare Parts Catalog</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <style>
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .modal-overlay {
+      background-color: rgba(0,0,0,0.7);
+    }
+    .loading-spinner {
+      border-top-color: #3b82f6;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo" onclick="showPage('home')">
-                    <img src="https://drive.google.com/uc?export=view&id=19zQb3a6P-_yqS5ifygk9bzpgfhjdTaZr" alt="Company Logo" />
-                </div>
-                <div class="search-container">
-                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    <input type="text" class="search-input" placeholder="Search For Product" />
-                </div>
-                <div class="nav-buttons">
-                    <button class="btn btn-ghost" onclick="showPage('catalog')">Catalog</button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <div class="container">
-        <!-- Home Page -->
-        <div id="home" class="page active">
-            <div class="page-title">Internal Catalog</div>
-            <div class="page-subtitle">Excavator Swing & Travel Device Spare Parts Management System</div>
-            <div class="grid grid-2">
-                <div class="card">
-                    <div class="card-title">Product Catalog</div>
-                    <p style="color: #d1d5db; margin-bottom: 24px;">
-                        Access detailed specifications, pricing, and inventory for all excavator spare parts across different models.
-                    </p>
-                    <button class="btn btn-primary" onclick="showPage('catalog')">Open Catalog</button>
-                </div>
-                <div class="card">
-                    <div class="card-title">Supported Brands</div>
-                    <div class="brand-grid">
-                        <div class="brand-item">EX</div>
-                        <div class="brand-item">ZAXIS</div>
-                        <div class="brand-item">HYUNDAI</div>
-                        <div class="brand-item">SANY</div>
-                        <div class="brand-item">PC</div>
-                        <div class="brand-item">JS</div>
-                        <div class="brand-item">TMX</div>
-                        <div class="brand-item">KUBOTA</div>
-                        <div class="brand-item">BOBCAT</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Catalog Page -->
-        <div id="catalog" class="page">
-            <div class="page-title">Product Catalog</div>
-            <div class="page-subtitle">Select a model to view available spare parts</div>
-            <div class="card">
-                <div class="card-title">Select Model</div>
-                <select class="select" id="modelSelect" onchange="loadParts()">
-                    <option value="">Choose a model</option>
-                    <option value="EX">EX</option>
-                    <option value="ZAXIS">ZAXIS</option>
-                    <option value="HYUNDAI">HYUNDAI</option>
-                    <option value="SANY">SANY</option>
-                    <option value="PC">PC</option>
-                    <option value="JS">JS</option>
-                    <option value="TMX">TMX</option>
-                    <option value="KUBOTA">KUBOTA</option>
-                    <option value="BOBCAT">BOBCAT</option>
-                </select>
-            </div>
-            <div id="partsTable" class="card" style="display: none;">
-                <div class="card-title" id="partsTitle">Spare Parts</div>
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>MODEL</th>
-                                <th>MODEL NUMBER</th>
-                                <th>DEVICE</th>
-                                <th>SIZE</th>
-                                <th>ITEM NAME</th>
-                                <th>PRICE</th>
-                            </tr>
-                        </thead>
-                        <tbody id="partsBody"></tbody>
-                    </table>
-                </div>
-            </div>
-            <div id="noData" class="card" style="display: none;">
-                <div style="text-align: center; padding: 48px 0;">
-                    <p style="color: #9ca3af; font-size: 18px; margin-bottom: 8px;">No parts data available for <span id="selectedModelName"></span></p>
-                    <p style="color: #6b7280;">Parts data will be added soon.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product Detail Page -->
-        <div id="productDetail" class="page">
-            <button class="back-btn" onclick="showPage('catalog')">← Back to Catalog</button>
-            <div class="product-grid">
-                <div class="card">
-                    <div class="product-image">Product Image Coming Soon</div>
-                </div>
-                <div>
-                    <div class="card">
-                        <div id="productBadges"></div>
-                        <div id="productTitle" class="card-title"></div>
-                        <div id="productModel" style="color: #9ca3af; margin-bottom: 16px;"></div>
-                        <div id="productPrice" class="price"></div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Detailed Specifications</div>
-                        <div id="productSpecs" class="specs-grid"></div>
-                    </div>
-                    <div class="action-buttons">
-                        <button class="btn btn-primary btn-full">Update Inventory</button>
-                        <button class="btn btn-outline btn-full">Edit Specifications</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<body class="bg-gray-100 dark:bg-gray-900 dark:text-white">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">Excavator Spare Parts</h1>
+      <button id="dark-toggle" class="px-4 py-2 bg-gray-800 text-white rounded">Toggle Dark Mode</button>
     </div>
-    <script src="VI.js"></script>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <select id="modelFilter" class="px-3 py-2 rounded border">
+        <option value="">All Models</option>
+      </select>
+      <select id="deviceFilter" class="px-3 py-2 rounded border">
+        <option value="">All Devices</option>
+      </select>
+      <select id="availabilityFilter" class="px-3 py-2 rounded border">
+        <option value="">All Availability</option>
+        <option value="Available">Available</option>
+        <option value="Out of Stock">Out of Stock</option>
+      </select>
+      <select id="sortBy" class="px-3 py-2 rounded border">
+        <option value="">Sort By</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="model-asc">Model: A-Z</option>
+        <option value="model-desc">Model: Z-A</option>
+      </select>
+    </div>
+
+    <div id="product-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </div>
+
+  <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-xl w-full">
+      <div class="flex justify-between items-center mb-4">
+        <h2 id="modal-title" class="text-xl font-bold"></h2>
+        <button onclick="closeModal()" class="text-gray-600 hover:text-red-600 dark:text-white">&times;</button>
+      </div>
+      <img id="modal-image" src="" alt="" class="w-full h-64 object-cover rounded mb-4">
+      <p id="modal-desc" class="text-gray-700 dark:text-gray-300 mb-4"></p>
+      <table id="modal-specs" class="w-full text-left text-sm"></table>
+    </div>
+  </div>
+
+  <script>
+    const grid = document.getElementById('product-grid');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalImage = document.getElementById('modal-image');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalSpecs = document.getElementById('modal-specs');
+    const modelFilter = document.getElementById('modelFilter');
+    const deviceFilter = document.getElementById('deviceFilter');
+    const availabilityFilter = document.getElementById('availabilityFilter');
+    const sortBy = document.getElementById('sortBy');
+    const darkToggle = document.getElementById('dark-toggle');
+
+    let allProducts = [];
+
+    async function fetchProductsFromSheet() {
+      const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/gviz/tq?tqx=out:json';
+      try {
+        const res = await fetch(sheetURL);
+        const text = await res.text();
+        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = json.table.rows;
+
+        return rows.map((row, index) => {
+          const c = row.c;
+          return {
+            id: index + 1,
+            model: c[0]?.v || '',
+            modelNumber: c[1]?.v || '',
+            componentType: c[2]?.v || '',
+            size: c[3]?.v || '',
+            name: c[4]?.v || 'Unnamed Item',
+            price: parseFloat(c[5]?.v || 0),
+            availability: c[6]?.v || 'Available',
+            innerDiameter: c[7]?.v || '-',
+            outerDiameter: c[8]?.v || '-',
+            length: c[9]?.v || '-',
+            outsideTeeth: c[10]?.v || '-',
+            insideTeeth: c[11]?.v || '-',
+            sideTeeth: c[12]?.v || '-',
+            other: c[13]?.v || '-',
+            others: c[14]?.v || '-',
+            image: c[15]?.v || 'https://via.placeholder.com/400x300?text=No+Image'
+          };
+        });
+      } catch (error) {
+        console.error('Error fetching sheet:', error);
+        return [];
+      }
+    }
+
+    function showModal(product) {
+      modalTitle.textContent = product.name;
+      modalImage.src = product.image;
+      modalDesc.textContent = `${product.componentType} | ${product.model} ${product.modelNumber} | Price: ₹${product.price}`;
+
+      modalSpecs.innerHTML = `
+        <tr><td class='font-semibold'>Size</td><td>${product.size}</td></tr>
+        <tr><td class='font-semibold'>Inner Diameter</td><td>${product.innerDiameter}</td></tr>
+        <tr><td class='font-semibold'>Outer Diameter</td><td>${product.outerDiameter}</td></tr>
+        <tr><td class='font-semibold'>Length</td><td>${product.length}</td></tr>
+        <tr><td class='font-semibold'>Outside Teeth</td><td>${product.outsideTeeth}</td></tr>
+        <tr><td class='font-semibold'>Inside Teeth</td><td>${product.insideTeeth}</td></tr>
+        <tr><td class='font-semibold'>Side Teeth</td><td>${product.sideTeeth}</td></tr>
+        <tr><td class='font-semibold'>Other</td><td>${product.other}</td></tr>
+        <tr><td class='font-semibold'>Others</td><td>${product.others}</td></tr>
+      `;
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function displayProducts(products) {
+      grid.innerHTML = '';
+      products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'bg-white dark:bg-gray-800 shadow rounded overflow-hidden hover:shadow-lg transition cursor-pointer';
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <h2 class="font-bold text-lg text-gray-800 dark:text-white mb-1">${product.name}</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">${product.model} ${product.modelNumber}</p>
+            <p class="text-sm mt-1 text-blue-500 font-semibold">₹${product.price}</p>
+            <p class="text-xs text-green-600 dark:text-green-300 mt-1">${product.availability}</p>
+          </div>
+        `;
+        card.addEventListener('click', () => showModal(product));
+        grid.appendChild(card);
+      });
+    }
+
+    function applyFiltersAndSort() {
+      let filtered = [...allProducts];
+      const modelVal = modelFilter.value;
+      const deviceVal = deviceFilter.value;
+      const availVal = availabilityFilter.value;
+
+      if (modelVal) filtered = filtered.filter(p => p.model === modelVal);
+      if (deviceVal) filtered = filtered.filter(p => p.componentType === deviceVal);
+      if (availVal) filtered = filtered.filter(p => p.availability === availVal);
+
+      const sortVal = sortBy.value;
+      if (sortVal === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+      else if (sortVal === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+      else if (sortVal === 'model-asc') filtered.sort((a, b) => a.model.localeCompare(b.model));
+      else if (sortVal === 'model-desc') filtered.sort((a, b) => b.model.localeCompare(a.model));
+
+      displayProducts(filtered);
+    }
+
+    function populateFilters(products) {
+      const models = [...new Set(products.map(p => p.model))];
+      models.forEach(m => modelFilter.innerHTML += `<option value="${m}">${m}</option>`);
+      const devices = [...new Set(products.map(p => p.componentType))];
+      devices.forEach(d => deviceFilter.innerHTML += `<option value="${d}">${d}</option>`);
+    }
+
+    darkToggle.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    modelFilter.addEventListener('change', applyFiltersAndSort);
+    deviceFilter.addEventListener('change', applyFiltersAndSort);
+    availabilityFilter.addEventListener('change', applyFiltersAndSort);
+    sortBy.addEventListener('change', applyFiltersAndSort);
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      allProducts = await fetchProductsFromSheet();
+      populateFilters(allProducts);
+      applyFiltersAndSort();
+    });
+  </script>
 </body>
 </html>
