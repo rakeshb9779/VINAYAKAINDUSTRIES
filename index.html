@@ -107,21 +107,25 @@
 
       content.innerHTML = `
         <img src="${product['IMAGE LINK'] || ''}" class="w-full mb-4 rounded" alt="Product Image">
-        <p><strong>ITEM NAME:</strong> ${product['ITEM NAME']}</p>
-        <p><strong>MODEL:</strong> ${product['MODEL']}</p>
-        <p><strong>MODEL NUMBER:</strong> ${product['MODEL NUMBER']}</p>
-        <p><strong>DEVICE:</strong> ${product['DEVICE']}</p>
-        <p><strong>SIZE:</strong> ${product['SIZE']}</p>
-        <p><strong>PRICE:</strong> ₹${product['PRICE']}</p>
-        <p><strong>AVAILABILITY:</strong> ${product['AVAILABILITY']}</p>
-        <p><strong>INNER DIAMETER:</strong> ${product['INNER DIAMETER']}</p>
-        <p><strong>OUTER DIAMETER:</strong> ${product['OUTER DIAMETER']}</p>
-        <p><strong>LENGTH:</strong> ${product['LENGHT']}</p>
-        <p><strong>OUTSIDE TEETH:</strong> ${product['OUTSIDE TEETH']}</p>
-        <p><strong>INSIDE TEETH:</strong> ${product['INSIDE TEETH']}</p>
-        <p><strong>SIDE TEETH:</strong> ${product['SIDE TEETH']}</p>
-        <p><strong>OTHER:</strong> ${product['OTHER']}</p>
-        <p><strong>OTHERS:</strong> ${product['OTHERS']}</p>
+        <table class="min-w-full text-sm table-auto border">
+          <tbody>
+            <tr><td class="font-semibold px-2 py-1 border">ITEM NAME</td><td class="px-2 py-1 border">${product['ITEM NAME']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">MODEL</td><td class="px-2 py-1 border">${product['MODEL']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">MODEL NUMBER</td><td class="px-2 py-1 border">${product['MODEL NUMBER']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">DEVICE</td><td class="px-2 py-1 border">${product['DEVICE']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">SIZE</td><td class="px-2 py-1 border">${product['SIZE']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">PRICE</td><td class="px-2 py-1 border">₹${product['PRICE']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">AVAILABILITY</td><td class="px-2 py-1 border">${product['AVAILABILITY']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">INNER DIAMETER</td><td class="px-2 py-1 border">${product['INNER DIAMETER']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">OUTER DIAMETER</td><td class="px-2 py-1 border">${product['OUTER DIAMETER']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">LENGTH</td><td class="px-2 py-1 border">${product['LENGHT']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">OUTSIDE TEETH</td><td class="px-2 py-1 border">${product['OUTSIDE TEETH']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">INSIDE TEETH</td><td class="px-2 py-1 border">${product['INSIDE TEETH']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">SIDE TEETH</td><td class="px-2 py-1 border">${product['SIDE TEETH']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">OTHER</td><td class="px-2 py-1 border">${product['OTHER']}</td></tr>
+            <tr><td class="font-semibold px-2 py-1 border">OTHERS</td><td class="px-2 py-1 border">${product['OTHERS']}</td></tr>
+          </tbody>
+        </table>
       `;
       modal.classList.remove('hidden');
       modal.classList.add('flex');
