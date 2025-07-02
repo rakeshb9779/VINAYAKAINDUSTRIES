@@ -1,4 +1,7 @@
-<!DOCTYPE html><html lang="en">
+
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -374,11 +377,6 @@
             }
         }
     </style>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VINAYAKA INDUSTRIES Catalog</title>
-    <link rel="stylesheet" href="VI.css" />
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -395,29 +393,25 @@
                         <h1>VINAYAKA</h1>
                         <p>INDUSTRIES</p>
                     </div>
-                    <img src="https://drive.google.com/uc?export=view&id=19zQb3a6P-_yqS5ifygk9bzpgfhjdTaZr" alt="Company Logo" />
-                </div>
-                <div class="search-container">
-                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                    <input type="text" class="search-input" placeholder="Search For Product" />
                 </div>
                 <div class="nav-buttons">
                     <button class="btn btn-ghost" onclick="showPage('catalog')">Catalog</button>
-@@ -404,9 +32,8 @@ <h1>VINAYAKA</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+
     <div class="container">
         <!-- Home Page -->
         <div id="home" class="page active">
             <div class="page-title">Vinayaka Industries - Internal Catalog</div>
-            <div class="page-title">Internal Catalog</div>
             <div class="page-subtitle">Excavator Swing & Travel Device Spare Parts Management System</div>
 
             <div class="grid grid-2">
                 <div class="card">
                     <div class="card-title">Product Catalog</div>
-@@ -415,12 +42,11 @@ <h1>VINAYAKA</h1>
+                    <p style="color: #d1d5db; margin-bottom: 24px;">
+                        Access detailed specifications, pricing, and inventory for all excavator spare parts across different models.
                     </p>
                     <button class="btn btn-primary" onclick="showPage('catalog')">Open Catalog</button>
                 </div>
@@ -427,12 +421,13 @@
                     <div class="brand-grid">
                         <div class="brand-item">TATA EX</div>
                         <div class="brand-item">TATA HITACHI ZAXIS</div>
-                        <div class="brand-item">EX</div>
-                        <div class="brand-item">ZAXIS</div>
                         <div class="brand-item">HYUNDAI</div>
                         <div class="brand-item">SANY</div>
                         <div class="brand-item">PC</div>
-@@ -431,49 +57,27 @@ <h1>VINAYAKA</h1>
+                        <div class="brand-item">JS</div>
+                        <div class="brand-item">TMX</div>
+                        <div class="brand-item">KUBOTA</div>
+                        <div class="brand-item">BOBCAT</div>
                     </div>
                 </div>
             </div>
@@ -476,28 +471,25 @@
                     <option value="TMX 18">TMX 18</option>
                     <option value="KUBOTA KX080">KUBOTA KX080</option>
                     <option value="BOBCAT E35">BOBCAT E35</option>
-                    <option value="EX">EX</option>
-                    <option value="ZAXIS">ZAXIS</option>
-                    <option value="HYUNDAI">HYUNDAI</option>
-                    <option value="SANY">SANY</option>
-                    <option value="PC">PC</option>
-                    <option value="JS">JS</option>
-                    <option value="TMX">TMX</option>
-                    <option value="KUBOTA">KUBOTA</option>
-                    <option value="BOBCAT">BOBCAT</option>
                 </select>
             </div>
 
             <div id="partsTable" class="card" style="display: none;">
                 <div class="card-title" id="partsTitle">Spare Parts</div>
                 <div class="table-container">
-@@ -488,240 +92,44 @@ <h1>VINAYAKA</h1>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>MODEL</th>
+                                <th>MODEL NUMBER</th>
+                                <th>DEVICE</th>
+                                <th>SIZE</th>
+                                <th>ITEM NAME</th>
                                 <th>PRICE</th>
                             </tr>
                         </thead>
                         <tbody id="partsBody">
                         </tbody>
-                        <tbody id="partsBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -505,7 +497,6 @@
             <div id="noData" class="card" style="display: none;">
                 <div style="text-align: center; padding: 48px 0;">
                     <p style="color: #9ca3af; font-size: 18px; margin-bottom: 8px;">No parts data available</p>
-                    <p style="color: #9ca3af; font-size: 18px; margin-bottom: 8px;">No parts data available for <span id="selectedModelName"></span></p>
                     <p style="color: #6b7280;">Parts data will be added soon.</p>
                 </div>
             </div>
@@ -517,13 +508,11 @@
                 ← Back to Catalog
             </button>
 
-            <button class="back-btn" onclick="showPage('catalog')">← Back to Catalog</button>
             <div class="product-grid">
                 <div class="card">
                     <div class="product-image">
                         Product Image Coming Soon
                     </div>
-                    <div class="product-image">Product Image Coming Soon</div>
                 </div>
 
                 <div>
@@ -734,6 +723,5 @@
             };
         }
     </script>
-    <script src="VI.js"></script>
 </body>
 </html>
