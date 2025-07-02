@@ -117,13 +117,8 @@
       const modal = document.getElementById('productModal');
       const content = document.getElementById('modalContent');
 
-      let imageUrl = product['IMAGE LINK'] || '';
-      if (imageUrl.includes("drive.google.com")) {
-        const idMatch = imageUrl.match(/[-\w]{25,}/);
-        if (idMatch) {
-          imageUrl = `https://drive.google.com/thumbnail?id=${idMatch[0]}&sz=s800`;
-        }
-      }
+      const id = product['IMAGE LINK']?.trim();
+      const imageUrl = id ? `https://drive.google.com/thumbnail?id=${id}` : '';
 
       content.innerHTML = `
         <img src="${imageUrl}" class="w-full mb-4 rounded object-contain" alt="Product Image">
