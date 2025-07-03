@@ -1,208 +1,841 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vinayaka Industries Catalog</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vinayaka Industries - Professional Parts Catalog</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-</head>
-<body class="bg-gray-100 font-sans">
-  <div class="flex min-h-screen">
-    <!-- Main Content Only -->
-    <div class="flex-1 flex flex-col w-full">
-      <!-- Topbar -->
-      <header class="bg-white shadow px-4 py-3 flex items-center justify-between">
-        <img
-           src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s1024"
-  alt="Vinayaka Logo"
-  class="h-18 w-[200px] object-contain"
-        />
-        <input
-          type="text"
-          placeholder="Search parts..."
-          class="w-full max-w-xs border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring focus:border-blue-500"
-        />
-      </header>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+    
+    .sidebar-gradient {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    }
+    
+    .hover-scale {
+      transition: transform 0.2s ease-in-out;
+    }
+    
+    .hover-scale:hover {
+      transform: scale(1.02);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .loading-spinner {
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #0d9488;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .table-row:hover {
+      background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    
+    .search-input:focus {
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+    }
+    
+    .filter-select:focus {
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+    }
+    
+    .image-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+    
+    .reload-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .reload-btn:hover {
+      transform: rotate(180deg);
+      background: #0d9488;
+      color: white;
+    }
+    
+    .image-placeholder {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+    
+    .search-container {
+      position: relative;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .search-container:focus-within {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    .search-input-enhanced {
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: 14px 50px 14px 50px;
+      font-size: 16px;
+      color: #1e293b;
+      font-weight: 500;
+    }
+    
+    .search-input-enhanced::placeholder {
+      color: #64748b;
+      font-weight: 400;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+    
+    .search-container:focus-within .search-icon {
+      color: #0d9488;
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    .search-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+    }
+    
+    .search-btn:hover {
+      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+      transform: translateY(-50%) translateY(-1px);
+      box-shadow: 0 6px 16px rgba(13, 148, 136, 0.4);
+    }
+    
+    .search-btn:active {
+      transform: translateY(-50%) translateY(0px);
+    }
+    
+    .search-results-count {
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
 
-      <!-- Content -->
-      <main class="p-4 space-y-6 flex-grow">
+    .iframe-container {
+      width: 100%;
+      height: 400px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      background: #f8fafc;
+    }
+
+    .product-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 16px;
+    }
+
+    .reload-button {
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+    }
+
+    .reload-button:hover {
+      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+    }
+  </style>
+</head>
+<body class="gradient-bg min-h-screen">
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+    <div class="text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <p class="text-slate-600 font-medium">Loading product catalog...</p>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div id="errorMessage" class="hidden fixed inset-0 bg-white flex items-center justify-center z-50">
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-8 text-center max-w-md">
+      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Data</h3>
+      <p class="text-red-600" id="errorText">Failed to load product catalog</p>
+    </div>
+  </div>
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-20 sidebar-gradient flex flex-col items-center py-6 shadow-2xl">
+      <div class="mb-8">
+        <img
+          src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
+          alt="Logo"
+          class="w-12 h-12 rounded-xl border-2 border-white/20 shadow-lg object-contain"
+        />
+      </div>
+      
+      <nav class="flex-1 flex flex-col gap-4">
+        <button class="p-3 rounded-xl transition-all duration-200 group bg-teal-600 text-white shadow-lg" title="Catalog">
+          <svg class="w-6 h-6 scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+          </svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Dashboard">
+          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+          </svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Analytics">
+          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Settings">
+          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </button>
+      </nav>
+    </aside>
+    
+    <div class="flex-1 flex flex-col min-h-screen">
+      <!-- Header -->
+      <header class="glass-effect border-b border-gray-200 px-6 py-4 sticky top-0 z-40">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3">
+              <img
+                src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
+                alt="Vinayaka Industries"
+                class="w-10 h-10 rounded-lg object-contain shadow-sm"
+              />
+              <div>
+                <h1 class="text-xl font-bold text-slate-800">Vinayaka Industries</h1>
+                <p class="text-sm text-slate-500">Parts Catalog</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <!-- Enhanced Search Bar -->
+            <div class="search-container w-96">
+              <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search parts, models, devices... (e.g., '60', 'bearing', 'motor')"
+                class="search-input-enhanced"
+              />
+              <button class="search-btn" onclick="performSearch()">
+                Search
+              </button>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM9 7H4l5-5v5z"></path>
+                </svg>
+              </button>
+              <button class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </button>
+              <button class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      <!-- Main Content -->
+      <main class="flex-1 p-6 space-y-6" id="mainContent">
         <!-- Filters -->
-        <div class="bg-white p-4 rounded shadow">
-          <h2 class="text-lg font-semibold mb-4">Filter Parts</h2>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">MODEL</label>
-              <select id="modelFilter" class="w-full px-3 py-2 border border-gray-300 rounded">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 fade-in">
+          <div class="flex items-center gap-3 mb-6">
+            <div class="p-2 bg-teal-100 rounded-lg">
+              <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+              </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-slate-800">Filter Parts</h2>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-slate-700">Model</label>
+              <select
+                id="modelFilter"
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
+              >
                 <option value="">All Models</option>
               </select>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">MODEL NUMBER</label>
-              <select id="modelNumberFilter" class="w-full px-3 py-2 border border-gray-300 rounded">
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-slate-700">Model Number</label>
+              <select
+                id="modelNumberFilter"
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
+              >
                 <option value="">All Model Numbers</option>
               </select>
             </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">DEVICE</label>
-              <select id="deviceFilter" class="w-full px-3 py-2 border border-gray-300 rounded">
+            
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-slate-700">Device</label>
+              <select
+                id="deviceFilter"
+                class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
+              >
                 <option value="">All Devices</option>
               </select>
             </div>
           </div>
         </div>
-
-        <!-- Product Table -->
-        <div class="bg-white rounded shadow overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead class="bg-gray-100 text-left">
-              <tr>
-                <th class="px-4 py-2 font-semibold text-gray-700">IMAGE</th>
-                <th class="px-4 py-2 font-semibold text-gray-700">MODEL</th>
-                <th class="px-4 py-2 font-semibold text-gray-700">MODEL NUMBER</th>
-                <th class="px-4 py-2 font-semibold text-gray-700">DEVICE</th>
-                <th class="px-4 py-2 font-semibold text-gray-700">SIZE</th>
-                <th class="px-4 py-2 font-semibold text-gray-700">ITEM NAME</th>
-                <th class="px-4 py-2 font-semibold text-gray-700">PRICE</th>
-              </tr>
-            </thead>
-            <tbody id="productTable" class="divide-y divide-gray-200"></tbody>
-          </table>
+        
+        <!-- Product Count and Table -->
+        <div class="space-y-4 fade-in">
+          <div class="flex items-center justify-between">
+            <h2 class="text-2xl font-bold text-slate-800">Product Catalog</h2>
+            <div class="flex items-center gap-3">
+              <div class="text-sm text-slate-600" id="productCount">
+                0 products
+              </div>
+              <div id="searchResultsBadge" class="search-results-count hidden">
+                Search Results
+              </div>
+            </div>
+          </div>
+          
+          <!-- Product Table -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="productTableContainer">
+            <div class="overflow-x-auto">
+              <table class="min-w-full">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                  <tr>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Model</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Model Number</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Device</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Size</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Item Name</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Price</th>
+                    <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="productTable" class="bg-white divide-y divide-slate-200">
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <!-- No Products Message -->
+          <div id="noProductsMessage" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-medium text-slate-600 mb-2">No products found</h3>
+            <p class="text-slate-500">Try adjusting your search or filter criteria</p>
+          </div>
         </div>
       </main>
-
-      <!-- Footer -->
-      <footer class="bg-white text-center py-4 border-t">
-        <img
-          src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s1024"
-          class="w-16 h-16 mx-auto object-contain mb-2"
-          alt="Vinayaka Logo"
-        />
-        <p class="text-sm text-gray-500">© 2025 Vinayaka Industries. All rights reserved.</p>
-      </footer>
     </div>
   </div>
-
-  <!-- Modal -->
-  <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white p-6 rounded-lg max-w-lg w-full relative">
-      <button onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 text-xl">✕</button>
-      <div id="modalContent"></div>
+  
+  <!-- Product Modal -->
+  <div id="productModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl max-w-7xl w-full max-h-[90vh] overflow-y-auto shadow-2xl fade-in">
+      <div class="sticky top-0 bg-white rounded-t-3xl border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2 bg-teal-100 rounded-lg">
+            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+          </div>
+          <h2 class="text-xl font-semibold text-slate-800">Product Details</h2>
+        </div>
+        <button
+          onclick="closeModal()"
+          class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="p-6" id="modalContent">
+        <!-- Content will be populated by JavaScript -->
+      </div>
     </div>
   </div>
 
   <script>
     const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv';
     let allProducts = [];
+    let filteredProducts = [];
+    let currentSearchTerm = '';
 
+    // Show loading screen
+    function showLoading() {
+      document.getElementById('loadingScreen').classList.remove('hidden');
+      document.getElementById('mainContent').style.display = 'none';
+    }
+
+    // Hide loading screen
+    function hideLoading() {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('mainContent').style.display = 'block';
+    }
+
+    // Show error message
+    function showError(message) {
+      document.getElementById('loadingScreen').classList.add('hidden');
+      document.getElementById('errorMessage').classList.remove('hidden');
+      document.getElementById('errorText').textContent = message;
+    }
+
+    // Enhanced search function
+    function performSearch() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      currentSearchTerm = searchTerm;
+      
+      if (searchTerm === '') {
+        // Reset to show all products with current filters
+        applyFilters();
+        document.getElementById('searchResultsBadge').classList.add('hidden');
+        return;
+      }
+
+      // Perform case-insensitive search across all fields
+      const searchResults = allProducts.filter(product => {
+        return Object.values(product).some(value => 
+          value && value.toString().toLowerCase().includes(searchTerm)
+        );
+      });
+
+      // Apply additional filters to search results
+      const model = document.getElementById('modelFilter').value;
+      const modelNumber = document.getElementById('modelNumberFilter').value;
+      const device = document.getElementById('deviceFilter').value;
+
+      filteredProducts = searchResults.filter(product => {
+        const matchesModel = !model || product['MODEL'] === model;
+        const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
+        const matchesDevice = !device || product['DEVICE'] === device;
+        
+        return matchesModel && matchesModelNumber && matchesDevice;
+      });
+
+      renderProductTable(filteredProducts);
+      
+      // Show search results badge
+      const badge = document.getElementById('searchResultsBadge');
+      badge.classList.remove('hidden');
+      badge.textContent = `${filteredProducts.length} Search Results`;
+    }
+
+    // Reload iframe function with proper ID handling
+    function reloadIframe(imageId) {
+      const iframe = document.getElementById('productIframe');
+      
+      if (iframe && imageId && imageId.trim() !== '') {
+        // Add timestamp to force reload and use the exact format you specified
+        const newSrc = `https://drive.google.com/file/d/${imageId.trim()}/preview?t=${Date.now()}`;
+        console.log('Reloading iframe with URL:', newSrc); // Debug log
+        iframe.src = newSrc;
+      } else {
+        console.log('No valid image ID found:', imageId); // Debug log
+      }
+    }
+
+    // Render product table
     function renderProductTable(products) {
       const tbody = document.getElementById('productTable');
+      const noProductsMessage = document.getElementById('noProductsMessage');
+      const productTableContainer = document.getElementById('productTableContainer');
+      const productCount = document.getElementById('productCount');
+      
+      // Update product count
+      if (currentSearchTerm) {
+        productCount.textContent = `${products.length} of ${allProducts.length} products (filtered)`;
+      } else {
+        productCount.textContent = `${products.length} of ${allProducts.length} products`;
+      }
+      
+      if (products.length === 0) {
+        productTableContainer.classList.add('hidden');
+        noProductsMessage.classList.remove('hidden');
+        return;
+      }
+      
+      productTableContainer.classList.remove('hidden');
+      noProductsMessage.classList.add('hidden');
+      
       tbody.innerHTML = '';
       products.forEach((product, index) => {
-        const imageId = product['IMAGE LINK']?.trim();
-        const imageUrl = imageId ? `https://drive.google.com/thumbnail?id=${imageId}` : '';
-
         const row = document.createElement('tr');
-        row.className = 'hover:bg-gray-50 cursor-pointer';
+        row.className = 'table-row hover:bg-slate-50 transition-colors duration-200 cursor-pointer';
+        row.onclick = () => showProductDetails(product);
+        
         row.innerHTML = `
-          <td class="px-4 py-2">
-            ${imageUrl ? `<img src="${imageUrl}" class="w-16 h-16 object-contain rounded" alt="Product Image">` : '-'}
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['MODEL'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['MODEL NUMBER'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['DEVICE'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['SIZE'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-teal-600">${product['ITEM NAME'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+            <div class="flex items-center gap-1">
+              <span>₹</span>
+              ${product['PRICE'] || ''}
+            </div>
           </td>
-          <td class="px-4 py-2">${product['MODEL']}</td>
-          <td class="px-4 py-2">${product['MODEL NUMBER']}</td>
-          <td class="px-4 py-2">${product['DEVICE']}</td>
-          <td class="px-4 py-2">${product['SIZE']}</td>
-          <td class="px-4 py-2 text-blue-600 underline" onclick="showDetails(${index})">${product['ITEM NAME']}</td>
-          <td class="px-4 py-2">₹${product['PRICE']}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+            <button
+              onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])"
+              class="p-2 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+              title="View Details"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+          </td>
         `;
         tbody.appendChild(row);
       });
     }
 
-function showDetails(index) {
-  const product = allProducts[index];
-  const modal = document.getElementById('productModal');
-  const content = document.getElementById('modalContent');
+    // Show product details in modal with proper iframe implementation
+    function showProductDetails(product) {
+      const modal = document.getElementById('productModal');
+      const content = document.getElementById('modalContent');
 
-  // Construct Google Drive image URL
-  const imageId = product['IMAGE LINK'];
-  const imageURL = imageId
-    ? `https://drive.google.com/thumbnail?id=${imageId}&sz=s800`
-    : '';
+      // Get the image ID from column Q (which you named "ID")
+      const imageId = product['ID'] || product['IMAGE LINK']; // Try both column names
+      console.log('Image ID found:', imageId); // Debug log
+      
+      // Create the proper Google Drive URLs using your exact format
+      const iframeURL = imageId && imageId.trim() !== '' ? `https://drive.google.com/file/d/${imageId.trim()}/preview` : '';
+      const fullImageURL = imageId && imageId.trim() !== '' ? `https://drive.google.com/file/d/${imageId.trim()}/view?usp=sharing` : '';
 
-  content.innerHTML = `
-    ${imageId ? `<img src="${imageURL}" class="w-full mb-4 rounded" alt="Product Image">` : ''}
-    <table class="min-w-full text-sm table-auto border">
-      <tbody>
-        ${[
-          'ITEM NAME', 'MODEL', 'MODEL NUMBER', 'DEVICE', 'SIZE', 'PRICE', 'AVAILABILITY',
-          'INNER DIAMETER', 'OUTER DIAMETER', 'LENGHT', 'OUTSIDE TEETH',
-          'INSIDE TEETH', 'SIDE TEETH', 'OTHER', 'OTHERS'
-        ].map(key => `
-          <tr>
-            <td class="font-semibold px-2 py-1 border">${key}</td>
-            <td class="px-2 py-1 border">${product[key] || '-'}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-    ${imageId ? `
-      <div class="mt-4">
-        <a href="https://drive.google.com/file/d/${imageId}/view?usp=sharing" target="_blank" class="text-blue-600 underline">
-          Open Full Image in Google Drive
-        </a>
-      </div>
-    ` : ''}
-  `;
-  modal.classList.remove('hidden');
-  modal.classList.add('flex');
-}
+      const productFields = [
+        { label: 'Item Name', key: 'ITEM NAME' },
+        { label: 'Model', key: 'MODEL' },
+        { label: 'Model Number', key: 'MODEL NUMBER' },
+        { label: 'Device', key: 'DEVICE' },
+        { label: 'Size', key: 'SIZE' },
+        { label: 'Price', key: 'PRICE' },
+        { label: 'Availability', key: 'AVAILABILITY' },
+        { label: 'Inner Diameter', key: 'INNER DIAMETER' },
+        { label: 'Outer Diameter', key: 'OUTER DIAMETER' },
+        { label: 'Length', key: 'LENGHT' },
+        { label: 'Outside Teeth', key: 'OUTSIDE TEETH' },
+        { label: 'Inside Teeth', key: 'INSIDE TEETH' },
+        { label: 'Side Teeth', key: 'SIDE TEETH' },
+        { label: 'Other', key: 'OTHER' },
+        { label: 'Others', key: 'OTHERS' },
+      ];
 
-    function closeModal() {
-      document.getElementById('productModal').classList.add('hidden');
-      document.getElementById('productModal').classList.remove('flex');
+      let modalHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <!-- Image Section -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-slate-800">Product Image</h3>
+              ${imageId && imageId.trim() !== '' ? `
+                <button
+                  onclick="reloadIframe('${imageId.trim()}')"
+                  class="reload-button flex items-center gap-2"
+                  title="Reload Image"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  Reload
+                </button>
+              ` : ''}
+            </div>
+            
+            <div class="iframe-container">
+              ${imageId && imageId.trim() !== '' ? `
+                <iframe 
+                  id="productIframe"
+                  src="${iframeURL}" 
+                  class="product-iframe"
+                  allow="autoplay"
+                  loading="lazy"
+                ></iframe>
+              ` : `
+                <div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-2xl">
+                  <div class="text-center text-slate-500">
+                    <svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="font-medium">No image available</p>
+                    <p class="text-sm text-slate-400 mt-1">Image not provided for this product</p>
+                  </div>
+                </div>
+              `}
+            </div>
+            
+            ${imageId && imageId.trim() !== '' ? `
+              <div class="p-4 bg-teal-50 rounded-xl border border-teal-200">
+                <a
+                  href="${fullImageURL}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-2 text-teal-700 hover:text-teal-800 font-medium transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                  </svg>
+                  Open Full Image in Google Drive
+                </a>
+              </div>
+            ` : ''}
+          </div>
+          
+          <!-- Product Details Section -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-800">Product Specifications</h3>
+            <div class="space-y-3">
+      `;
+      
+      productFields.forEach(({ label, key }) => {
+        const value = product[key];
+        if (value && value.trim() !== '') {
+          modalHTML += `
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-sm font-medium text-slate-600 mb-1">${label}</div>
+              <div class="text-slate-900 font-medium">
+                ${key === 'PRICE' && value ? `₹${value}` : value}
+              </div>
+            </div>
+          `;
+        }
+      });
+      
+      modalHTML += `
+            </div>
+          </div>
+        </div>
+      `;
+
+      content.innerHTML = modalHTML;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
+    // Close modal
+    function closeModal() {
+      const modal = document.getElementById('productModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Populate filter dropdowns
     function populateDropdowns(products) {
       const modelFilter = document.getElementById('modelFilter');
       const modelNumberFilter = document.getElementById('modelNumberFilter');
       const deviceFilter = document.getElementById('deviceFilter');
 
-      const models = [...new Set(products.map(p => p['MODEL']).filter(Boolean))];
-      const modelNumbers = [...new Set(products.map(p => p['MODEL NUMBER']).filter(Boolean))];
-      const devices = [...new Set(products.map(p => p['DEVICE']).filter(Boolean))];
+      const models = [...new Set(products.map(p => p['MODEL']).filter(Boolean))].sort();
+      const modelNumbers = [...new Set(products.map(p => p['MODEL NUMBER']).filter(Boolean))].sort();
+      const devices = [...new Set(products.map(p => p['DEVICE']).filter(Boolean))].sort();
 
-      models.forEach(value => modelFilter.innerHTML += `<option value="${value}">${value}</option>`);
-      modelNumbers.forEach(value => modelNumberFilter.innerHTML += `<option value="${value}">${value}</option>`);
-      devices.forEach(value => deviceFilter.innerHTML += `<option value="${value}">${value}</option>`);
+      // Clear existing options (except first one)
+      modelFilter.innerHTML = '<option value="">All Models</option>';
+      modelNumberFilter.innerHTML = '<option value="">All Model Numbers</option>';
+      deviceFilter.innerHTML = '<option value="">All Devices</option>';
+
+      models.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        modelFilter.appendChild(option);
+      });
+
+      modelNumbers.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        modelNumberFilter.appendChild(option);
+      });
+
+      devices.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        deviceFilter.appendChild(option);
+      });
     }
 
+    // Apply filters
     function applyFilters() {
       const model = document.getElementById('modelFilter').value;
       const modelNumber = document.getElementById('modelNumberFilter').value;
       const device = document.getElementById('deviceFilter').value;
 
-      let filtered = allProducts;
-      if (model) filtered = filtered.filter(p => p['MODEL'] === model);
-      if (modelNumber) filtered = filtered.filter(p => p['MODEL NUMBER'] === modelNumber);
-      if (device) filtered = filtered.filter(p => p['DEVICE'] === device);
+      if (currentSearchTerm) {
+        // If there's an active search, apply filters to search results
+        performSearch();
+      } else {
+        // Normal filtering
+        filteredProducts = allProducts.filter(product => {
+          const matchesModel = !model || product['MODEL'] === model;
+          const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
+          const matchesDevice = !device || product['DEVICE'] === device;
+          
+          return matchesModel && matchesModelNumber && matchesDevice;
+        });
 
-      renderProductTable(filtered);
+        renderProductTable(filteredProducts);
+        document.getElementById('searchResultsBadge').classList.add('hidden');
+      }
     }
 
+    // Event listeners
     document.getElementById('modelFilter').addEventListener('change', applyFilters);
     document.getElementById('modelNumberFilter').addEventListener('change', applyFilters);
     document.getElementById('deviceFilter').addEventListener('change', applyFilters);
 
+    // Enhanced search input event listeners
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      if (e.target.value === '') {
+        currentSearchTerm = '';
+        applyFilters();
+        document.getElementById('searchResultsBadge').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('productModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Load data
+    showLoading();
+    
     Papa.parse(SHEET_CSV_URL, {
       download: true,
       header: true,
       complete: function (results) {
-        allProducts = results.data.filter(row => row['ITEM NAME']);
-        populateDropdowns(allProducts);
-        renderProductTable(allProducts);
+        try {
+          allProducts = results.data.filter(row => row['ITEM NAME'] && row['ITEM NAME'].trim() !== '');
+          filteredProducts = [...allProducts];
+          
+          // Debug: Log the first product to see available columns
+          if (allProducts.length > 0) {
+            console.log('First product columns:', Object.keys(allProducts[0]));
+            console.log('Sample product:', allProducts[0]);
+          }
+          
+          populateDropdowns(allProducts);
+          renderProductTable(filteredProducts);
+          hideLoading();
+        } catch (err) {
+          showError('Failed to process product data');
+          console.error('Error processing data:', err);
+        }
       },
       error: function (error) {
+        showError('Error loading product data');
         console.error('Error loading CSV:', error);
       }
     });
