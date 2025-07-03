@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vinayaka Industries - Professional Parts Catalog</title>
+  <title>Vinayaka Industries - Parts Catalog</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
@@ -666,22 +666,42 @@
               `}
             </div>
             
-            ${imageId && imageId.trim() !== '' ? `
-              <div class="p-4 bg-teal-50 rounded-xl border border-teal-200">
-                <a
-                  href="${fullImageURL}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="flex items-center gap-2 text-teal-700 hover:text-teal-800 font-medium transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                  </svg>
-                  Open Full Image in Google Drive
-                </a>
-              </div>
-            ` : ''}
-          </div>
+            <!-- Replace this section in your showProductDetails() function -->
+${imageId && imageId.trim() !== '' ? `
+  <div class="space-y-3">
+    <div class="p-4 bg-teal-50 rounded-xl border border-teal-200">
+      <a
+        href="${fullImageURL}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center gap-2 text-teal-700 hover:text-teal-800 font-medium transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+        </svg>
+        Open Full Image in Google Drive
+      </a>
+    </div>
+
+    ${product['FOLDER LINK'] && product['FOLDER LINK'].trim() !== '' ? `
+      <div class="p-4 bg-teal-50 rounded-xl border border-teal-200">
+        <a
+          href="${product['FOLDER LINK'].trim()}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-2 text-teal-700 hover:text-teal-800 font-medium transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"></path>
+          </svg>
+          Open Folder in Google Drive
+        </a>
+      </div>
+    ` : ''}
+  </div>
+` : ''}
+<!-- End of new section -->
+
           
           <!-- Product Details Section -->
           <div class="space-y-4">
