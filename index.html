@@ -119,34 +119,44 @@
       });
     }
 
-    function showDetails(index) {
-      const product = allProducts[index];
-      const modal = document.getElementById('productModal');
-      const content = document.getElementById('modalContent');
+function showDetails(index) {
+  const product = allProducts[index];
+  const modal = document.getElementById('productModal');
+  const content = document.getElementById('modalContent');
 
-      const id = product['IMAGE LINK']?.trim();
-      const imageUrl = id ? `https://drive.google.com/thumbnail?id=${id}` : '';
+  // Construct Google Drive image URL
+  const imageId = product['IMAGE LINK'];
+  const imageURL = imageId
+    ? `https://drive.google.com/thumbnail?id=${imageId}&sz=s800`
+    : '';
 
-      content.innerHTML = `
-        <img src="${imageUrl}" class="w-full mb-4 rounded object-contain" alt="Product Image">
-        <table class="min-w-full text-sm table-auto border">
-          <tbody>
-            ${[
-              'ITEM NAME', 'MODEL', 'MODEL NUMBER', 'DEVICE', 'SIZE', 'PRICE', 'AVAILABILITY',
-              'INNER DIAMETER', 'OUTER DIAMETER', 'LENGHT', 'OUTSIDE TEETH',
-              'INSIDE TEETH', 'SIDE TEETH', 'OTHER', 'OTHERS'
-            ].map(key => `
-              <tr>
-                <td class="font-semibold px-2 py-1 border">${key}</td>
-                <td class="px-2 py-1 border">${product[key] || '-'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
+  content.innerHTML = `
+    ${imageId ? `<img src="${imageURL}" class="w-full mb-4 rounded" alt="Product Image">` : ''}
+    <table class="min-w-full text-sm table-auto border">
+      <tbody>
+        ${[
+          'ITEM NAME', 'MODEL', 'MODEL NUMBER', 'DEVICE', 'SIZE', 'PRICE', 'AVAILABILITY',
+          'INNER DIAMETER', 'OUTER DIAMETER', 'LENGHT', 'OUTSIDE TEETH',
+          'INSIDE TEETH', 'SIDE TEETH', 'OTHER', 'OTHERS'
+        ].map(key => `
+          <tr>
+            <td class="font-semibold px-2 py-1 border">${key}</td>
+            <td class="px-2 py-1 border">${product[key] || '-'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+    ${imageId ? `
+      <div class="mt-4">
+        <a href="https://drive.google.com/file/d/${imageId}/view?usp=sharing" target="_blank" class="text-blue-600 underline">
+          Open Full Image in Google Drive
+        </a>
+      </div>
+    ` : ''}
+  `;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
 
     function closeModal() {
       document.getElementById('productModal').classList.add('hidden');
