@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VINAYAKA INDUSTRIES Catalog </title>
+  <title>Vinayaka Industries - Parts Catalog</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     
@@ -298,24 +296,20 @@
       width: 210mm;
       min-height: 297mm;
       background: white;
-      margin: 0 auto 20px;
+      margin: 0 auto;
       padding: 20mm;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      page-break-after: always;
     }
 
     .catalog-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 40px;
+      text-align: center;
       margin-bottom: 40px;
     }
 
     .catalog-logo {
       width: 80px;
       height: 80px;
-      object-contain: contain;
+      margin: 0 auto 20px;
     }
 
     .catalog-model-title {
@@ -323,7 +317,7 @@
       font-weight: 900;
       color: #1e293b;
       letter-spacing: -0.02em;
-      margin: 0;
+      margin-bottom: 30px;
     }
 
     .catalog-grid {
@@ -353,8 +347,6 @@
       color: #2563eb;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      word-wrap: break-word;
-      line-height: 1.2;
     }
 
     .remove-item-btn {
@@ -394,12 +386,6 @@
       .catalog-page {
         box-shadow: none;
         margin: 0;
-        page-break-after: always;
-      }
-      
-      body {
-        margin: 0;
-        padding: 0;
       }
     }
 
@@ -440,115 +426,59 @@
       box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
     }
 
-    /* PDF Generation Styles */
-    .pdf-temp-container {
-      position: absolute;
-      left: -9999px;
-      top: -9999px;
-      width: 210mm;
-      background: white;
-    }
-
-    .pdf-page {
-      width: 210mm;
-      min-height: 297mm;
-      background: white;
-      padding: 20mm;
-      margin: 0;
-      page-break-after: always;
-    }
-
-    .pdf-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 40px;
-      margin-bottom: 40px;
-    }
-
-    .pdf-logo {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-    }
-
-    .pdf-title {
-      font-size: 4rem;
-      font-weight: 900;
-      color: #1e293b;
-      letter-spacing: -0.02em;
-      margin: 0;
-    }
-
-    .pdf-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      margin-bottom: 40px;
-    }
-
-    .pdf-item {
-      text-align: center;
-    }
-
-    .pdf-item-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      background: #f8fafc;
-    }
-
-    .pdf-item-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: #2563eb;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      word-wrap: break-word;
-      line-height: 1.2;
-    }
-
-    .pdf-footer {
-      text-align: center;
-      font-size: 14px;
-      color: #64748b;
-      margin-top: 40px;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 20px;
-    }
-
-    /* Loading overlay for PDF generation */
-    .pdf-loading-overlay {
+    /* Fast PDF Generation Styles */
+    .pdf-processing {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
-
-    .pdf-loading-content {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       background: white;
-      padding: 40px;
+      padding: 30px;
       border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
       text-align: center;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     }
 
-    .pdf-loading-spinner {
-      width: 50px;
-      height: 50px;
+    .pdf-spinner {
+      width: 40px;
+      height: 40px;
       border: 4px solid #e2e8f0;
       border-top: 4px solid #0d9488;
       border-radius: 50%;
       animation: spin 1s linear infinite;
       margin: 0 auto 20px;
+    }
+
+    /* PDF Print Styles */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      
+      .pdf-content, .pdf-content * {
+        visibility: visible;
+      }
+      
+      .pdf-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      
+      .pdf-page {
+        page-break-after: always;
+        width: 210mm;
+        min-height: 297mm;
+        padding: 20mm;
+        margin: 0;
+        box-shadow: none;
+      }
+      
+      .pdf-page:last-child {
+        page-break-after: avoid;
+      }
     }
   </style>
 </head>
@@ -574,13 +504,12 @@
     </div>
   </div>
 
-  <!-- PDF Loading Overlay -->
-  <div id="pdfLoadingOverlay" class="pdf-loading-overlay hidden">
-    <div class="pdf-loading-content">
-      <div class="pdf-loading-spinner"></div>
-      <h3 class="text-xl font-semibold text-slate-800 mb-2">Generating PDF</h3>
-      <p class="text-slate-600">Please wait while we create your catalog...</p>
-      <div id="pdfProgress" class="mt-4 text-sm text-slate-500"></div>
+  <!-- PDF Processing Overlay -->
+  <div id="pdfProcessing" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+    <div class="pdf-processing">
+      <div class="pdf-spinner"></div>
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Generating PDF...</h3>
+      <p class="text-slate-600">Please wait while we prepare your catalog</p>
     </div>
   </div>
 
@@ -591,8 +520,8 @@
       <div class="mb-8">
         <img
           src="https://drive.google.com/thumbnail?id=1Z10whv0kAB-PywEZE4mj0pZcfNp0w5nF&sz=s800"
-          alt="Company Logo"
-          class="w-12 h-12 rounded-xl border-2 border-white/20 shadow-lg object-contain bg-white p-1"
+          alt="Logo"
+          class="w-12 h-12 rounded-xl border-2 border-white/20 shadow-lg object-contain"
         />
       </div>
       
@@ -602,8 +531,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
           </svg>
         </button>
-        <button id="catalogBtn" class="p-3 rounded-xl transition-all duration-200 group bg-teal-600 text-white shadow-lg scale-110" title="Catalog" onclick="showCatalogView()">
-          <svg class="w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button id="catalogBtn" class="p-3 rounded-xl transition-all duration-200 group bg-teal-600 text-white shadow-lg" title="Catalog" onclick="showCatalogView()">
+          <svg class="w-6 h-6 scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
           </svg>
         </button>
@@ -637,13 +566,15 @@
         <header class="glass-effect border-b border-gray-200 px-6 py-4 sticky top-0 z-40">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
-              <img
-                src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
-                alt="Company Logo"
-                class="w-20 h-10 object-contain"
-              />
-              <div>
-                <h1 class="text-xl font-bold text-slate-800">Parts Catalog</h1>
+              <div class="flex items-center gap-3">
+                <img
+                  src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
+                  alt="Vinayaka Industries"
+                  class="w-12 h-12 object-contain"
+                />
+                <div>
+                  <h1 class="text-xl font-bold text-slate-800">Parts Catalog</h1>              
+                </div>
               </div>
             </div>
             
@@ -915,11 +846,11 @@
             </div>
             
             <div class="flex items-center gap-4">
-              <button onclick="generateProfessionalPDF()" class="nav-button">
+              <button onclick="generateFastPDF()" class="nav-button">
                 <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                Download PDF
+                Fast PDF Download
               </button>
               <button onclick="window.print()" class="secondary-button">
                 <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1001,9 +932,9 @@
       document.getElementById('exportView').classList.add('hidden');
       
       // Update sidebar buttons
-      document.getElementById('catalogBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg', 'scale-110');
+      document.getElementById('catalogBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg');
       document.getElementById('catalogBtn').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
-      document.getElementById('exportBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg', 'scale-110');
+      document.getElementById('exportBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
       document.getElementById('exportBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
     }
 
@@ -1016,9 +947,9 @@
       document.getElementById('catalogPreviewPage').classList.add('hidden');
       
       // Update sidebar buttons
-      document.getElementById('exportBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg', 'scale-110');
+      document.getElementById('exportBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg');
       document.getElementById('exportBtn').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
-      document.getElementById('catalogBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg', 'scale-110');
+      document.getElementById('catalogBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
       document.getElementById('catalogBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
     }
 
@@ -1099,19 +1030,6 @@
       }
     }
 
-    // Format product description
-    function formatProductDescription(product) {
-      const parts = [
-        product.MODEL,
-        product['MODEL NUMBER'],
-        product.DEVICE,
-        product.SIZE,
-        product['ITEM NAME']
-      ].filter(Boolean);
-      
-      return parts.join(' ');
-    }
-
     // Render product table
     function renderProductTable(products) {
       const tbody = document.getElementById('productTable');
@@ -1147,12 +1065,10 @@
           <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['SIZE'] || ''}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-teal-600">${product['ITEM NAME'] || ''}</td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
-            ${product['PRICE'] ? `
-              <div class="flex items-center gap-1">
-                <span>₹</span>
-                ${product['PRICE']}
-              </div>
-            ` : ''}
+            <div class="flex items-center gap-1">
+              <span>₹</span>
+              ${product['PRICE'] || ''}
+            </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
             <button
@@ -1565,17 +1481,19 @@
       
       page.innerHTML = `
         <div class="catalog-header">
-          <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="catalog-logo">
-          <h1 class="catalog-model-title">${model}</h1>
+          <div class="flex items-center justify-center gap-8 mb-8">
+            <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="w-24 h-24 object-contain">
+            <h1 class="text-6xl font-black text-slate-800">${model}</h1>
+          </div>
         </div>
         
         <div class="catalog-grid" id="catalogGrid-${model}-${pageNumber}">
           <!-- Products will be added here -->
         </div>
         
-        <div class="text-center text-sm text-slate-500 border-t border-slate-200 pt-4">
-          <p class="font-medium">Vinayaka Industries - Quality Parts & Components</p>
-          ${totalPages > 1 ? `<p class="mt-1">Page ${pageNumber} of ${totalPages}</p>` : ''}
+        <div class="text-center text-sm text-slate-500 mt-8">
+          <p>Vinayaka Industries - Quality Parts & Components</p>
+          ${totalPages > 1 ? `<p>Page ${pageNumber} of ${totalPages}</p>` : ''}
         </div>
       `;
       
@@ -1598,7 +1516,14 @@
         `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
         'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
       
-      const description = formatProductDescription(product);
+      // Create full product description
+      const fullDescription = [
+        product['MODEL'] || '',
+        product['MODEL NUMBER'] || '',
+        product['DEVICE'] || '',
+        product['SIZE'] || '',
+        product['ITEM NAME'] || ''
+      ].filter(part => part.trim() !== '').join(' ');
       
       item.innerHTML = `
         <div class="relative">
@@ -1607,7 +1532,7 @@
             ×
           </button>
         </div>
-        <div class="catalog-item-name">${description}</div>
+        <div class="catalog-item-name">${fullDescription}</div>
       `;
       
       item.setAttribute('data-unique-id', uniqueId);
@@ -1629,216 +1554,239 @@
       }
     }
 
-    // Professional PDF Generation
-    async function generateProfessionalPDF() {
+    // Ultra-Fast PDF Generation
+    function generateFastPDF() {
       if (selectedProducts.length === 0) {
-        alert('Please select at least one product to generate PDF.');
+        alert('Please select products to generate PDF');
         return;
       }
 
-      // Show loading overlay
-      const loadingOverlay = document.getElementById('pdfLoadingOverlay');
-      const progressElement = document.getElementById('pdfProgress');
-      loadingOverlay.classList.remove('hidden');
-      
-      try {
-        progressElement.textContent = 'Preparing PDF generation...';
-        
-        // Initialize jsPDF
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        // Group products by model
-        const productsByModel = {};
-        selectedProducts.forEach(product => {
-          const model = product['MODEL'] || 'Unknown Model';
-          if (!productsByModel[model]) {
-            productsByModel[model] = [];
-          }
-          productsByModel[model].push(product);
-        });
+      // Show processing overlay
+      document.getElementById('pdfProcessing').classList.remove('hidden');
 
-        let pageCount = 0;
-        const totalModels = Object.keys(productsByModel).length;
-        let processedModels = 0;
-
-        // Generate pages for each model
-        for (const [model, products] of Object.entries(productsByModel)) {
-          const pages = Math.ceil(products.length / 9);
+      // Use setTimeout to allow UI to update
+      setTimeout(() => {
+        try {
+          // Create PDF content
+          const pdfContent = generatePDFContent();
           
-          for (let page = 0; page < pages; page++) {
-            const startIndex = page * 9;
-            const endIndex = Math.min(startIndex + 9, products.length);
-            const pageProducts = products.slice(startIndex, endIndex);
-            
-            progressElement.textContent = `Processing ${model} - Page ${page + 1} of ${pages}...`;
-            
-            // Add new page if not the first page
-            if (pageCount > 0) {
-              pdf.addPage();
-            }
-            
-            await generatePDFPage(pdf, model, pageProducts, page + 1, pages);
-            pageCount++;
-          }
+          // Create new window with PDF content
+          const pdfWindow = window.open('', '_blank');
+          pdfWindow.document.write(pdfContent);
+          pdfWindow.document.close();
           
-          processedModels++;
-          progressElement.textContent = `Completed ${processedModels} of ${totalModels} models...`;
+          // Auto-trigger print dialog
+          setTimeout(() => {
+            pdfWindow.print();
+            document.getElementById('pdfProcessing').classList.add('hidden');
+          }, 500);
+          
+        } catch (error) {
+          console.error('PDF generation error:', error);
+          alert('Error generating PDF. Please try again.');
+          document.getElementById('pdfProcessing').classList.add('hidden');
         }
-
-        progressElement.textContent = 'Finalizing PDF...';
-        
-        // Generate filename with current date
-        const currentDate = new Date().toISOString().split('T')[0];
-        const filename = `catalog-${currentDate}.pdf`;
-        
-        // Save the PDF
-        pdf.save(filename);
-        
-        progressElement.textContent = 'PDF generated successfully!';
-        
-        // Hide loading overlay after a short delay
-        setTimeout(() => {
-          loadingOverlay.classList.add('hidden');
-        }, 1000);
-        
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-        progressElement.textContent = 'Error generating PDF. Please try again.';
-        
-        setTimeout(() => {
-          loadingOverlay.classList.add('hidden');
-        }, 2000);
-      }
+      }, 100);
     }
 
-    async function generatePDFPage(pdf, model, products, pageNumber, totalPages) {
-      return new Promise(async (resolve) => {
-        // Create temporary container for PDF content
-        const tempContainer = document.createElement('div');
-        tempContainer.className = 'pdf-temp-container';
-        document.body.appendChild(tempContainer);
-
-        // Create PDF page content
-        const pageContent = document.createElement('div');
-        pageContent.className = 'pdf-page';
-        
-        // Header with logo and model name
-        const header = document.createElement('div');
-        header.className = 'pdf-header';
-        
-        const logo = document.createElement('img');
-        logo.src = 'https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800';
-        logo.className = 'pdf-logo';
-        logo.crossOrigin = 'anonymous';
-        
-        const title = document.createElement('h1');
-        title.className = 'pdf-title';
-        title.textContent = model;
-        
-        header.appendChild(logo);
-        header.appendChild(title);
-        pageContent.appendChild(header);
-
-        // Product grid
-        const grid = document.createElement('div');
-        grid.className = 'pdf-grid';
-        
-        // Load all images first
-        const imagePromises = products.map(product => {
-          return new Promise((imageResolve) => {
-            const imageId = product['ID'] || product['IMAGE LINK'];
-            if (imageId && imageId.trim() !== '') {
-              const img = new Image();
-              img.crossOrigin = 'anonymous';
-              img.onload = () => imageResolve({ product, img });
-              img.onerror = () => imageResolve({ product, img: null });
-              img.src = `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400`;
-            } else {
-              imageResolve({ product, img: null });
-            }
-          });
-        });
-
-        const loadedImages = await Promise.all(imagePromises);
-
-        // Create product items
-        loadedImages.forEach(({ product, img }) => {
-          const item = document.createElement('div');
-          item.className = 'pdf-item';
-          
-          const imageContainer = document.createElement('div');
-          if (img) {
-            const productImg = document.createElement('img');
-            productImg.src = img.src;
-            productImg.className = 'pdf-item-image';
-            productImg.crossOrigin = 'anonymous';
-            imageContainer.appendChild(productImg);
-          } else {
-            const placeholder = document.createElement('div');
-            placeholder.className = 'pdf-item-image';
-            placeholder.style.background = '#f8fafc';
-            placeholder.style.display = 'flex';
-            placeholder.style.alignItems = 'center';
-            placeholder.style.justifyContent = 'center';
-            placeholder.style.color = '#64748b';
-            placeholder.style.fontSize = '12px';
-            placeholder.textContent = 'No Image';
-            imageContainer.appendChild(placeholder);
-          }
-          
-          const description = formatProductDescription(product);
-          const nameElement = document.createElement('div');
-          nameElement.className = 'pdf-item-name';
-          nameElement.textContent = description;
-          
-          item.appendChild(imageContainer);
-          item.appendChild(nameElement);
-          grid.appendChild(item);
-        });
-
-        pageContent.appendChild(grid);
-
-        // Footer
-        const footer = document.createElement('div');
-        footer.className = 'pdf-footer';
-        footer.innerHTML = `
-          <p style="font-weight: 600; margin-bottom: 5px;">Vinayaka Industries - Quality Parts & Components</p>
-          ${totalPages > 1 ? `<p>Page ${pageNumber} of ${totalPages}</p>` : ''}
-        `;
-        pageContent.appendChild(footer);
-
-        tempContainer.appendChild(pageContent);
-
-        // Wait for images to load
-        setTimeout(async () => {
-          try {
-            // Generate canvas from the content
-            const canvas = await html2canvas(pageContent, {
-              scale: 2,
-              useCORS: true,
-              allowTaint: true,
-              backgroundColor: '#ffffff',
-              width: 794, // A4 width in pixels at 96 DPI
-              height: 1123, // A4 height in pixels at 96 DPI
-              scrollX: 0,
-              scrollY: 0
-            });
-
-            // Add canvas to PDF
-            const imgData = canvas.toDataURL('image/jpeg', 0.95);
-            pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297); // A4 dimensions in mm
-
-            // Clean up
-            document.body.removeChild(tempContainer);
-            resolve();
-          } catch (error) {
-            console.error('Error generating page:', error);
-            document.body.removeChild(tempContainer);
-            resolve();
-          }
-        }, 1000);
+    function generatePDFContent() {
+      // Group products by model
+      const productsByModel = {};
+      selectedProducts.forEach(product => {
+        const model = product['MODEL'] || 'Unknown Model';
+        if (!productsByModel[model]) {
+          productsByModel[model] = [];
+        }
+        productsByModel[model].push(product);
       });
+
+      let pdfHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Vinayaka Industries - Parts Catalog</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+              font-family: 'Inter', sans-serif;
+            }
+            
+            body {
+              background: white;
+              color: #1e293b;
+              line-height: 1.4;
+            }
+            
+            .pdf-page {
+              width: 210mm;
+              min-height: 297mm;
+              padding: 20mm;
+              margin: 0 auto;
+              background: white;
+              page-break-after: always;
+              position: relative;
+            }
+            
+            .pdf-page:last-child {
+              page-break-after: avoid;
+            }
+            
+            .pdf-header {
+              text-align: center;
+              margin-bottom: 40px;
+              border-bottom: 3px solid #0d9488;
+              padding-bottom: 20px;
+            }
+            
+            .pdf-logo-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 30px;
+              margin-bottom: 20px;
+            }
+            
+            .pdf-logo {
+              width: 80px;
+              height: 80px;
+              object-fit: contain;
+            }
+            
+            .pdf-model-title {
+              font-size: 48px;
+              font-weight: 900;
+              color: #1e293b;
+              letter-spacing: -1px;
+            }
+            
+            .pdf-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 25px;
+              margin-bottom: 30px;
+            }
+            
+            .pdf-item {
+              text-align: center;
+              border: 2px solid #e2e8f0;
+              border-radius: 12px;
+              padding: 15px;
+              background: #f8fafc;
+            }
+            
+            .pdf-item-image {
+              width: 100%;
+              height: 150px;
+              object-fit: cover;
+              border-radius: 8px;
+              margin-bottom: 12px;
+              background: white;
+              border: 1px solid #e2e8f0;
+            }
+            
+            .pdf-item-name {
+              font-size: 11px;
+              font-weight: 700;
+              color: #2563eb;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              line-height: 1.3;
+            }
+            
+            .pdf-footer {
+              position: absolute;
+              bottom: 15mm;
+              left: 20mm;
+              right: 20mm;
+              text-align: center;
+              font-size: 12px;
+              color: #64748b;
+              border-top: 1px solid #e2e8f0;
+              padding-top: 10px;
+            }
+            
+            @media print {
+              body { margin: 0; }
+              .pdf-page { 
+                margin: 0; 
+                box-shadow: none;
+                page-break-after: always;
+              }
+              .pdf-page:last-child {
+                page-break-after: avoid;
+              }
+            }
+          </style>
+        </head>
+        <body>
+      `;
+
+      // Generate pages for each model
+      Object.keys(productsByModel).forEach(model => {
+        const products = productsByModel[model];
+        const pages = Math.ceil(products.length / 9);
+        
+        for (let page = 0; page < pages; page++) {
+          const startIndex = page * 9;
+          const endIndex = Math.min(startIndex + 9, products.length);
+          const pageProducts = products.slice(startIndex, endIndex);
+          
+          pdfHTML += `
+            <div class="pdf-page">
+              <div class="pdf-header">
+                <div class="pdf-logo-container">
+                  <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="pdf-logo">
+                  <div class="pdf-model-title">${model}</div>
+                </div>
+              </div>
+              
+              <div class="pdf-grid">
+          `;
+          
+          pageProducts.forEach(product => {
+            const imageId = product['ID'] || product['IMAGE LINK'];
+            const imageUrl = imageId && imageId.trim() !== '' ? 
+              `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
+              'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+            
+            const fullDescription = [
+              product['MODEL'] || '',
+              product['MODEL NUMBER'] || '',
+              product['DEVICE'] || '',
+              product['SIZE'] || '',
+              product['ITEM NAME'] || ''
+            ].filter(part => part.trim() !== '').join(' ');
+            
+            pdfHTML += `
+              <div class="pdf-item">
+                <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="pdf-item-image">
+                <div class="pdf-item-name">${fullDescription}</div>
+              </div>
+            `;
+          });
+          
+          pdfHTML += `
+              </div>
+              <div class="pdf-footer">
+                <div>Vinayaka Industries - Quality Parts & Components</div>
+                ${pages > 1 ? `<div>Page ${page + 1} of ${pages}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      pdfHTML += `
+        </body>
+        </html>
+      `;
+
+      return pdfHTML;
     }
 
     // Event listeners
