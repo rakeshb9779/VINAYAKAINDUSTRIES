@@ -1,491 +1,64 @@
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=1.0, maximum-scale=5.0">
-  <title>Vinayaka Industries - Premium Parts Catalog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vinayaka Industries - Parts Catalog</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     
-    /* CSS Custom Properties for Responsive Design */
-    :root {
-      --fluid-min-width: 320;
-      --fluid-max-width: 1440;
-      --fluid-screen: 100vw;
-      --fluid-bp: calc(
-        (var(--fluid-screen) - var(--fluid-min-width) / 16 * 1rem) /
-        (var(--fluid-max-width) - var(--fluid-min-width))
-      );
-      
-      /* Fluid Typography */
-      --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
-      --font-size-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
-      --font-size-lg: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
-      --font-size-xl: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);
-      --font-size-2xl: clamp(1.5rem, 1.3rem + 1vw, 2rem);
-      --font-size-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 3rem);
-      --font-size-4xl: clamp(2.25rem, 1.8rem + 2.25vw, 4rem);
-      
-      /* Fluid Spacing */
-      --space-xs: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
-      --space-sm: clamp(0.75rem, 0.6rem + 0.75vw, 1.25rem);
-      --space-md: clamp(1rem, 0.8rem + 1vw, 1.5rem);
-      --space-lg: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
-      --space-xl: clamp(2rem, 1.6rem + 2vw, 3.5rem);
-      --space-2xl: clamp(3rem, 2.4rem + 3vw, 5rem);
-      
-      /* Premium Colors */
-      --premium-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      --premium-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      --premium-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      --premium-light: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      --glass-bg: rgba(255, 255, 255, 0.95);
-      --glass-border: rgba(255, 255, 255, 0.2);
-      
-      /* Responsive Grid */
-      --grid-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-      --grid-gap: var(--space-md);
-    }
-    
     * {
       font-family: 'Inter', sans-serif;
-      box-sizing: border-box;
     }
     
-    html {
-      scroll-behavior: smooth;
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
     }
     
-    body {
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-      font-size: var(--font-size-base);
-      overflow-x: hidden;
-    }
-    
-    /* Premium Background System */
-    .premium-bg-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      position: relative;
-    }
-    
-    .premium-bg-primary::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
-      pointer-events: none;
-    }
-    
-    .premium-bg-dark {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-      background-size: 400% 400%;
-      animation: gradientShift 20s ease infinite;
-      position: relative;
-    }
-    
-    .premium-bg-dark::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: 
-        radial-gradient(circle at 30% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 60%),
-        radial-gradient(circle at 70% 30%, rgba(147, 51, 234, 0.1) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    
-    @keyframes gradientShift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-    }
-    
-    /* Advanced Glass Morphism */
-    .glass-morphism {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-    
-    .glass-morphism-dark {
-      background: rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 
-        0 8px 32px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    
-    /* Responsive Typography */
-    .text-fluid-sm { font-size: var(--font-size-sm); }
-    .text-fluid-base { font-size: var(--font-size-base); }
-    .text-fluid-lg { font-size: var(--font-size-lg); }
-    .text-fluid-xl { font-size: var(--font-size-xl); }
-    .text-fluid-2xl { font-size: var(--font-size-2xl); }
-    .text-fluid-3xl { font-size: var(--font-size-3xl); }
-    .text-fluid-4xl { font-size: var(--font-size-4xl); }
-    
-    /* Responsive Spacing */
-    .space-xs { padding: var(--space-xs); }
-    .space-sm { padding: var(--space-sm); }
-    .space-md { padding: var(--space-md); }
-    .space-lg { padding: var(--space-lg); }
-    .space-xl { padding: var(--space-xl); }
-    .space-2xl { padding: var(--space-2xl); }
-    
-    .gap-fluid { gap: var(--space-md); }
-    .gap-fluid-sm { gap: var(--space-sm); }
-    .gap-fluid-lg { gap: var(--space-lg); }
-    
-    /* Responsive Grid System */
-    .responsive-grid {
-      display: grid;
-      grid-template-columns: var(--grid-columns);
-      gap: var(--grid-gap);
-    }
-    
-    .responsive-grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-      gap: var(--grid-gap);
-    }
-    
-    .responsive-grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-      gap: var(--grid-gap);
-    }
-    
-    .responsive-grid-4 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
-      gap: var(--grid-gap);
-    }
-    
-    /* Mobile-First Responsive Layout */
-    .layout-container {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      position: relative;
-    }
-    
-    .sidebar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: var(--premium-dark);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 var(--space-md);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .sidebar.expanded {
-      height: 100vh;
-      flex-direction: column;
-      justify-content: flex-start;
-      padding: var(--space-lg);
-    }
-    
-    .sidebar-content {
-      display: flex;
-      align-items: center;
-      gap: var(--space-md);
-      width: 100%;
-    }
-    
-    .sidebar.expanded .sidebar-content {
-      flex-direction: column;
-      align-items: center;
-      margin-bottom: var(--space-xl);
-    }
-    
-    .sidebar-nav {
-      display: none;
-      flex-direction: column;
-      gap: var(--space-md);
-      width: 100%;
-      max-width: 300px;
-    }
-    
-    .sidebar.expanded .sidebar-nav {
-      display: flex;
-    }
-    
-    .main-content {
-      margin-top: 60px;
-      flex: 1;
-      position: relative;
-    }
-    
-    /* Mobile Navigation */
-    .mobile-menu-btn {
-      display: block;
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      padding: var(--space-xs);
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-    
-    .mobile-menu-btn:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-    
-    .nav-item {
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      padding: var(--space-sm);
-      border-radius: 12px;
-      color: rgba(255, 255, 255, 0.7);
-      text-decoration: none;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      min-height: 48px; /* Touch target */
-    }
-    
-    .nav-item:hover,
-    .nav-item.active {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      transform: translateX(4px);
-    }
-    
-    .nav-item svg {
-      width: 24px;
-      height: 24px;
-      transition: transform 0.3s ease;
-    }
-    
-    .nav-item:hover svg {
-      transform: scale(1.1);
-    }
-    
-    /* Enhanced Card System */
-    .premium-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: clamp(12px, 2vw, 24px);
-      padding: var(--space-md);
-      box-shadow: 
-        0 4px 20px rgba(0, 0, 0, 0.1),
-        0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .premium-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    }
-    
-    .premium-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 
-        0 20px 60px rgba(0, 0, 0, 0.15),
-        0 8px 24px rgba(0, 0, 0, 0.1);
-      border-color: rgba(102, 126, 234, 0.3);
-    }
-    
-    /* Premium Product Cards */
-    .product-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 2px solid transparent;
-      border-radius: clamp(16px, 3vw, 24px);
-      padding: var(--space-md);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .product-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, transparent 0%, rgba(102, 126, 234, 0.05) 100%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .product-card:hover::before {
-      opacity: 1;
-    }
-    
-    .product-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      border-color: #667eea;
-      box-shadow: 
-        0 20px 60px rgba(102, 126, 234, 0.2),
-        0 8px 24px rgba(0, 0, 0, 0.1);
-    }
-    
-    .product-image-container {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: clamp(12px, 2vw, 16px);
-      overflow: hidden;
-      margin-bottom: var(--space-sm);
+    .gradient-bg {
       background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     }
     
-    .product-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.3s ease;
+    .sidebar-gradient {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
     }
     
-    .product-card:hover .product-image {
-      transform: scale(1.05);
+    .hover-scale {
+      transition: transform 0.2s ease-in-out;
     }
     
-    /* Enhanced Search Components */
-    .search-container {
-      position: relative;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
+    .hover-scale:hover {
+      transform: scale(1.02);
     }
     
-    .search-input {
-      width: 100%;
-      padding: var(--space-sm) var(--space-sm) var(--space-sm) calc(var(--space-sm) * 2.5);
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 2px solid transparent;
-      border-radius: clamp(12px, 2vw, 16px);
-      font-size: var(--font-size-base);
-      color: #1e293b;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      outline: none;
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
     }
     
-    .search-input:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-      transform: translateY(-2px);
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     
-    .search-icon {
-      position: absolute;
-      left: var(--space-sm);
-      top: 50%;
-      transform: translateY(-50%);
-      color: #64748b;
-      transition: all 0.3s ease;
-      pointer-events: none;
+    .modal-backdrop {
+      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.5);
     }
     
-    .search-input:focus + .search-icon {
-      color: #667eea;
-      transform: translateY(-50%) scale(1.1);
-    }
-    
-    /* Responsive Filter System */
-    .filter-container {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border: 1px solid var(--glass-border);
-      border-radius: clamp(12px, 2vw, 20px);
-      padding: var(--space-md);
-      margin-bottom: var(--space-lg);
-    }
-    
-    .filter-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
-      gap: var(--space-md);
-    }
-    
-    .filter-select {
-      padding: var(--space-sm);
-      background: rgba(255, 255, 255, 0.8);
-      border: 2px solid transparent;
-      border-radius: clamp(8px, 1.5vw, 12px);
-      font-size: var(--font-size-sm);
-      transition: all 0.3s ease;
-      outline: none;
-      min-height: 44px; /* Touch target */
-    }
-    
-    .filter-select:focus {
-      border-color: #667eea;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    /* Button System */
-    .btn-primary {
-      background: var(--premium-primary);
-      color: white;
-      border: none;
-      border-radius: clamp(8px, 1.5vw, 12px);
-      padding: var(--space-sm) var(--space-md);
-      font-size: var(--font-size-base);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      min-height: 44px; /* Touch target */
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-xs);
-      text-decoration: none;
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    }
-    
-    .btn-primary:active {
-      transform: translateY(0);
-    }
-    
-    /* Loading States */
     .loading-spinner {
+      border: 3px solid #e2e8f0;
+      border-top: 3px solid #0d9488;
+      border-radius: 50%;
       width: 32px;
       height: 32px;
-      border: 3px solid rgba(102, 126, 234, 0.2);
-      border-top: 3px solid #667eea;
-      border-radius: 50%;
       animation: spin 1s linear infinite;
     }
     
@@ -494,631 +67,1240 @@
       100% { transform: rotate(360deg); }
     }
     
-    /* Modal System */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(8px);
-      z-index: 2000;
+    .table-row:hover {
+      background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+    
+    .search-input:focus {
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+    }
+    
+    .filter-select:focus {
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+    }
+    
+    .image-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    }
+    
+    .reload-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .reload-btn:hover {
+      transform: rotate(180deg);
+      background: #0d9488;
+      color: white;
+    }
+    
+    .image-placeholder {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+    
+    .search-container {
+      position: relative;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .search-container:focus-within {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    .search-input-enhanced {
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: 14px 50px 14px 50px;
+      font-size: 16px;
+      color: #1e293b;
+      font-weight: 500;
+    }
+    
+    .search-input-enhanced::placeholder {
+      color: #64748b;
+      font-weight: 400;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+    
+    .search-container:focus-within .search-icon {
+      color: #0d9488;
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    .search-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+    }
+    
+    .search-btn:hover {
+      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+      transform: translateY(-50%) translateY(-1px);
+      box-shadow: 0 6px 16px rgba(13, 148, 136, 0.4);
+    }
+    
+    .search-btn:active {
+      transform: translateY(-50%) translateY(0px);
+    }
+    
+    .search-results-count {
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .iframe-container {
+      width: 100%;
+      height: 400px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      background: #f8fafc;
+    }
+
+    .product-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 16px;
+    }
+
+    .reload-button {
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+    }
+
+    .reload-button:hover {
+      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+    }
+
+    /* Export Page Styles */
+    .export-card {
+      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+      border-radius: 20px;
+      padding: 40px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+    }
+
+    .export-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.4);
+    }
+
+    .export-title {
+      font-size: 4rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+    }
+
+    .export-option {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+
+    /* Product Grid Styles */
+    .product-grid-item {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 3px solid transparent;
+    }
+
+    .product-grid-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-grid-item.selected {
+      border-color: #0d9488;
+      background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+
+    .cart-badge {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--space-md);
+      font-size: 12px;
+      font-weight: 600;
+      position: absolute;
+      top: -8px;
+      right: -8px;
     }
-    
-    .modal-content {
+
+    /* Catalog Preview Styles */
+    .catalog-page {
+      width: 210mm;
+      min-height: 297mm;
       background: white;
-      border-radius: clamp(16px, 3vw, 24px);
+      margin: 0 auto;
+      padding: 20mm;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .catalog-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .catalog-logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+    }
+
+    .catalog-model-title {
+      font-size: 4rem;
+      font-weight: 900;
+      color: #1e293b;
+      letter-spacing: -0.02em;
+      margin-bottom: 30px;
+    }
+
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .catalog-item {
+      text-align: center;
+      position: relative;
+    }
+
+    .catalog-item-image {
       width: 100%;
-      max-width: min(90vw, 1200px);
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-      transform: scale(0.95);
-      animation: modalIn 0.3s ease forwards;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      background: #f8fafc;
     }
-    
-    @keyframes modalIn {
-      to {
-        transform: scale(1);
-      }
+
+    .catalog-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    
-    /* Tablet Styles */
-    @media (min-width: 768px) {
-      :root {
-        --grid-columns: repeat(auto-fit, minmax(320px, 1fr));
-      }
-      
-      .sidebar {
-        width: 80px;
-        height: 100vh;
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: var(--space-lg) var(--space-sm);
-      }
-      
-      .sidebar-content {
-        flex-direction: column;
-        margin-bottom: var(--space-xl);
-      }
-      
-      .sidebar-nav {
-        display: flex;
-        width: 100%;
-      }
-      
-      .mobile-menu-btn {
-        display: none;
-      }
-      
-      .main-content {
-        margin-left: 80px;
-        margin-top: 0;
-      }
-      
-      .nav-item {
-        justify-content: center;
-        padding: var(--space-sm);
-      }
-      
-      .nav-item span {
-        display: none;
-      }
-      
-      .responsive-grid-2 {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      }
-      
-      .responsive-grid-3 {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      }
-      
-      .responsive-grid-4 {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      }
+
+    .remove-item-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s ease;
+      font-size: 12px;
+      font-weight: 600;
     }
-    
-    /* Desktop Styles */
-    @media (min-width: 1024px) {
-      :root {
-        --grid-columns: repeat(auto-fit, minmax(350px, 1fr));
-      }
-      
-      .sidebar {
-        width: 240px;
-        padding: var(--space-xl) var(--space-lg);
-      }
-      
-      .main-content {
-        margin-left: 240px;
-      }
-      
-      .nav-item {
-        justify-content: flex-start;
-        padding: var(--space-md);
-      }
-      
-      .nav-item span {
-        display: block;
-      }
-      
-      .filter-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      }
-      
-      .responsive-grid-2 {
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      }
-      
-      .responsive-grid-3 {
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      }
-      
-      .responsive-grid-4 {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      }
+
+    .catalog-item:hover .remove-item-btn {
+      opacity: 1;
     }
-    
-    /* Large Desktop */
-    @media (min-width: 1440px) {
-      :root {
-        --grid-columns: repeat(auto-fit, minmax(400px, 1fr));
-      }
-      
-      .responsive-grid-4 {
-        grid-template-columns: repeat(4, 1fr);
-      }
+
+    .remove-item-btn:hover {
+      background: #dc2626;
+      transform: scale(1.1);
     }
-    
-    /* High DPI Displays */
-    @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-      .premium-card,
-      .product-card {
-        border-width: 0.5px;
-      }
-    }
-    
-    /* Dark Mode Support */
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --glass-bg: rgba(30, 41, 59, 0.8);
-        --glass-border: rgba(255, 255, 255, 0.1);
-      }
-    }
-    
-    /* Reduced Motion */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-    
-    /* Print Styles */
+
     @media print {
-      .sidebar,
-      .mobile-menu-btn,
       .no-print {
         display: none !important;
       }
       
-      .main-content {
-        margin: 0 !important;
+      .catalog-page {
+        box-shadow: none;
+        margin: 0;
+      }
+    }
+
+    /* Navigation Styles */
+    .nav-button {
+      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+    }
+
+    .nav-button:hover {
+      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
+    }
+
+    .secondary-button {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+
+    .secondary-button:hover {
+      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+    }
+
+    /* Fast PDF Generation Styles */
+    .pdf-processing {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      text-align: center;
+    }
+
+    .pdf-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e2e8f0;
+      border-top: 4px solid #0d9488;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    /* PDF Print Styles */
+    @media print {
+      body * {
+        visibility: hidden;
       }
       
-      .premium-card,
-      .product-card {
-        break-inside: avoid;
+      .pdf-content, .pdf-content * {
+        visibility: visible;
+      }
+      
+      .pdf-content {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      
+      .pdf-page {
+        page-break-after: always;
+        width: 210mm;
+        min-height: 297mm;
+        padding: 20mm;
+        margin: 0;
         box-shadow: none;
-        border: 1px solid #e2e8f0;
+      }
+      
+      .pdf-page:last-child {
+        page-break-after: avoid;
       }
     }
-    
-    /* Additional Premium Styles */
-    .fade-in {
-      animation: fadeIn 0.6s ease-out;
+
+    /* Premium Dashboard Styles */
+    .dashboard-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
     }
-    
-    @keyframes fadeIn {
+
+    .premium-search-container {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .premium-search-container:focus-within {
+      border-color: rgba(102, 126, 234, 0.5);
+      box-shadow: 0 0 0 6px rgba(102, 126, 234, 0.1), 0 12px 40px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .premium-search-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: 16px 60px 16px 60px;
+      font-size: 16px;
+      color: #1e293b;
+      font-weight: 500;
+    }
+
+    .premium-search-input::placeholder {
+      color: #64748b;
+      font-weight: 400;
+    }
+
+    .premium-search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+
+    .premium-search-container:focus-within .premium-search-icon {
+      color: #667eea;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .premium-search-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    .premium-search-btn:hover {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      transform: translateY(-50%) translateY(-1px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Premium Product Cards - Clean Border Effect */
+    .premium-product-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(226, 232, 240, 0.5);
+      border-radius: 24px;
+      padding: 20px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .premium-product-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      border-color: #0d9488;
+    }
+
+    .premium-product-image-container {
+      position: relative;
+      width: 100%;
+      height: 280px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border: 2px solid rgba(226, 232, 240, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .premium-product-card:hover .premium-product-image-container {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+    }
+
+    .premium-product-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .premium-product-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+      line-height: 1.4;
+      position: relative;
+      z-index: 3;
+    }
+
+    .premium-product-specs {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 12px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 3;
+    }
+
+    .premium-product-price {
+      font-size: 18px;
+      font-weight: 800;
+      color: #667eea;
+      margin-bottom: 16px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .premium-view-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+      position: relative;
+      z-index: 3;
+    }
+
+    .premium-view-btn:hover {
+      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    /* Premium Filter Styles */
+    .premium-filter-container {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .premium-filter-select {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1e293b;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .premium-filter-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .premium-filter-chips {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .premium-filter-chip {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .premium-filter-chip:hover,
+    .premium-filter-chip.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    }
+
+    /* Premium Grid Layout */
+    .premium-products-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    @media (max-width: 1200px) {
+      .premium-products-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .premium-products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .premium-products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Premium Animations */
+    .premium-fade-in {
+      animation: premiumFadeIn 0.6s ease-out;
+    }
+
+    @keyframes premiumFadeIn {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px);
       }
       to {
         opacity: 1;
         transform: translateY(0);
       }
     }
-    
-    .slide-in {
-      animation: slideIn 0.8s ease-out;
+
+    .premium-slide-in {
+      animation: premiumSlideIn 0.8s ease-out;
     }
-    
-    @keyframes slideIn {
+
+    @keyframes premiumSlideIn {
       from {
         opacity: 0;
-        transform: translateX(-30px);
+        transform: translateX(-50px);
       }
       to {
         opacity: 1;
         transform: translateX(0);
       }
     }
-    
-    /* Premium Table Styles */
-    .table-container {
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border-radius: clamp(12px, 2vw, 20px);
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+    /* Logo Styles - Enhanced Visibility */
+    .logo-enhanced {
+      background: white;
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 2px solid rgba(226, 232, 240, 0.5);
     }
-    
-    .responsive-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    .responsive-table th,
-    .responsive-table td {
-      padding: var(--space-sm);
-      text-align: left;
-      border-bottom: 1px solid rgba(226, 232, 240, 0.5);
-    }
-    
-    .responsive-table th {
-      background: rgba(248, 250, 252, 0.8);
-      font-weight: 600;
-      font-size: var(--font-size-sm);
-      color: #475569;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    
-    .responsive-table tr:hover {
-      background: rgba(102, 126, 234, 0.05);
-    }
-    
-    /* Mobile Table Optimization */
-    @media (max-width: 767px) {
-      .responsive-table,
-      .responsive-table thead,
-      .responsive-table tbody,
-      .responsive-table th,
-      .responsive-table td,
-      .responsive-table tr {
-        display: block;
-      }
-      
-      .responsive-table thead {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-      }
-      
-      .responsive-table tr {
-        background: var(--glass-bg);
-        border-radius: 12px;
-        margin-bottom: var(--space-sm);
-        padding: var(--space-sm);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-      
-      .responsive-table td {
-        border: none;
-        padding: var(--space-xs) 0;
-        position: relative;
-        padding-left: 30%;
-      }
-      
-      .responsive-table td:before {
-        content: attr(data-label) ": ";
-        position: absolute;
-        left: 0;
-        width: 25%;
-        font-weight: 600;
-        color: #64748b;
-        font-size: var(--font-size-sm);
-      }
-    }
-    
-    /* Accessibility Enhancements */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-    
-    /* Focus styles for keyboard navigation */
-    *:focus {
-      outline: 2px solid #667eea;
-      outline-offset: 2px;
-    }
-    
-    /* High contrast mode */
-    @media (prefers-contrast: high) {
-      .premium-card,
-      .product-card {
-        border: 2px solid;
-      }
+
+    .logo-sidebar {
+      background: white;
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
-<body>
+<body class="gradient-bg min-h-screen">
   <!-- Loading Screen -->
-  <div id="loadingScreen" class="fixed inset-0 premium-bg-primary flex items-center justify-center z-50">
-    <div class="text-center text-white">
+  <div id="loadingScreen" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+    <div class="text-center">
       <div class="loading-spinner mx-auto mb-4"></div>
-      <p class="text-fluid-lg font-medium">Loading premium catalog...</p>
+      <p class="text-slate-600 font-medium">Loading product catalog...</p>
     </div>
   </div>
 
   <!-- Error Message -->
-  <div id="errorMessage" class="hidden fixed inset-0 premium-bg-primary flex items-center justify-center z-50">
-    <div class="premium-card text-center max-w-md mx-4">
+  <div id="errorMessage" class="hidden fixed inset-0 bg-white flex items-center justify-center z-50">
+    <div class="bg-red-50 border border-red-200 rounded-2xl p-8 text-center max-w-md">
       <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
         <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
         </svg>
       </div>
-      <h3 class="text-fluid-xl font-semibold text-red-800 mb-2">Error Loading Data</h3>
+      <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Data</h3>
       <p class="text-red-600" id="errorText">Failed to load product catalog</p>
     </div>
   </div>
 
-  <!-- Main Application -->
-  <div id="mainApp" class="layout-container" style="display: none;">
-    <!-- Responsive Sidebar -->
-    <aside id="sidebar" class="sidebar premium-bg-dark">
-      <div class="sidebar-content">
-        <img src="https://drive.google.com/thumbnail?id=1Z10whv0kAB-PywEZE4mj0pZcfNp0w5nF&sz=s800" alt="Logo" class="w-12 h-12 object-contain bg-white rounded-lg p-1">
-        <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle navigation menu">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-          </svg>
-        </button>
+  <!-- PDF Processing Overlay -->
+  <div id="pdfProcessing" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+    <div class="pdf-processing">
+      <div class="pdf-spinner"></div>
+      <h3 class="text-lg font-semibold text-slate-800 mb-2">Generating PDF...</h3>
+      <p class="text-slate-600">Please wait while we prepare your catalog</p>
+    </div>
+  </div>
+
+  <!-- Main Application Container -->
+  <div id="mainApp" class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-20 sidebar-gradient flex flex-col items-center py-6 shadow-2xl">
+      <div class="mb-8">
+        <img
+          src="https://drive.google.com/thumbnail?id=1Z10whv0kAB-PywEZE4mj0pZcfNp0w5nF&sz=s800"
+          alt="Logo"
+          class="w-16 h-16 logo-sidebar object-contain"
+        />
       </div>
       
-      <nav class="sidebar-nav" role="navigation">
-        <a href="#" class="nav-item active" onclick="showDashboardView()" data-view="dashboard">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <nav class="flex-1 flex flex-col gap-4">
+        <button id="dashboardBtn" class="p-3 rounded-xl transition-all duration-200 group bg-teal-600 text-white shadow-lg" title="Dashboard" onclick="showDashboardView()">
+          <svg class="w-6 h-6 scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
           </svg>
-          <span>Dashboard</span>
-        </a>
-        <a href="#" class="nav-item" onclick="showCatalogView()" data-view="catalog">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        </button>
+        <button id="catalogBtn" class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Catalog" onclick="showCatalogView()">
+          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
           </svg>
-          <span>Catalog</span>
-        </a>
-        <a href="#" class="nav-item" onclick="showExportView()" data-view="export">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        </button>
+        
+        <!-- Export Button -->
+        <button id="exportBtn" class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Export" onclick="showExportView()">
+          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
-          <span>Export</span>
-        </a>
-        <a href="#" class="nav-item">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        </button>
+       
+        <button class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Analytics">
+          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
           </svg>
-          <span>Analytics</span>
-        </a>
-        <a href="#" class="nav-item">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        </button>
+        <button class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Settings">
+          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
           </svg>
-          <span>Settings</span>
-        </a>
+        </button>
       </nav>
     </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Dashboard View -->
-      <div id="dashboardView" class="premium-bg-primary min-h-screen">
-        <!-- Header -->
-        <header class="space-lg">
-          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-fluid">
-            <div class="flex items-center gap-fluid">
-              <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="w-16 h-16 lg:w-20 lg:h-20 object-contain bg-white rounded-xl p-2">
+    
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-h-screen">
+      <!-- Premium Dashboard View -->
+      <div id="dashboardView" class="flex-1 dashboard-gradient">
+        <!-- Dashboard Header with Search -->
+        <header class="p-6">
+          <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+              <img
+                src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
+                alt="Vinayaka Industries"
+                class="w-24 h-24 logo-enhanced object-contain"
+              />
               <div>
-                <h1 class="text-fluid-3xl font-black text-white leading-tight">Premium Parts Collection</h1>
-                <p class="text-fluid-lg text-white/80 mt-1">Discover high-quality industrial components</p>
+                <h1 class="text-3xl font-bold text-white">Premium Parts Collection</h1>
+                <p class="text-white/80 text-lg">Discover high-quality industrial components</p>
               </div>
             </div>
             
-            <!-- Search Bar -->
-            <div class="search-container w-full lg:w-auto lg:min-w-[400px]">
-              <input type="text" id="dashboardSearchInput" placeholder="Search premium parts, models, devices..." class="search-input" />
-              <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Premium Search Bar - Top Right -->
+            <div class="premium-search-container w-96">
+              <svg class="premium-search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
+              <input
+                type="text"
+                id="dashboardSearchInput"
+                placeholder="Search premium parts, models, devices..."
+                class="premium-search-input"
+              />
+              <button class="premium-search-btn" onclick="performDashboardSearch()">
+                Search
+              </button>
             </div>
           </div>
         </header>
 
         <!-- Dashboard Content -->
-        <div class="space-lg">
-          <!-- Filters -->
-          <div class="filter-container slide-in">
-            <div class="flex items-center gap-fluid-sm mb-6">
+        <main class="flex-1 px-6 pb-6">
+          <!-- Premium Filters -->
+          <div class="premium-filter-container premium-slide-in">
+            <div class="flex items-center gap-3 mb-6">
               <div class="p-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
                 </svg>
               </div>
-              <h2 class="text-fluid-2xl font-bold text-white">Filter Premium Products</h2>
+              <h2 class="text-2xl font-bold text-white">Filter Premium Products</h2>
             </div>
             
-            <div class="filter-grid mb-6">
-              <div>
-                <label class="block text-fluid-sm font-semibold text-white/90 mb-2">Model</label>
-                <select id="dashboardModelFilter" class="filter-select w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-white/90">Model</label>
+                <select id="dashboardModelFilter" class="premium-filter-select w-full">
                   <option value="">All Models</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-fluid-sm font-semibold text-white/90 mb-2">Model Number</label>
-                <select id="dashboardModelNumberFilter" class="filter-select w-full">
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-white/90">Model Number</label>
+                <select id="dashboardModelNumberFilter" class="premium-filter-select w-full">
                   <option value="">All Model Numbers</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-fluid-sm font-semibold text-white/90 mb-2">Device</label>
-                <select id="dashboardDeviceFilter" class="filter-select w-full">
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-white/90">Device</label>
+                <select id="dashboardDeviceFilter" class="premium-filter-select w-full">
                   <option value="">All Devices</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-fluid-sm font-semibold text-white/90 mb-2">Item Name</label>
-                <select id="dashboardItemNameFilter" class="filter-select w-full">
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-semibold text-white/90">Item Name</label>
+                <select id="dashboardItemNameFilter" class="premium-filter-select w-full">
                   <option value="">All Item Names</option>
                 </select>
               </div>
             </div>
 
             <!-- Quick Filter Chips -->
-            <div class="flex flex-wrap gap-fluid-sm">
-              <button class="btn-primary" onclick="setQuickFilter('all', this)">All Products</button>
-              <button class="btn-primary" onclick="setQuickFilter('available', this)">Available Now</button>
-              <button class="btn-primary" onclick="setQuickFilter('motors', this)">Motors</button>
-              <button class="btn-primary" onclick="setQuickFilter('bearings', this)">Bearings</button>
-              <button class="btn-primary" onclick="setQuickFilter('gears', this)">Gears</button>
+            <div class="premium-filter-chips">
+              <div class="premium-filter-chip active" onclick="setQuickFilter('all')">All Products</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('available')">Available Now</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('motors')">Motors</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('bearings')">Bearings</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('gears')">Gears</div>
             </div>
           </div>
 
-          <!-- Products Grid -->
-          <div class="fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-fluid mb-6">
-              <h2 class="text-fluid-2xl font-bold text-white">Premium Products</h2>
-              <div class="text-white/80 text-fluid-lg" id="dashboardProductCount">0 products</div>
+          <!-- Premium Products Grid -->
+          <div class="premium-fade-in">
+            <div class="flex items-center justify-between mb-6">
+              <h2 class="text-2xl font-bold text-white">Premium Products</h2>
+              <div class="text-white/80" id="dashboardProductCount">0 products</div>
             </div>
             
-            <div id="dashboardProductsGrid" class="responsive-grid-4">
+            <div id="dashboardProductsGrid" class="premium-products-grid">
               <!-- Products will be populated here -->
             </div>
           </div>
-        </div>
+        </main>
       </div>
 
       <!-- Catalog View -->
-      <div id="catalogView" class="hidden min-h-screen bg-gray-50">
+      <div id="catalogView" class="hidden flex-1 flex flex-col">
         <!-- Header -->
-        <header class="glass-morphism border-b border-gray-200 space-md sticky top-0 z-40">
-          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-fluid">
-            <div class="flex items-center gap-fluid">
-              <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="w-16 h-16 object-contain bg-white rounded-xl p-2">
-              <h1 class="text-fluid-2xl font-bold text-slate-800">Parts Catalog</h1>
+        <header class="glass-effect border-b border-gray-200 px-6 py-4 sticky top-0 z-40">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-3">
+                <img
+                  src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
+                  alt="Vinayaka Industries"
+                  class="w-20 h-20 logo-enhanced object-contain"
+                />
+                <div>
+                  <h1 class="text-xl font-bold text-slate-800">Parts Catalog</h1>              
+                </div>
+              </div>
             </div>
             
-            <div class="search-container w-full lg:w-auto lg:min-w-[400px]">
-              <input type="text" id="searchInput" placeholder="Search parts, models, devices..." class="search-input" />
-              <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
+            <div class="flex items-center gap-4">
+              <!-- Enhanced Search Bar -->
+              <div class="search-container w-96">
+                <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder="Search parts, models, devices... (e.g., '60', 'bearing', 'motor')"
+                  class="search-input-enhanced"
+                />
+                <button class="search-btn" onclick="performSearch()">
+                  Search
+                </button>
+              </div>
             </div>
           </div>
         </header>
         
         <!-- Main Content -->
-        <div class="space-lg">
+        <main class="flex-1 p-6 space-y-6" id="mainContent">
           <!-- Filters -->
-          <div class="filter-container slide-in">
-            <div class="flex items-center gap-fluid-sm mb-6">
-              <div class="p-3 bg-teal-100 rounded-xl">
-                <svg class="w-6 h-6 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 fade-in">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-2 bg-teal-100 rounded-lg">
+                <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
                 </svg>
               </div>
-              <h2 class="text-fluid-xl font-semibold text-slate-800">Filter Parts</h2>
+              <h2 class="text-xl font-semibold text-slate-800">Filter Parts</h2>
             </div>
             
-            <div class="filter-grid">
-              <div>
-                <label class="block text-fluid-sm font-medium text-slate-700 mb-2">Model</label>
-                <select id="modelFilter" class="filter-select w-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Model</label>
+                <select
+                  id="modelFilter"
+                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
+                >
                   <option value="">All Models</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-fluid-sm font-medium text-slate-700 mb-2">Model Number</label>
-                <select id="modelNumberFilter" class="filter-select w-full">
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Model Number</label>
+                <select
+                  id="modelNumberFilter"
+                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
+                >
                   <option value="">All Model Numbers</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-fluid-sm font-medium text-slate-700 mb-2">Device</label>
-                <select id="deviceFilter" class="filter-select w-full">
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Device</label>
+                <select
+                  id="deviceFilter"
+                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
+                >
                   <option value="">All Devices</option>
                 </select>
               </div>
-              <div>
-                <label class="block text-fluid-sm font-medium text-slate-700 mb-2">Item Name</label>
-                <select id="itemNameFilter" class="filter-select w-full">
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Item Name</label>
+                <select
+                  id="itemNameFilter"
+                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
+                >
                   <option value="">All Item Names</option>
                 </select>
               </div>
             </div>
           </div>
           
-          <!-- Product Table -->
-          <div class="fade-in">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-fluid mb-6">
-              <h2 class="text-fluid-2xl font-bold text-slate-800">Product Catalog</h2>
-              <div class="flex items-center gap-fluid-sm">
-                <div class="text-fluid-sm text-slate-600" id="productCount">0 products</div>
-                <div id="searchResultsBadge" class="hidden bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-fluid-sm font-medium">Search Results</div>
+          <!-- Product Count and Table -->
+          <div class="space-y-4 fade-in">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold text-slate-800">Product Catalog</h2>
+              <div class="flex items-center gap-3">
+                <div class="text-sm text-slate-600" id="productCount">
+                  0 products
+                </div>
+                <div id="searchResultsBadge" class="search-results-count hidden">
+                  Search Results
+                </div>
               </div>
             </div>
             
-            <div class="table-container" id="productTableContainer">
-              <table class="responsive-table">
-                <thead>
-                  <tr>
-                    <th>Model</th>
-                    <th>Model Number</th>
-                    <th>Device</th>
-                    <th>Size</th>
-                    <th>Item Name</th>
-                    <th>Price</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="productTable">
-                </tbody>
-              </table>
+            <!-- Product Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="productTableContainer">
+              <div class="overflow-x-auto">
+                <table class="min-w-full">
+                  <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Model</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Model Number</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Device</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Size</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Item Name</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Price</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productTable" class="bg-white divide-y divide-slate-200">
+                  </tbody>
+                </table>
+              </div>
             </div>
             
             <!-- No Products Message -->
-            <div id="noProductsMessage" class="hidden premium-card text-center space-2xl">
+            <div id="noProductsMessage" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
               <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
               </div>
-              <h3 class="text-fluid-lg font-medium text-slate-600 mb-2">No products found</h3>
+              <h3 class="text-lg font-medium text-slate-600 mb-2">No products found</h3>
               <p class="text-slate-500">Try adjusting your search or filter criteria</p>
             </div>
           </div>
-        </div>
+        </main>
       </div>
 
       <!-- Export View -->
-      <div id="exportView" class="hidden min-h-screen bg-gray-50">
-        <div class="space-lg">
-          <div class="premium-card text-center space-2xl">
-            <h1 class="text-fluid-4xl font-black text-slate-800 mb-8">EXPORT</h1>
-            <div class="responsive-grid-2 max-w-4xl mx-auto">
-              <button onclick="exportFullCatalog()" class="btn-primary space-lg text-fluid-xl">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      <div id="exportView" class="hidden flex-1 flex flex-col">
+        <!-- Export Header -->
+        <header class="glass-effect border-b border-gray-200 px-6 py-4 sticky top-0 z-40">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <button onclick="showCatalogView()" class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
-                EXPORT CATALOG
               </button>
-              <button onclick="showCustomExport()" class="btn-primary space-lg text-fluid-xl">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+              <div>
+                <h1 class="text-xl font-bold text-slate-800">Export Catalog</h1>              
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Export Main Page -->
+        <div id="exportMainPage" class="flex-1 flex">
+          <!-- Left Side - Export Options -->
+          <div class="w-1/2 flex flex-col justify-center items-center p-12">
+            <h1 class="export-title text-slate-800 mb-12">EXPORT</h1>
+            
+            <div class="space-y-8 w-full max-w-md">
+              <div class="export-card" onclick="exportFullCatalog()">
+                <div class="export-option">EXPORT CATALOG</div>
+              </div>
+              
+              <div class="export-card" onclick="showCustomExport()">
+                <div class="export-option">CUSTOM EXPORT</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Side - Preview -->
+          <div class="w-1/2 flex flex-col justify-center items-center p-12 bg-slate-100">
+            <h2 class="text-6xl font-black text-slate-800 mb-8">PREVIEW</h2>
+            <div class="w-full h-96 bg-white rounded-2xl shadow-lg flex items-center justify-center">
+              <div class="text-center text-slate-400">
+                <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                CUSTOM EXPORT
-              </button>
+                <p class="text-xl font-medium">Select an export option to preview</p>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Custom Export Page -->
+        <div id="customExportPage" class="hidden flex-1 p-6 space-y-6">
+          <!-- Back Button and Title -->
+          <div class="flex items-center gap-4 mb-6">
+            <button onclick="showExportMainPage()" class="nav-button">
+              <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              Back
+            </button>
+            <h2 class="text-3xl font-bold text-slate-800">Custom Export</h2>
+            <div class="ml-auto flex items-center gap-4">
+              <div class="relative">
+                <button id="cartButton" onclick="showCatalogPreview()" class="nav-button flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"></path>
+                  </svg>
+                  View Cart
+                  <span id="cartCount" class="cart-badge">0</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom Export Filters -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-2 bg-blue-100 rounded-lg">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold text-slate-800">Filter Products</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Model</label>
+                <select id="exportModelFilter" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white">
+                  <option value="">All Models</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Model Number</label>
+                <select id="exportModelNumberFilter" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white">
+                  <option value="">All Model Numbers</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Device</label>
+                <select id="exportDeviceFilter" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white">
+                  <option value="">All Devices</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Item Name</label>
+                <select id="exportItemNameFilter" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white">
+                  <option value="">All Item Names</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Grid -->
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-xl font-semibold text-slate-800">Select Products</h3>
+              <div class="text-sm text-slate-600" id="exportProductCount">0 products available</div>
+            </div>
+            
+            <div id="exportProductGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <!-- Products will be populated here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Catalog Preview Page -->
+        <div id="catalogPreviewPage" class="hidden flex-1 p-6 space-y-6">
+          <!-- Preview Header -->
+          <div class="flex items-center justify-between mb-6 no-print">
+            <div class="flex items-center gap-4">
+              <button onclick="showCustomExport()" class="nav-button">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back to Selection
+              </button>
+              <h2 class="text-3xl font-bold text-slate-800">Catalog Preview</h2>
+            </div>
+            
+            <div class="flex items-center gap-4">
+              <button onclick="generateFastPDF()" class="nav-button">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Fast PDF Download
+              </button>
+              <button onclick="window.print()" class="secondary-button">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                Print
+              </button>
+            </div>
+          </div>
+
+          <!-- Catalog Pages -->
+          <div id="catalogPages" class="space-y-8">
+            <!-- Pages will be generated here -->
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   </div>
   
   <!-- Product Modal -->
-  <div id="productModal" class="hidden modal-backdrop">
-    <div class="modal-content">
-      <div class="glass-morphism border-b border-gray-200 space-md flex items-center justify-between">
-        <div class="flex items-center gap-fluid-sm">
+  <div id="productModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl max-w-7xl w-full max-h-[90vh] overflow-y-auto shadow-2xl fade-in">
+      <div class="sticky top-0 bg-white rounded-t-3xl border-b border-slate-200 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3">
           <div class="p-2 bg-teal-100 rounded-lg">
             <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
             </svg>
           </div>
-          <h2 class="text-fluid-xl font-semibold text-slate-800">Product Details</h2>
+          <h2 class="text-xl font-semibold text-slate-800">Product Details</h2>
         </div>
-        <button onclick="closeModal()" class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
+        <button
+          onclick="closeModal()"
+          class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+        >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
       
-      <div class="space-lg" id="modalContent">
+      <div class="p-6" id="modalContent">
         <!-- Content will be populated by JavaScript -->
       </div>
     </div>
@@ -1131,30 +1313,9 @@
     let dashboardProducts = [];
     let currentSearchTerm = '';
     let currentDashboardSearchTerm = '';
+    let selectedProducts = [];
     let currentView = 'dashboard';
     let currentQuickFilter = 'all';
-    let isMobileMenuOpen = false;
-
-    // Mobile menu toggle
-    function toggleMobileMenu() {
-      const sidebar = document.getElementById('sidebar');
-      isMobileMenuOpen = !isMobileMenuOpen;
-      
-      if (isMobileMenuOpen) {
-        sidebar.classList.add('expanded');
-      } else {
-        sidebar.classList.remove('expanded');
-      }
-    }
-
-    // Close mobile menu when clicking on nav items
-    function closeMobileMenu() {
-      if (window.innerWidth < 768) {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.remove('expanded');
-        isMobileMenuOpen = false;
-      }
-    }
 
     // Show loading screen
     function showLoading() {
@@ -1177,39 +1338,80 @@
 
     // View Management
     function showDashboardView() {
-      closeMobileMenu();
       currentView = 'dashboard';
       document.getElementById('dashboardView').classList.remove('hidden');
       document.getElementById('catalogView').classList.add('hidden');
       document.getElementById('exportView').classList.add('hidden');
-      updateActiveNavItem('dashboard');
+      
+      // Update sidebar buttons
+      document.getElementById('dashboardBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('dashboardBtn').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      document.getElementById('catalogBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('catalogBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      document.getElementById('exportBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('exportBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
     }
 
     function showCatalogView() {
-      closeMobileMenu();
       currentView = 'catalog';
       document.getElementById('catalogView').classList.remove('hidden');
       document.getElementById('dashboardView').classList.add('hidden');
       document.getElementById('exportView').classList.add('hidden');
-      updateActiveNavItem('catalog');
+      
+      // Update sidebar buttons
+      document.getElementById('catalogBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('catalogBtn').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      document.getElementById('dashboardBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('dashboardBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      document.getElementById('exportBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('exportBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
     }
 
     function showExportView() {
-      closeMobileMenu();
       currentView = 'export';
-      document.getElementById('exportView').classList.remove('hidden');
-      document.getElementById('dashboardView').classList.add('hidden');
       document.getElementById('catalogView').classList.add('hidden');
-      updateActiveNavItem('export');
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('exportView').classList.remove('hidden');
+      document.getElementById('exportMainPage').classList.remove('hidden');
+      document.getElementById('customExportPage').classList.add('hidden');
+      document.getElementById('catalogPreviewPage').classList.add('hidden');
+      
+      // Update sidebar buttons
+      document.getElementById('exportBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('exportBtn').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      document.getElementById('catalogBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('catalogBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      document.getElementById('dashboardBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
+      document.getElementById('dashboardBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
     }
 
-    function updateActiveNavItem(view) {
-      document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.dataset.view === view) {
-          item.classList.add('active');
-        }
-      });
+    function showExportMainPage() {
+      document.getElementById('exportMainPage').classList.remove('hidden');
+      document.getElementById('customExportPage').classList.add('hidden');
+      document.getElementById('catalogPreviewPage').classList.add('hidden');
+    }
+
+    function showCustomExport() {
+      document.getElementById('exportMainPage').classList.add('hidden');
+      document.getElementById('customExportPage').classList.remove('hidden');
+      document.getElementById('catalogPreviewPage').classList.add('hidden');
+      
+      // Populate export filters
+      populateExportDropdowns();
+      renderExportProductGrid();
+    }
+
+    function showCatalogPreview() {
+      if (selectedProducts.length === 0) {
+        alert('Please select at least one product to preview the catalog.');
+        return;
+      }
+      
+      document.getElementById('exportMainPage').classList.add('hidden');
+      document.getElementById('customExportPage').classList.add('hidden');
+      document.getElementById('catalogPreviewPage').classList.remove('hidden');
+      
+      generateCatalogPreview();
     }
 
     // Dashboard Functions
@@ -1268,16 +1470,14 @@
       renderDashboardProducts();
     }
 
-    function setQuickFilter(filter, button) {
+    function setQuickFilter(filter) {
       currentQuickFilter = filter;
       
-      // Update button styles
-      document.querySelectorAll('.btn-primary').forEach(btn => {
-        if (btn.onclick && btn.onclick.toString().includes('setQuickFilter')) {
-          btn.style.opacity = '0.7';
-        }
+      // Update chip styles
+      document.querySelectorAll('.premium-filter-chip').forEach(chip => {
+        chip.classList.remove('active');
       });
-      button.style.opacity = '1';
+      event.target.classList.add('active');
       
       applyDashboardFilters();
     }
@@ -1287,14 +1487,16 @@
       const count = document.getElementById('dashboardProductCount');
       
       count.textContent = `${dashboardProducts.length} products`;
+      
       grid.innerHTML = '';
       
       dashboardProducts.forEach((product, index) => {
         const imageId = product['ID'] || product['IMAGE LINK'];
         const imageUrl = imageId && imageId.trim() !== '' ? 
-          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s800` : 
-          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xNTAgMTEwVjE5ME0xMTAgMTUwSDE5MCIgc3Ryb2tlPSIjQ0JENUUxIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K';
+          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s1080` : 
+          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTA4MCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik01NDAgMzc4VjcwMk0zNzggNTQwSDcwMiIgc3Ryb2tlPSIjQ0JENUUxIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
         
+        // Create full product description
         const fullDescription = [
           product['MODEL'] || '',
           product['MODEL NUMBER'] || '',
@@ -1303,17 +1505,17 @@
         ].filter(part => part.trim() !== '').join(' • ');
         
         const productCard = document.createElement('div');
-        productCard.className = 'product-card fade-in';
+        productCard.className = 'premium-product-card';
         productCard.onclick = () => showProductDetails(product);
         
         productCard.innerHTML = `
-          <div class="product-image-container">
-            <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="product-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xNTAgMTEwVjE5ME0xMTAgMTUwSDE5MCIgc3Ryb2tlPSIjQ0JENUUxIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K'">
+          <div class="premium-product-image-container">
+            <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="premium-product-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTA4MCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik01NDAgMzc4VjcwMk0zNzggNTQwSDcwMiIgc3Ryb2tlPSIjQ0JENUUxIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
           </div>
-          <h3 class="text-fluid-lg font-bold text-slate-800 mb-2">${product['ITEM NAME'] || 'Unknown Item'}</h3>
-          <p class="text-fluid-sm text-slate-600 mb-3">${fullDescription}</p>
-          <p class="text-fluid-xl font-bold text-blue-600 mb-4">₹${product['PRICE'] || 'Contact for Price'}</p>
-          <button class="btn-primary w-full" onclick="event.stopPropagation(); showProductDetails(product)">
+          <div class="premium-product-title">${product['ITEM NAME'] || 'Unknown Item'}</div>
+          <div class="premium-product-specs">${fullDescription}</div>
+          <div class="premium-product-price">₹${product['PRICE'] || 'Contact for Price'}</div>
+          <button class="premium-view-btn" onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])">
             View Details
           </button>
         `;
@@ -1406,6 +1608,16 @@
       badge.textContent = `${filteredProducts.length} Search Results`;
     }
 
+    // Reload iframe function
+    function reloadIframe(imageId) {
+      const iframe = document.getElementById('productIframe');
+      
+      if (iframe && imageId && imageId.trim() !== '') {
+        const newSrc = `https://drive.google.com/file/d/${imageId.trim()}/preview?t=${Date.now()}`;
+        iframe.src = newSrc;
+      }
+    }
+
     // Render product table
     function renderProductTable(products) {
       const tbody = document.getElementById('productTable');
@@ -1431,19 +1643,31 @@
       tbody.innerHTML = '';
       products.forEach((product, index) => {
         const row = document.createElement('tr');
-        row.className = 'cursor-pointer transition-colors duration-200';
+        row.className = 'table-row hover:bg-slate-50 transition-colors duration-200 cursor-pointer';
         row.onclick = () => showProductDetails(product);
         
         row.innerHTML = `
-          <td data-label="Model">${product['MODEL'] || ''}</td>
-          <td data-label="Model Number">${product['MODEL NUMBER'] || ''}</td>
-          <td data-label="Device">${product['DEVICE'] || ''}</td>
-          <td data-label="Size">${product['SIZE'] || ''}</td>
-          <td data-label="Item Name" class="font-medium text-teal-600">${product['ITEM NAME'] || ''}</td>
-          <td data-label="Price">₹${product['PRICE'] || ''}</td>
-          <td data-label="Actions">
-            <button onclick="event.stopPropagation(); showProductDetails(product)" class="btn-primary text-sm">
-              View
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['MODEL'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['MODEL NUMBER'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['DEVICE'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['SIZE'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-teal-600">${product['ITEM NAME'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+            <div class="flex items-center gap-1">
+              <span>₹</span>
+              ${product['PRICE'] || ''}
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+            <button
+              onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])"
+              class="p-2 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+              title="View Details"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
             </button>
           </td>
         `;
@@ -1457,9 +1681,8 @@
       const content = document.getElementById('modalContent');
 
       const imageId = product['ID'] || product['IMAGE LINK'];
-      const imageUrl = imageId && imageId.trim() !== '' ? 
-        `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s800` : 
-        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjQwMCIgdmlld0JveD0iMCAwIDQwMCA0MDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iNDAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0yMDAgMTQwVjI2ME0xNDAgMjAwSDI2MCIgc3Ryb2tlPSIjQ0JENUUxIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4K';
+      const iframeURL = imageId && imageId.trim() !== '' ? `https://drive.google.com/file/d/${imageId.trim()}/preview` : '';
+      const fullImageURL = imageId && imageId.trim() !== '' ? `https://drive.google.com/file/d/${imageId.trim()}/view?usp=sharing` : '';
 
       const productFields = [
         { label: 'Item Name', key: 'ITEM NAME' },
@@ -1480,25 +1703,74 @@
       ];
 
       let modalHTML = `
-        <div class="responsive-grid-2 gap-fluid-lg">
-          <div class="space-y-6">
-            <h3 class="text-fluid-lg font-semibold text-slate-800">Product Image</h3>
-            <div class="product-image-container" style="aspect-ratio: 1;">
-              <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="product-image">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-slate-800">Product Image</h3>
+              ${imageId && imageId.trim() !== '' ? `
+                <button
+                  onclick="reloadIframe('${imageId.trim()}')"
+                  class="reload-button flex items-center gap-2"
+                  title="Reload Image"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                  </svg>
+                  Reload
+                </button>
+              ` : ''}
             </div>
+            
+            <div class="iframe-container">
+              ${imageId && imageId.trim() !== '' ? `
+                <iframe 
+                  id="productIframe"
+                  src="${iframeURL}" 
+                  class="product-iframe"
+                  allow="autoplay"
+                  loading="lazy"
+                ></iframe>
+              ` : `
+                <div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-2xl">
+                  <div class="text-center text-slate-500">
+                    <svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="font-medium">No image available</p>
+                    <p class="text-sm text-slate-400 mt-1">Image not provided for this product</p>
+                  </div>
+                </div>
+              `}
+            </div>
+            
+            ${imageId && imageId.trim() !== '' ? `
+              <div class="p-4 bg-teal-50 rounded-xl border border-teal-200">
+                <a
+                  href="${fullImageURL}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center gap-2 text-teal-700 hover:text-teal-800 font-medium transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                  </svg>
+                  Open Full Image in Google Drive
+                </a>
+              </div>
+            ` : ''}
           </div>
           
-          <div class="space-y-6">
-            <h3 class="text-fluid-lg font-semibold text-slate-800">Product Specifications</h3>
-            <div class="space-y-4">
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-800">Product Specifications</h3>
+            <div class="space-y-3">
       `;
       
       productFields.forEach(({ label, key }) => {
         const value = product[key];
         if (value && value.trim() !== '') {
           modalHTML += `
-            <div class="premium-card space-sm">
-              <div class="text-fluid-sm font-medium text-slate-600 mb-1">${label}</div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <div class="text-sm font-medium text-slate-600 mb-1">${label}</div>
               <div class="text-slate-900 font-medium">
                 ${key === 'PRICE' && value ? `₹${value}` : value}
               </div>
@@ -1515,12 +1787,14 @@
 
       content.innerHTML = modalHTML;
       modal.classList.remove('hidden');
+      modal.classList.add('flex');
     }
 
     // Close modal
     function closeModal() {
       const modal = document.getElementById('productModal');
       modal.classList.add('hidden');
+      modal.classList.remove('flex');
     }
 
     // Populate filter dropdowns
@@ -1534,6 +1808,53 @@
       const modelNumbers = [...new Set(products.map(p => p['MODEL NUMBER']).filter(Boolean))].sort();
       const devices = [...new Set(products.map(p => p['DEVICE']).filter(Boolean))].sort();
       const itemNames = [...new Set(products.map(p => p['ITEM NAME']).filter(Boolean))].sort();
+
+      // Clear existing options
+      modelFilter.innerHTML = '<option value="">All Models</option>';
+      modelNumberFilter.innerHTML = '<option value="">All Model Numbers</option>';
+      deviceFilter.innerHTML = '<option value="">All Devices</option>';
+      itemNameFilter.innerHTML = '<option value="">All Item Names</option>';
+
+      models.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        modelFilter.appendChild(option);
+      });
+
+      modelNumbers.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        modelNumberFilter.appendChild(option);
+      });
+
+      devices.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        deviceFilter.appendChild(option);
+      });
+
+      itemNames.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        itemNameFilter.appendChild(option);
+      });
+    }
+
+    // Populate export filter dropdowns
+    function populateExportDropdowns() {
+      const modelFilter = document.getElementById('exportModelFilter');
+      const modelNumberFilter = document.getElementById('exportModelNumberFilter');
+      const deviceFilter = document.getElementById('exportDeviceFilter');
+      const itemNameFilter = document.getElementById('exportItemNameFilter');
+
+      const models = [...new Set(allProducts.map(p => p['MODEL']).filter(Boolean))].sort();
+      const modelNumbers = [...new Set(allProducts.map(p => p['MODEL NUMBER']).filter(Boolean))].sort();
+      const devices = [...new Set(allProducts.map(p => p['DEVICE']).filter(Boolean))].sort();
+      const itemNames = [...new Set(allProducts.map(p => p['ITEM NAME']).filter(Boolean))].sort();
 
       // Clear existing options
       modelFilter.innerHTML = '<option value="">All Models</option>';
@@ -1600,10 +1921,6 @@
       downloadCSV(csvContent, 'full-catalog.csv');
     }
 
-    function showCustomExport() {
-      alert('Custom export feature coming soon!');
-    }
-
     function convertToCSV(products) {
       if (products.length === 0) return '';
       
@@ -1633,6 +1950,433 @@
       document.body.removeChild(link);
     }
 
+    // Export Product Grid Functions
+    function renderExportProductGrid() {
+      const model = document.getElementById('exportModelFilter').value;
+      const modelNumber = document.getElementById('exportModelNumberFilter').value;
+      const device = document.getElementById('exportDeviceFilter').value;
+      const itemName = document.getElementById('exportItemNameFilter').value;
+
+      const filtered = allProducts.filter(product => {
+        const matchesModel = !model || product['MODEL'] === model;
+        const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
+        const matchesDevice = !device || product['DEVICE'] === device;
+        const matchesItemName = !itemName || product['ITEM NAME'] === itemName;
+        
+        return matchesModel && matchesModelNumber && matchesDevice && matchesItemName;
+      });
+
+      const grid = document.getElementById('exportProductGrid');
+      const count = document.getElementById('exportProductCount');
+      
+      count.textContent = `${filtered.length} products available`;
+      
+      grid.innerHTML = '';
+      
+      filtered.forEach((product, index) => {
+        const isSelected = selectedProducts.some(p => p['ITEM NAME'] === product['ITEM NAME'] && p['MODEL'] === product['MODEL']);
+        const imageId = product['ID'] || product['IMAGE LINK'];
+        const imageUrl = imageId && imageId.trim() !== '' ? 
+          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
+          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+        
+        const gridItem = document.createElement('div');
+        gridItem.className = `product-grid-item ${isSelected ? 'selected' : ''}`;
+        gridItem.onclick = () => toggleProductSelection(product);
+        
+        gridItem.innerHTML = `
+          <div class="relative">
+            <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="product-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
+            ${isSelected ? `
+              <div class="absolute top-2 right-2 bg-teal-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            ` : ''}
+          </div>
+          <div class="mt-3">
+            <h4 class="font-semibold text-slate-800 text-sm">${product['ITEM NAME'] || 'Unknown Item'}</h4>
+            <p class="text-xs text-slate-600 mt-1">${product['MODEL'] || ''} ${product['MODEL NUMBER'] || ''}</p>
+            <p class="text-xs text-slate-500">${product['DEVICE'] || ''}</p>
+          </div>
+        `;
+        
+        grid.appendChild(gridItem);
+      });
+    }
+
+    function toggleProductSelection(product) {
+      const existingIndex = selectedProducts.findIndex(p => 
+        p['ITEM NAME'] === product['ITEM NAME'] && p['MODEL'] === product['MODEL']
+      );
+      
+      if (existingIndex > -1) {
+        selectedProducts.splice(existingIndex, 1);
+      } else {
+        selectedProducts.push(product);
+      }
+      
+      updateCartCount();
+      renderExportProductGrid();
+    }
+
+    function updateCartCount() {
+      const cartCount = document.getElementById('cartCount');
+      cartCount.textContent = selectedProducts.length;
+      
+      if (selectedProducts.length > 0) {
+        cartCount.classList.remove('hidden');
+      } else {
+        cartCount.classList.add('hidden');
+      }
+    }
+
+    // Catalog Preview Functions
+    function generateCatalogPreview() {
+      const catalogPages = document.getElementById('catalogPages');
+      catalogPages.innerHTML = '';
+      
+      // Group products by model for better organization
+      const productsByModel = {};
+      selectedProducts.forEach(product => {
+        const model = product['MODEL'] || 'Unknown Model';
+        if (!productsByModel[model]) {
+          productsByModel[model] = [];
+        }
+        productsByModel[model].push(product);
+      });
+      
+      // Generate pages for each model
+      Object.keys(productsByModel).forEach(model => {
+        const products = productsByModel[model];
+        const pages = Math.ceil(products.length / 9); // 9 products per page (3x3 grid)
+        
+        for (let page = 0; page < pages; page++) {
+          const startIndex = page * 9;
+          const endIndex = Math.min(startIndex + 9, products.length);
+          const pageProducts = products.slice(startIndex, endIndex);
+          
+          const catalogPage = createCatalogPage(model, pageProducts, page + 1, pages);
+          catalogPages.appendChild(catalogPage);
+        }
+      });
+    }
+
+    function createCatalogPage(model, products, pageNumber, totalPages) {
+      const page = document.createElement('div');
+      page.className = 'catalog-page';
+      
+      page.innerHTML = `
+        <div class="catalog-header">
+          <div class="flex items-center justify-center gap-8 mb-8">
+            <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="w-24 h-24 object-contain">
+            <h1 class="text-6xl font-black text-slate-800">${model}</h1>
+          </div>
+        </div>
+        
+        <div class="catalog-grid" id="catalogGrid-${model}-${pageNumber}">
+          <!-- Products will be added here -->
+        </div>
+        
+        <div class="text-center text-sm text-slate-500 mt-8">
+          <p>Vinayaka Industries - Quality Parts & Components</p>
+          ${totalPages > 1 ? `<p>Page ${pageNumber} of ${totalPages}</p>` : ''}
+        </div>
+      `;
+      
+      const grid = page.querySelector(`#catalogGrid-${model}-${pageNumber}`);
+      
+      products.forEach((product, index) => {
+        const catalogItem = createCatalogItem(product, `${model}-${pageNumber}-${index}`);
+        grid.appendChild(catalogItem);
+      });
+      
+      return page;
+    }
+
+    function createCatalogItem(product, uniqueId) {
+      const item = document.createElement('div');
+      item.className = 'catalog-item';
+      
+      const imageId = product['ID'] || product['IMAGE LINK'];
+      const imageUrl = imageId && imageId.trim() !== '' ? 
+        `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+      
+      // Create full product description
+      const fullDescription = [
+        product['MODEL'] || '',
+        product['MODEL NUMBER'] || '',
+        product['DEVICE'] || '',
+        product['SIZE'] || '',
+        product['ITEM NAME'] || ''
+      ].filter(part => part.trim() !== '').join(' ');
+      
+      item.innerHTML = `
+        <div class="relative">
+          <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="catalog-item-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
+          <button class="remove-item-btn no-print" onclick="removeFromCatalog('${uniqueId}', '${product['ITEM NAME']}', '${product['MODEL']}')">
+            ×
+          </button>
+        </div>
+        <div class="catalog-item-name">${fullDescription}</div>
+      `;
+      
+      item.setAttribute('data-unique-id', uniqueId);
+      return item;
+    }
+
+    function removeFromCatalog(uniqueId, itemName, model) {
+      // Remove from selected products
+      const index = selectedProducts.findIndex(p => 
+        p['ITEM NAME'] === itemName && p['MODEL'] === model
+      );
+      
+      if (index > -1) {
+        selectedProducts.splice(index, 1);
+        updateCartCount();
+        
+        // Regenerate the catalog preview
+        generateCatalogPreview();
+      }
+    }
+
+    // Ultra-Fast PDF Generation
+    function generateFastPDF() {
+      if (selectedProducts.length === 0) {
+        alert('Please select products to generate PDF');
+        return;
+      }
+
+      // Show processing overlay
+      document.getElementById('pdfProcessing').classList.remove('hidden');
+
+      // Use setTimeout to allow UI to update
+      setTimeout(() => {
+        try {
+          // Create PDF content
+          const pdfContent = generatePDFContent();
+          
+          // Create new window with PDF content
+          const pdfWindow = window.open('', '_blank');
+          pdfWindow.document.write(pdfContent);
+          pdfWindow.document.close();
+          
+          // Auto-trigger print dialog
+          setTimeout(() => {
+            pdfWindow.print();
+            document.getElementById('pdfProcessing').classList.add('hidden');
+          }, 500);
+          
+        } catch (error) {
+          console.error('PDF generation error:', error);
+          alert('Error generating PDF. Please try again.');
+          document.getElementById('pdfProcessing').classList.add('hidden');
+        }
+      }, 100);
+    }
+
+    function generatePDFContent() {
+      // Group products by model
+      const productsByModel = {};
+      selectedProducts.forEach(product => {
+        const model = product['MODEL'] || 'Unknown Model';
+        if (!productsByModel[model]) {
+          productsByModel[model] = [];
+        }
+        productsByModel[model].push(product);
+      });
+
+      let pdfHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Vinayaka Industries - Parts Catalog</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+              font-family: 'Inter', sans-serif;
+            }
+            
+            body {
+              background: white;
+              color: #1e293b;
+              line-height: 1.4;
+            }
+            
+            .pdf-page {
+              width: 210mm;
+              min-height: 297mm;
+              padding: 20mm;
+              margin: 0 auto;
+              background: white;
+              page-break-after: always;
+              position: relative;
+            }
+            
+            .pdf-page:last-child {
+              page-break-after: avoid;
+            }
+            
+            .pdf-header {
+              text-align: center;
+              margin-bottom: 40px;
+              border-bottom: 3px solid #0d9488;
+              padding-bottom: 20px;
+            }
+            
+            .pdf-logo-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 30px;
+              margin-bottom: 20px;
+            }
+            
+            .pdf-logo {
+              width: 80px;
+              height: 80px;
+              object-fit: contain;
+            }
+            
+            .pdf-model-title {
+              font-size: 48px;
+              font-weight: 900;
+              color: #1e293b;
+              letter-spacing: -1px;
+            }
+            
+            .pdf-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 25px;
+              margin-bottom: 30px;
+            }
+            
+            .pdf-item {
+              text-align: center;
+              border: 2px solid #e2e8f0;
+              border-radius: 12px;
+              padding: 15px;
+              background: #f8fafc;
+            }
+            
+            .pdf-item-image {
+              width: 100%;
+              height: 150px;
+              object-fit: cover;
+              border-radius: 8px;
+              margin-bottom: 12px;
+              background: white;
+              border: 1px solid #e2e8f0;
+            }
+            
+            .pdf-item-name {
+              font-size: 11px;
+              font-weight: 700;
+              color: #2563eb;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              line-height: 1.3;
+            }
+            
+            .pdf-footer {
+              position: absolute;
+              bottom: 15mm;
+              left: 20mm;
+              right: 20mm;
+              text-align: center;
+              font-size: 12px;
+              color: #64748b;
+              border-top: 1px solid #e2e8f0;
+              padding-top: 10px;
+            }
+            
+            @media print {
+              body { margin: 0; }
+              .pdf-page { 
+                margin: 0; 
+                box-shadow: none;
+                page-break-after: always;
+              }
+              .pdf-page:last-child {
+                page-break-after: avoid;
+              }
+            }
+          </style>
+        </head>
+        <body>
+      `;
+
+      // Generate pages for each model
+      Object.keys(productsByModel).forEach(model => {
+        const products = productsByModel[model];
+        const pages = Math.ceil(products.length / 9);
+        
+        for (let page = 0; page < pages; page++) {
+          const startIndex = page * 9;
+          const endIndex = Math.min(startIndex + 9, products.length);
+          const pageProducts = products.slice(startIndex, endIndex);
+          
+          pdfHTML += `
+            <div class="pdf-page">
+              <div class="pdf-header">
+                <div class="pdf-logo-container">
+                  <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="pdf-logo">
+                  <div class="pdf-model-title">${model}</div>
+                </div>
+              </div>
+              
+              <div class="pdf-grid">
+          `;
+          
+          pageProducts.forEach(product => {
+            const imageId = product['ID'] || product['IMAGE LINK'];
+            const imageUrl = imageId && imageId.trim() !== '' ? 
+              `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
+              'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+            
+            const fullDescription = [
+              product['MODEL'] || '',
+              product['MODEL NUMBER'] || '',
+              product['DEVICE'] || '',
+              product['SIZE'] || '',
+              product['ITEM NAME'] || ''
+            ].filter(part => part.trim() !== '').join(' ');
+            
+            pdfHTML += `
+              <div class="pdf-item">
+                <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="pdf-item-image">
+                <div class="pdf-item-name">${fullDescription}</div>
+              </div>
+            `;
+          });
+          
+          pdfHTML += `
+              </div>
+              <div class="pdf-footer">
+                <div>Vinayaka Industries - Quality Parts & Components</div>
+                ${pages > 1 ? `<div>Page ${page + 1} of ${pages}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      pdfHTML += `
+        </body>
+        </html>
+      `;
+
+      return pdfHTML;
+    }
+
     // Event listeners
     document.getElementById('modelFilter').addEventListener('change', applyFilters);
     document.getElementById('modelNumberFilter').addEventListener('change', applyFilters);
@@ -1644,6 +2388,12 @@
     document.getElementById('dashboardModelNumberFilter').addEventListener('change', applyDashboardFilters);
     document.getElementById('dashboardDeviceFilter').addEventListener('change', applyDashboardFilters);
     document.getElementById('dashboardItemNameFilter').addEventListener('change', applyDashboardFilters);
+
+    // Export filter event listeners
+    document.getElementById('exportModelFilter').addEventListener('change', renderExportProductGrid);
+    document.getElementById('exportModelNumberFilter').addEventListener('change', renderExportProductGrid);
+    document.getElementById('exportDeviceFilter').addEventListener('change', renderExportProductGrid);
+    document.getElementById('exportItemNameFilter').addEventListener('change', renderExportProductGrid);
 
     // Search input event listeners
     document.getElementById('searchInput').addEventListener('input', function(e) {
@@ -1681,14 +2431,6 @@
       }
     });
 
-    // Handle window resize
-    window.addEventListener('resize', function() {
-      if (window.innerWidth >= 768 && isMobileMenuOpen) {
-        document.getElementById('sidebar').classList.remove('expanded');
-        isMobileMenuOpen = false;
-      }
-    });
-
     // Load data
     showLoading();
     
@@ -1702,7 +2444,8 @@
           dashboardProducts = [...allProducts];
           
           if (allProducts.length > 0) {
-            console.log('Products loaded:', allProducts.length);
+            console.log('First product columns:', Object.keys(allProducts[0]));
+            console.log('Sample product:', allProducts[0]);
           }
           
           populateDropdowns(allProducts);
