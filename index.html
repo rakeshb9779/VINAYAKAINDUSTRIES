@@ -556,11 +556,11 @@
       box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
 
-    /* Premium Product Cards */
+    /* Premium Product Cards - Clean Border Effect */
     .premium-product-card {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
       backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 2px solid rgba(226, 232, 240, 0.5);
       border-radius: 24px;
       padding: 20px;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -570,27 +570,10 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
 
-    .premium-product-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 1;
-    }
-
-    .premium-product-card:hover::before {
-      opacity: 1;
-    }
-
     .premium-product-card:hover {
       transform: translateY(-8px) scale(1.02);
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      border-color: rgba(102, 126, 234, 0.3);
+      border-color: #0d9488;
     }
 
     .premium-product-image-container {
@@ -601,118 +584,21 @@
       overflow: hidden;
       margin-bottom: 16px;
       background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border: 2px solid rgba(226, 232, 240, 0.5);
+      transition: all 0.3s ease;
     }
 
-    /* Metallic Shine Effect */
+    .premium-product-card:hover .premium-product-image-container {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+    }
+
     .premium-product-image {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      border-radius: 16px;
-      position: relative;
+      border-radius: 14px;
       transition: all 0.3s ease;
-    }
-
-    .premium-product-image-container::before {
-      content: '';
-      position: absolute;
-      top: -2px;
-      left: -2px;
-      right: -2px;
-      bottom: -2px;
-      background: linear-gradient(45deg, 
-        transparent 30%, 
-        rgba(255, 255, 255, 0.5) 50%, 
-        transparent 70%);
-      border-radius: 18px;
-      opacity: 0;
-      transition: all 0.6s ease;
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    .premium-product-image-container::after {
-      content: '';
-      position: absolute;
-      top: -3px;
-      left: -3px;
-      right: -3px;
-      bottom: -3px;
-      background: linear-gradient(45deg, 
-        #c0c0c0 0%, 
-        #e8e8e8 25%, 
-        #ffffff 50%, 
-        #e8e8e8 75%, 
-        #c0c0c0 100%);
-      border-radius: 19px;
-      opacity: 0;
-      transition: all 0.6s ease;
-      z-index: 1;
-      animation: metallicShine 2s infinite;
-    }
-
-    .premium-product-card:hover .premium-product-image-container::before {
-      opacity: 1;
-      animation: shineMove 1.5s ease-in-out infinite;
-    }
-
-    .premium-product-card:hover .premium-product-image-container::after {
-      opacity: 0.8;
-      animation: metallicGlow 1.5s ease-in-out infinite;
-    }
-
-    @keyframes shineMove {
-      0% {
-        background: linear-gradient(45deg, 
-          transparent 30%, 
-          rgba(255, 255, 255, 0.5) 50%, 
-          transparent 70%);
-        transform: translateX(-100%);
-      }
-      50% {
-        background: linear-gradient(45deg, 
-          transparent 20%, 
-          rgba(255, 255, 255, 0.8) 50%, 
-          transparent 80%);
-        transform: translateX(0%);
-      }
-      100% {
-        background: linear-gradient(45deg, 
-          transparent 30%, 
-          rgba(255, 255, 255, 0.5) 50%, 
-          transparent 70%);
-        transform: translateX(100%);
-      }
-    }
-
-    @keyframes metallicGlow {
-      0%, 100% {
-        background: linear-gradient(45deg, 
-          #c0c0c0 0%, 
-          #e8e8e8 25%, 
-          #ffffff 50%, 
-          #e8e8e8 75%, 
-          #c0c0c0 100%);
-        box-shadow: 0 0 20px rgba(192, 192, 192, 0.5);
-      }
-      50% {
-        background: linear-gradient(45deg, 
-          #a8a8a8 0%, 
-          #d4d4d4 25%, 
-          #ffffff 50%, 
-          #d4d4d4 75%, 
-          #a8a8a8 100%);
-        box-shadow: 0 0 30px rgba(255, 255, 255, 0.8);
-      }
-    }
-
-    @keyframes metallicShine {
-      0%, 100% {
-        opacity: 0.3;
-      }
-      50% {
-        opacity: 0.8;
-      }
     }
 
     .premium-product-title {
@@ -879,6 +765,22 @@
         transform: translateX(0);
       }
     }
+
+    /* Logo Styles - Enhanced Visibility */
+    .logo-enhanced {
+      background: white;
+      border-radius: 16px;
+      padding: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border: 2px solid rgba(226, 232, 240, 0.5);
+    }
+
+    .logo-sidebar {
+      background: white;
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
   </style>
 </head>
 <body class="gradient-bg min-h-screen">
@@ -920,7 +822,7 @@
         <img
           src="https://drive.google.com/thumbnail?id=1Z10whv0kAB-PywEZE4mj0pZcfNp0w5nF&sz=s800"
           alt="Logo"
-          class="w-12 h-12 rounded-xl border-2 border-white/20 shadow-lg object-contain"
+          class="w-16 h-16 logo-sidebar object-contain"
         />
       </div>
       
@@ -968,7 +870,7 @@
               <img
                 src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
                 alt="Vinayaka Industries"
-                class="w-16 h-16 object-contain"
+                class="w-24 h-24 logo-enhanced object-contain"
               />
               <div>
                 <h1 class="text-3xl font-bold text-white">Premium Parts Collection</h1>
@@ -1071,7 +973,7 @@
                 <img
                   src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
                   alt="Vinayaka Industries"
-                  class="w-12 h-12 object-contain"
+                  class="w-20 h-20 logo-enhanced object-contain"
                 />
                 <div>
                   <h1 class="text-xl font-bold text-slate-800">Parts Catalog</h1>              
