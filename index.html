@@ -393,6 +393,400 @@
       font-weight: 500;
     }
     
+    /* Catalog View Styles */
+    .catalog-header {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 24px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    
+    .search-container {
+      position: relative;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    
+    .search-container:focus-within {
+      border-color: var(--light-blue);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    .search-input-enhanced {
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: 14px 50px 14px 50px;
+      font-size: 16px;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+    
+    .search-input-enhanced::placeholder {
+      color: var(--text-gray);
+      font-weight: 400;
+    }
+    
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-gray);
+      transition: all 0.3s ease;
+    }
+    
+    .search-container:focus-within .search-icon {
+      color: var(--light-blue);
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    .search-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+    }
+    
+    .search-btn:hover {
+      background: linear-gradient(135deg, var(--light-blue) 0%, var(--cyan-accent) 100%);
+      transform: translateY(-50%) translateY(-1px);
+      box-shadow: 0 6px 16px rgba(29, 78, 216, 0.4);
+    }
+    
+    .table-row:hover {
+      background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
+    }
+    
+    .search-results-count {
+      background: linear-gradient(135deg, var(--success-green) 0%, var(--cyan-accent) 100%);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    
+    /* Export Styles */
+    .export-card {
+      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
+      border-radius: 20px;
+      padding: 40px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px rgba(29, 78, 216, 0.3);
+    }
+    
+    .export-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(29, 78, 216, 0.4);
+    }
+    
+    .export-title {
+      font-size: 4rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      color: var(--text-light);
+    }
+    
+    .export-option {
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -0.01em;
+    }
+    
+    .product-grid-item {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.3);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 3px solid transparent;
+      backdrop-filter: blur(10px);
+    }
+    
+    .product-grid-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(29, 78, 216, 0.3);
+    }
+    
+    .product-grid-item.selected {
+      border-color: var(--light-blue);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.2) 100%);
+    }
+    
+    .product-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: rgba(59, 130, 246, 0.1);
+    }
+    
+    .cart-badge {
+      background: linear-gradient(135deg, var(--error-red) 0%, #dc2626 100%);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      position: absolute;
+      top: -8px;
+      right: -8px;
+    }
+    
+    .nav-button-style {
+      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+    }
+    
+    .nav-button-style:hover {
+      background: linear-gradient(135deg, var(--light-blue) 0%, var(--cyan-accent) 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(29, 78, 216, 0.4);
+    }
+    
+    .secondary-button {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+    
+    .secondary-button:hover {
+      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+    }
+    
+    /* Modal Styles */
+    .modal-content {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 24px;
+      color: var(--text-light);
+      box-shadow: 0 25px 50px rgba(15, 23, 42, 0.5);
+    }
+    
+    .modal-header {
+      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 24px;
+    }
+    
+    .modal-body {
+      padding: 24px;
+    }
+    
+    .spec-card {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .spec-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-gray);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    
+    .spec-value {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+    
+    .error-message {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+      border: 2px solid rgba(239, 68, 68, 0.3);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      color: var(--text-light);
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 50vh;
+      color: var(--text-light);
+    }
+    
+    .no-products-message {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(59, 130, 246, 0.2);
+      border-radius: 24px;
+      padding: 48px;
+      text-align: center;
+      color: var(--text-light);
+    }
+    
+    /* Catalog Preview Styles */
+    .catalog-page {
+      width: 210mm;
+      min-height: 297mm;
+      background: white;
+      margin: 0 auto;
+      padding: 20mm;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .catalog-header-page {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .catalog-logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+    }
+    
+    .catalog-model-title {
+      font-size: 4rem;
+      font-weight: 900;
+      color: #1e293b;
+      letter-spacing: -0.02em;
+      margin-bottom: 30px;
+    }
+    
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    
+    .catalog-item {
+      text-align: center;
+      position: relative;
+    }
+    
+    .catalog-item-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      background: #f8fafc;
+    }
+    
+    .catalog-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .remove-item-btn {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s ease;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .catalog-item:hover .remove-item-btn {
+      opacity: 1;
+    }
+    
+    .remove-item-btn:hover {
+      background: #dc2626;
+      transform: scale(1.1);
+    }
+    
+    /* PDF Processing Styles */
+    .pdf-processing {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.5);
+      z-index: 1000;
+      text-align: center;
+      color: var(--text-light);
+    }
+    
+    .pdf-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(59, 130, 246, 0.2);
+      border-top: 4px solid var(--light-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
     /* Responsive Design */
     @media (max-width: 1200px) {
       .premium-products-grid {
@@ -439,6 +833,22 @@
       .premium-product-image-container {
         height: 200px;
       }
+      
+      .catalog-header {
+        padding: 16px 20px;
+      }
+      
+      .search-container {
+        width: 100% !important;
+      }
+      
+      .export-title {
+        font-size: 3rem;
+      }
+      
+      .export-option {
+        font-size: 1.5rem;
+      }
     }
     
     @media (max-width: 480px) {
@@ -463,6 +873,14 @@
       .nav-button svg {
         width: 20px;
         height: 20px;
+      }
+      
+      .export-title {
+        font-size: 2.5rem;
+      }
+      
+      .export-option {
+        font-size: 1.2rem;
       }
     }
     
@@ -501,88 +919,16 @@
       padding: 32px;
     }
     
-    .search-results-count {
-      background: linear-gradient(135deg, var(--success-green) 0%, var(--cyan-accent) 100%);
-      color: white;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-    
-    .error-message {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
-      border: 2px solid rgba(239, 68, 68, 0.3);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      color: var(--text-light);
-    }
-    
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 50vh;
-      color: var(--text-light);
-    }
-    
-    .no-products-message {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(59, 130, 246, 0.2);
-      border-radius: 24px;
-      padding: 48px;
-      text-align: center;
-      color: var(--text-light);
-    }
-    
-    .modal-content {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      border-radius: 24px;
-      color: var(--text-light);
-      box-shadow: 0 25px 50px rgba(15, 23, 42, 0.5);
-    }
-    
-    .modal-header {
-      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-      padding: 24px;
-    }
-    
-    .modal-body {
-      padding: 24px;
-    }
-    
-    .spec-card {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    
-    .spec-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-gray);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-    
-    .spec-value {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-light);
+    /* Print Styles */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      
+      .catalog-page {
+        box-shadow: none;
+        margin: 0;
+      }
     }
   </style>
 </head>
@@ -609,11 +955,20 @@
     </div>
   </div>
 
+  <!-- PDF Processing Overlay -->
+  <div id="pdfProcessing" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+    <div class="pdf-processing">
+      <div class="pdf-spinner"></div>
+      <h3 class="text-lg font-semibold mb-2">Generating PDF...</h3>
+      <p class="text-gray-400">Please wait while we prepare your catalog</p>
+    </div>
+  </div>
+
   <!-- Main Application Container -->
   <div id="mainApp" class="flex min-h-screen">
     <!-- Sidebar Navigation -->
     <aside class="sidebar-nav">
-      <nav class="flex flex-col gap-4 mt-8">
+      <nav class="flex flex-col gap-4">
         <button id="dashboardBtn" class="nav-button active" title="Dashboard" onclick="showDashboardView()">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
@@ -757,6 +1112,314 @@
           </div>
         </main>
       </div>
+
+      <!-- Catalog View -->
+      <div id="catalogView" class="hidden flex-1 flex flex-col">
+        <!-- Header -->
+        <header class="catalog-header">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="flex items-center gap-3">
+                <img
+                  src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
+                  alt="Vinayaka Industries"
+                  class="w-20 h-20 logo-enhanced object-contain"
+                />
+                <div>
+                  <h1 class="text-xl font-bold text-slate-100">Parts Catalog</h1>              
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+              <!-- Enhanced Search Bar -->
+              <div class="search-container w-96">
+                <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input
+                  type="text"
+                  id="searchInput"
+                  placeholder="Search parts, models, devices... (e.g., '60', 'bearing', 'motor')"
+                  class="search-input-enhanced"
+                />
+                <button class="search-btn" onclick="performSearch()">
+                  Search
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="flex-1 p-6 space-y-6" id="mainContent">
+          <!-- Filters -->
+          <div class="premium-filter-container fade-in">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-2 premium-gradient rounded-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+                </svg>
+              </div>
+              <h2 class="text-xl font-semibold text-slate-100">Filter Parts</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div class="space-y-2">
+                <label class="filter-label">Model</label>
+                <select
+                  id="modelFilter"
+                  class="premium-filter-select w-full"
+                >
+                  <option value="">All Models</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="filter-label">Model Number</label>
+                <select
+                  id="modelNumberFilter"
+                  class="premium-filter-select w-full"
+                >
+                  <option value="">All Model Numbers</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="filter-label">Device</label>
+                <select
+                  id="deviceFilter"
+                  class="premium-filter-select w-full"
+                >
+                  <option value="">All Devices</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="filter-label">Item Name</label>
+                <select
+                  id="itemNameFilter"
+                  class="premium-filter-select w-full"
+                >
+                  <option value="">All Item Names</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Product Count and Table -->
+          <div class="space-y-4 fade-in">
+            <div class="flex items-center justify-between">
+              <h2 class="text-2xl font-bold text-slate-100">Product Catalog</h2>
+              <div class="flex items-center gap-3">
+                <div class="text-sm text-slate-300" id="productCount">
+                  0 products
+                </div>
+                <div id="searchResultsBadge" class="search-results-count hidden">
+                  Search Results
+                </div>
+              </div>
+            </div>
+            
+            <!-- Product Table -->
+            <div class="premium-filter-container overflow-hidden" id="productTableContainer">
+              <div class="overflow-x-auto">
+                <table class="min-w-full">
+                  <thead class="bg-slate-700/50 border-b border-slate-600">
+                    <tr>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Model</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Model Number</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Device</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Size</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Item Name</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Price</th>
+                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productTable" class="divide-y divide-slate-600">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <!-- No Products Message -->
+            <div id="noProductsMessageCatalog" class="hidden no-products-message">
+              <div class="w-16 h-16 bg-slate-100/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-medium text-slate-300 mb-2">No products found</h3>
+              <p class="text-slate-500">Try adjusting your search or filter criteria</p>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <!-- Export View -->
+      <div id="exportView" class="hidden flex-1 flex flex-col">
+        <!-- Export Header -->
+        <header class="catalog-header">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <button onclick="showCatalogView()" class="p-2 text-slate-300 hover:text-slate-100 hover:bg-slate-700/50 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+              </button>
+              <div>
+                <h1 class="text-xl font-bold text-slate-100">Export Catalog</h1>              
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Export Main Page -->
+        <div id="exportMainPage" class="flex-1 flex">
+          <!-- Left Side - Export Options -->
+          <div class="w-1/2 flex flex-col justify-center items-center p-12">
+            <h1 class="export-title mb-12">EXPORT</h1>
+            
+            <div class="space-y-8 w-full max-w-md">
+              <div class="export-card" onclick="exportFullCatalog()">
+                <div class="export-option">EXPORT CATALOG</div>
+              </div>
+              
+              <div class="export-card" onclick="showCustomExport()">
+                <div class="export-option">CUSTOM EXPORT</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Side - Preview -->
+          <div class="w-1/2 flex flex-col justify-center items-center p-12" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.5) 100%);">
+            <h2 class="text-6xl font-black text-slate-100 mb-8">PREVIEW</h2>
+            <div class="w-full h-96 premium-filter-container rounded-2xl flex items-center justify-center">
+              <div class="text-center text-slate-400">
+                <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <p class="text-xl font-medium">Select an export option to preview</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Export Page -->
+        <div id="customExportPage" class="hidden flex-1 p-6 space-y-6">
+          <!-- Back Button and Title -->
+          <div class="flex items-center gap-4 mb-6">
+            <button onclick="showExportMainPage()" class="nav-button-style">
+              <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              Back
+            </button>
+            <h2 class="text-3xl font-bold text-slate-100">Custom Export</h2>
+            <div class="ml-auto flex items-center gap-4">
+              <div class="relative">
+                <button id="cartButton" onclick="showCatalogPreview()" class="nav-button-style flex items-center gap-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"></path>
+                  </svg>
+                  View Cart
+                  <span id="cartCount" class="cart-badge">0</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom Export Filters -->
+          <div class="premium-filter-container">
+            <div class="flex items-center gap-3 mb-6">
+              <div class="p-2 premium-gradient rounded-lg">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold text-slate-100">Filter Products</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div class="space-y-2">
+                <label class="filter-label">Model</label>
+                <select id="exportModelFilter" class="premium-filter-select w-full">
+                  <option value="">All Models</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="filter-label">Model Number</label>
+                <select id="exportModelNumberFilter" class="premium-filter-select w-full">
+                  <option value="">All Model Numbers</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="filter-label">Device</label>
+                <select id="exportDeviceFilter" class="premium-filter-select w-full">
+                  <option value="">All Devices</option>
+                </select>
+              </div>
+              
+              <div class="space-y-2">
+                <label class="filter-label">Item Name</label>
+                <select id="exportItemNameFilter" class="premium-filter-select w-full">
+                  <option value="">All Item Names</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Grid -->
+          <div class="premium-filter-container">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-xl font-semibold text-slate-100">Select Products</h3>
+              <div class="text-sm text-slate-300" id="exportProductCount">0 products available</div>
+            </div>
+            
+            <div id="exportProductGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <!-- Products will be populated here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Catalog Preview Page -->
+        <div id="catalogPreviewPage" class="hidden flex-1 p-6 space-y-6">
+          <!-- Preview Header -->
+          <div class="flex items-center justify-between mb-6 no-print">
+            <div class="flex items-center gap-4">
+              <button onclick="showCustomExport()" class="nav-button-style">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back to Selection
+              </button>
+              <h2 class="text-3xl font-bold text-slate-100">Catalog Preview</h2>
+            </div>
+            
+            <div class="flex items-center gap-4">
+              <button onclick="generateFastPDF()" class="nav-button-style">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Fast PDF Download
+              </button>
+              <button onclick="window.print()" class="secondary-button">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                </svg>
+                Print
+              </button>
+            </div>
+          </div>
+
+          <!-- Catalog Pages -->
+          <div id="catalogPages" class="space-y-8">
+            <!-- Pages will be generated here -->
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -795,6 +1458,7 @@
     let dashboardProducts = [];
     let currentSearchTerm = '';
     let currentDashboardSearchTerm = '';
+    let selectedProducts = [];
     let currentView = 'dashboard';
     let currentQuickFilter = 'all';
 
@@ -821,6 +1485,8 @@
     function showDashboardView() {
       currentView = 'dashboard';
       document.getElementById('dashboardView').classList.remove('hidden');
+      document.getElementById('catalogView').classList.add('hidden');
+      document.getElementById('exportView').classList.add('hidden');
       
       // Update sidebar buttons
       document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
@@ -828,13 +1494,57 @@
     }
 
     function showCatalogView() {
-      // Placeholder for catalog view
-      alert('Catalog view coming soon!');
+      currentView = 'catalog';
+      document.getElementById('catalogView').classList.remove('hidden');
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('exportView').classList.add('hidden');
+      
+      // Update sidebar buttons
+      document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('catalogBtn').classList.add('active');
     }
 
     function showExportView() {
-      // Placeholder for export view
-      alert('Export view coming soon!');
+      currentView = 'export';
+      document.getElementById('catalogView').classList.add('hidden');
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('exportView').classList.remove('hidden');
+      document.getElementById('exportMainPage').classList.remove('hidden');
+      document.getElementById('customExportPage').classList.add('hidden');
+      document.getElementById('catalogPreviewPage').classList.add('hidden');
+      
+      // Update sidebar buttons
+      document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('exportBtn').classList.add('active');
+    }
+
+    function showExportMainPage() {
+      document.getElementById('exportMainPage').classList.remove('hidden');
+      document.getElementById('customExportPage').classList.add('hidden');
+      document.getElementById('catalogPreviewPage').classList.add('hidden');
+    }
+
+    function showCustomExport() {
+      document.getElementById('exportMainPage').classList.add('hidden');
+      document.getElementById('customExportPage').classList.remove('hidden');
+      document.getElementById('catalogPreviewPage').classList.add('hidden');
+      
+      // Populate export filters
+      populateExportDropdowns();
+      renderExportProductGrid();
+    }
+
+    function showCatalogPreview() {
+      if (selectedProducts.length === 0) {
+        alert('Please select at least one product to preview the catalog.');
+        return;
+      }
+      
+      document.getElementById('exportMainPage').classList.add('hidden');
+      document.getElementById('customExportPage').classList.add('hidden');
+      document.getElementById('catalogPreviewPage').classList.remove('hidden');
+      
+      generateCatalogPreview();
     }
 
     // Dashboard Functions
@@ -1002,6 +1712,111 @@
       });
     }
 
+    // Enhanced search function
+    function performSearch() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+      currentSearchTerm = searchTerm;
+      
+      if (searchTerm === '') {
+        applyFilters();
+        document.getElementById('searchResultsBadge').classList.add('hidden');
+        return;
+      }
+
+      const searchResults = allProducts.filter(product => {
+        return Object.values(product).some(value => 
+          value && value.toString().toLowerCase().includes(searchTerm)
+        );
+      });
+
+      const model = document.getElementById('modelFilter').value;
+      const modelNumber = document.getElementById('modelNumberFilter').value;
+      const device = document.getElementById('deviceFilter').value;
+      const itemName = document.getElementById('itemNameFilter').value;
+
+      filteredProducts = searchResults.filter(product => {
+        const matchesModel = !model || product['MODEL'] === model;
+        const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
+        const matchesDevice = !device || product['DEVICE'] === device;
+        const matchesItemName = !itemName || product['ITEM NAME'] === itemName;
+        
+        return matchesModel && matchesModelNumber && matchesDevice && matchesItemName;
+      });
+
+      renderProductTable(filteredProducts);
+      
+      const badge = document.getElementById('searchResultsBadge');
+      badge.classList.remove('hidden');
+      badge.textContent = `${filteredProducts.length} Search Results`;
+    }
+
+    // Reload iframe function
+    function reloadIframe(imageId) {
+      const iframe = document.getElementById('productIframe');
+      
+      if (iframe && imageId && imageId.trim() !== '') {
+        const newSrc = `https://drive.google.com/file/d/${imageId.trim()}/preview?t=${Date.now()}`;
+        iframe.src = newSrc;
+      }
+    }
+
+    // Render product table
+    function renderProductTable(products) {
+      const tbody = document.getElementById('productTable');
+      const noProductsMessage = document.getElementById('noProductsMessageCatalog');
+      const productTableContainer = document.getElementById('productTableContainer');
+      const productCount = document.getElementById('productCount');
+      
+      if (currentSearchTerm) {
+        productCount.textContent = `${products.length} of ${allProducts.length} products (filtered)`;
+      } else {
+        productCount.textContent = `${products.length} of ${allProducts.length} products`;
+      }
+      
+      if (products.length === 0) {
+        productTableContainer.classList.add('hidden');
+        noProductsMessage.classList.remove('hidden');
+        return;
+      }
+      
+      productTableContainer.classList.remove('hidden');
+      noProductsMessage.classList.add('hidden');
+      
+      tbody.innerHTML = '';
+      products.forEach((product, index) => {
+        const row = document.createElement('tr');
+        row.className = 'table-row hover:bg-slate-700/30 transition-colors duration-200 cursor-pointer';
+        row.onclick = () => showProductDetails(product);
+        
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">${product['MODEL'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">${product['MODEL NUMBER'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">${product['DEVICE'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">${product['SIZE'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-400">${product['ITEM NAME'] || ''}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">
+            <div class="flex items-center gap-1">
+              <span>₹</span>
+              ${product['PRICE'] || ''}
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">
+            <button
+              onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])"
+              class="p-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg transition-colors"
+              title="View Details"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
     // Show product details in modal
     function showProductDetails(product) {
       const modal = document.getElementById('productModal');
@@ -1108,11 +1923,618 @@
       modal.classList.remove('flex');
     }
 
+    // Populate filter dropdowns
+    function populateDropdowns(products) {
+      const modelFilter = document.getElementById('modelFilter');
+      const modelNumberFilter = document.getElementById('modelNumberFilter');
+      const deviceFilter = document.getElementById('deviceFilter');
+      const itemNameFilter = document.getElementById('itemNameFilter');
+
+      const models = [...new Set(products.map(p => p['MODEL']).filter(Boolean))].sort();
+      const modelNumbers = [...new Set(products.map(p => p['MODEL NUMBER']).filter(Boolean))].sort();
+      const devices = [...new Set(products.map(p => p['DEVICE']).filter(Boolean))].sort();
+      const itemNames = [...new Set(products.map(p => p['ITEM NAME']).filter(Boolean))].sort();
+
+      // Clear existing options
+      modelFilter.innerHTML = '<option value="">All Models</option>';
+      modelNumberFilter.innerHTML = '<option value="">All Model Numbers</option>';
+      deviceFilter.innerHTML = '<option value="">All Devices</option>';
+      itemNameFilter.innerHTML = '<option value="">All Item Names</option>';
+
+      models.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        modelFilter.appendChild(option);
+      });
+
+      modelNumbers.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        modelNumberFilter.appendChild(option);
+      });
+
+      devices.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        deviceFilter.appendChild(option);
+      });
+
+      itemNames.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        itemNameFilter.appendChild(option);
+      });
+    }
+
+    // Populate export filter dropdowns
+    function populateExportDropdowns() {
+      const modelFilter = document.getElementById('exportModelFilter');
+      const modelNumberFilter = document.getElementById('exportModelNumberFilter');
+      const deviceFilter = document.getElementById('exportDeviceFilter');
+      const itemNameFilter = document.getElementById('exportItemNameFilter');
+
+      const models = [...new Set(allProducts.map(p => p['MODEL']).filter(Boolean))].sort();
+      const modelNumbers = [...new Set(allProducts.map(p => p['MODEL NUMBER']).filter(Boolean))].sort();
+      const devices = [...new Set(allProducts.map(p => p['DEVICE']).filter(Boolean))].sort();
+      const itemNames = [...new Set(allProducts.map(p => p['ITEM NAME']).filter(Boolean))].sort();
+
+      // Clear existing options
+      modelFilter.innerHTML = '<option value="">All Models</option>';
+      modelNumberFilter.innerHTML = '<option value="">All Model Numbers</option>';
+      deviceFilter.innerHTML = '<option value="">All Devices</option>';
+      itemNameFilter.innerHTML = '<option value="">All Item Names</option>';
+
+      models.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        modelFilter.appendChild(option);
+      });
+
+      modelNumbers.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        modelNumberFilter.appendChild(option);
+      });
+
+      devices.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        deviceFilter.appendChild(option);
+      });
+
+      itemNames.forEach(value => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        itemNameFilter.appendChild(option);
+      });
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const model = document.getElementById('modelFilter').value;
+      const modelNumber = document.getElementById('modelNumberFilter').value;
+      const device = document.getElementById('deviceFilter').value;
+      const itemName = document.getElementById('itemNameFilter').value;
+
+      if (currentSearchTerm) {
+        performSearch();
+      } else {
+        filteredProducts = allProducts.filter(product => {
+          const matchesModel = !model || product['MODEL'] === model;
+          const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
+          const matchesDevice = !device || product['DEVICE'] === device;
+          const matchesItemName = !itemName || product['ITEM NAME'] === itemName;
+          
+          return matchesModel && matchesModelNumber && matchesDevice && matchesItemName;
+        });
+
+        renderProductTable(filteredProducts);
+        document.getElementById('searchResultsBadge').classList.add('hidden');
+      }
+    }
+
+    // Export Functions
+    function exportFullCatalog() {
+      const csvContent = convertToCSV(allProducts);
+      downloadCSV(csvContent, 'full-catalog.csv');
+    }
+
+    function convertToCSV(products) {
+      if (products.length === 0) return '';
+      
+      const headers = Object.keys(products[0]);
+      const csvRows = [headers.join(',')];
+      
+      products.forEach(product => {
+        const values = headers.map(header => {
+          const value = product[header] || '';
+          return `"${value.toString().replace(/"/g, '""')}"`;
+        });
+        csvRows.push(values.join(','));
+      });
+      
+      return csvRows.join('\n');
+    }
+
+    function downloadCSV(csvContent, filename) {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Export Product Grid Functions
+    function renderExportProductGrid() {
+      const model = document.getElementById('exportModelFilter').value;
+      const modelNumber = document.getElementById('exportModelNumberFilter').value;
+      const device = document.getElementById('exportDeviceFilter').value;
+      const itemName = document.getElementById('exportItemNameFilter').value;
+
+      const filtered = allProducts.filter(product => {
+        const matchesModel = !model || product['MODEL'] === model;
+        const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
+        const matchesDevice = !device || product['DEVICE'] === device;
+        const matchesItemName = !itemName || product['ITEM NAME'] === itemName;
+        
+        return matchesModel && matchesModelNumber && matchesDevice && matchesItemName;
+      });
+
+      const grid = document.getElementById('exportProductGrid');
+      const count = document.getElementById('exportProductCount');
+      
+      count.textContent = `${filtered.length} products available`;
+      
+      grid.innerHTML = '';
+      
+      filtered.forEach((product, index) => {
+        const isSelected = selectedProducts.some(p => p['ITEM NAME'] === product['ITEM NAME'] && p['MODEL'] === product['MODEL']);
+        const imageId = product['ID'] || product['IMAGE LINK'];
+        const imageUrl = imageId && imageId.trim() !== '' ? 
+          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
+          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMUUyOTNCIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iIzNCODJGNiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+        
+        const gridItem = document.createElement('div');
+        gridItem.className = `product-grid-item ${isSelected ? 'selected' : ''}`;
+        gridItem.onclick = () => toggleProductSelection(product);
+        
+        gridItem.innerHTML = `
+          <div class="relative">
+            <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="product-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMUUyOTNCIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iIzNCODJGNiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
+            ${isSelected ? `
+              <div class="absolute top-2 right-2 bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            ` : ''}
+          </div>
+          <div class="mt-3">
+            <h4 class="font-semibold text-slate-100 text-sm">${product['ITEM NAME'] || 'Unknown Item'}</h4>
+            <p class="text-xs text-slate-300 mt-1">${product['MODEL'] || ''} ${product['MODEL NUMBER'] || ''}</p>
+            <p class="text-xs text-slate-400">${product['DEVICE'] || ''}</p>
+          </div>
+        `;
+        
+        grid.appendChild(gridItem);
+      });
+    }
+
+    function toggleProductSelection(product) {
+      const existingIndex = selectedProducts.findIndex(p => 
+        p['ITEM NAME'] === product['ITEM NAME'] && p['MODEL'] === product['MODEL']
+      );
+      
+      if (existingIndex > -1) {
+        selectedProducts.splice(existingIndex, 1);
+      } else {
+        selectedProducts.push(product);
+      }
+      
+      updateCartCount();
+      renderExportProductGrid();
+    }
+
+    function updateCartCount() {
+      const cartCount = document.getElementById('cartCount');
+      cartCount.textContent = selectedProducts.length;
+      
+      if (selectedProducts.length > 0) {
+        cartCount.classList.remove('hidden');
+      } else {
+        cartCount.classList.add('hidden');
+      }
+    }
+
+    // Catalog Preview Functions
+    function generateCatalogPreview() {
+      const catalogPages = document.getElementById('catalogPages');
+      catalogPages.innerHTML = '';
+      
+      // Group products by model for better organization
+      const productsByModel = {};
+      selectedProducts.forEach(product => {
+        const model = product['MODEL'] || 'Unknown Model';
+        if (!productsByModel[model]) {
+          productsByModel[model] = [];
+        }
+        productsByModel[model].push(product);
+      });
+      
+      // Generate pages for each model
+      Object.keys(productsByModel).forEach(model => {
+        const products = productsByModel[model];
+        const pages = Math.ceil(products.length / 9); // 9 products per page (3x3 grid)
+        
+        for (let page = 0; page < pages; page++) {
+          const startIndex = page * 9;
+          const endIndex = Math.min(startIndex + 9, products.length);
+          const pageProducts = products.slice(startIndex, endIndex);
+          
+          const catalogPage = createCatalogPage(model, pageProducts, page + 1, pages);
+          catalogPages.appendChild(catalogPage);
+        }
+      });
+    }
+
+    function createCatalogPage(model, products, pageNumber, totalPages) {
+      const page = document.createElement('div');
+      page.className = 'catalog-page';
+      
+      page.innerHTML = `
+        <div class="catalog-header-page">
+          <div class="flex items-center justify-center gap-8 mb-8">
+            <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="w-24 h-24 object-contain">
+            <h1 class="text-6xl font-black text-slate-800">${model}</h1>
+          </div>
+        </div>
+        
+        <div class="catalog-grid" id="catalogGrid-${model}-${pageNumber}">
+          <!-- Products will be added here -->
+        </div>
+        
+        <div class="text-center text-sm text-slate-500 mt-8">
+          <p>Vinayaka Industries - Quality Parts & Components</p>
+          ${totalPages > 1 ? `<p>Page ${pageNumber} of ${totalPages}</p>` : ''}
+        </div>
+      `;
+      
+      const grid = page.querySelector(`#catalogGrid-${model}-${pageNumber}`);
+      
+      products.forEach((product, index) => {
+        const catalogItem = createCatalogItem(product, `${model}-${pageNumber}-${index}`);
+        grid.appendChild(catalogItem);
+      });
+      
+      return page;
+    }
+
+    function createCatalogItem(product, uniqueId) {
+      const item = document.createElement('div');
+      item.className = 'catalog-item';
+      
+      const imageId = product['ID'] || product['IMAGE LINK'];
+      const imageUrl = imageId && imageId.trim() !== '' ? 
+        `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+      
+      // Create full product description
+      const fullDescription = [
+        product['MODEL'] || '',
+        product['MODEL NUMBER'] || '',
+        product['DEVICE'] || '',
+        product['SIZE'] || '',
+        product['ITEM NAME'] || ''
+      ].filter(part => part.trim() !== '').join(' ');
+      
+      item.innerHTML = `
+        <div class="relative">
+          <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="catalog-item-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
+          <button class="remove-item-btn no-print" onclick="removeFromCatalog('${uniqueId}', '${product['ITEM NAME']}', '${product['MODEL']}')">
+            ×
+          </button>
+        </div>
+        <div class="catalog-item-name">${fullDescription}</div>
+      `;
+      
+      item.setAttribute('data-unique-id', uniqueId);
+      return item;
+    }
+
+    function removeFromCatalog(uniqueId, itemName, model) {
+      // Remove from selected products
+      const index = selectedProducts.findIndex(p => 
+        p['ITEM NAME'] === itemName && p['MODEL'] === model
+      );
+      
+      if (index > -1) {
+        selectedProducts.splice(index, 1);
+        updateCartCount();
+        
+        // Regenerate the catalog preview
+        generateCatalogPreview();
+      }
+    }
+
+    // Ultra-Fast PDF Generation
+    function generateFastPDF() {
+      if (selectedProducts.length === 0) {
+        alert('Please select products to generate PDF');
+        return;
+      }
+
+      // Show processing overlay
+      document.getElementById('pdfProcessing').classList.remove('hidden');
+
+      // Use setTimeout to allow UI to update
+      setTimeout(() => {
+        try {
+          // Create PDF content
+          const pdfContent = generatePDFContent();
+          
+          // Create new window with PDF content
+          const pdfWindow = window.open('', '_blank');
+          pdfWindow.document.write(pdfContent);
+          pdfWindow.document.close();
+          
+          // Auto-trigger print dialog
+          setTimeout(() => {
+            pdfWindow.print();
+            document.getElementById('pdfProcessing').classList.add('hidden');
+          }, 500);
+          
+        } catch (error) {
+          console.error('PDF generation error:', error);
+          alert('Error generating PDF. Please try again.');
+          document.getElementById('pdfProcessing').classList.add('hidden');
+        }
+      }, 100);
+    }
+
+    function generatePDFContent() {
+      // Group products by model
+      const productsByModel = {};
+      selectedProducts.forEach(product => {
+        const model = product['MODEL'] || 'Unknown Model';
+        if (!productsByModel[model]) {
+          productsByModel[model] = [];
+        }
+        productsByModel[model].push(product);
+      });
+
+      let pdfHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Vinayaka Industries - Parts Catalog</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+              font-family: 'Inter', sans-serif;
+            }
+            
+            body {
+              background: white;
+              color: #1e293b;
+              line-height: 1.4;
+            }
+            
+            .pdf-page {
+              width: 210mm;
+              min-height: 297mm;
+              padding: 20mm;
+              margin: 0 auto;
+              background: white;
+              page-break-after: always;
+              position: relative;
+            }
+            
+            .pdf-page:last-child {
+              page-break-after: avoid;
+            }
+            
+            .pdf-header {
+              text-align: center;
+              margin-bottom: 40px;
+              border-bottom: 3px solid #1d4ed8;
+              padding-bottom: 20px;
+            }
+            
+            .pdf-logo-container {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 30px;
+              margin-bottom: 20px;
+            }
+            
+            .pdf-logo {
+              width: 80px;
+              height: 80px;
+              object-fit: contain;
+            }
+            
+            .pdf-model-title {
+              font-size: 48px;
+              font-weight: 900;
+              color: #1e293b;
+              letter-spacing: -1px;
+            }
+            
+            .pdf-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 25px;
+              margin-bottom: 30px;
+            }
+            
+            .pdf-item {
+              text-align: center;
+              border: 2px solid #e2e8f0;
+              border-radius: 12px;
+              padding: 15px;
+              background: #f8fafc;
+            }
+            
+            .pdf-item-image {
+              width: 100%;
+              height: 150px;
+              object-fit: cover;
+              border-radius: 8px;
+              margin-bottom: 12px;
+              background: white;
+              border: 1px solid #e2e8f0;
+            }
+            
+            .pdf-item-name {
+              font-size: 11px;
+              font-weight: 700;
+              color: #1d4ed8;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              line-height: 1.3;
+            }
+            
+            .pdf-footer {
+              position: absolute;
+              bottom: 15mm;
+              left: 20mm;
+              right: 20mm;
+              text-align: center;
+              font-size: 12px;
+              color: #64748b;
+              border-top: 1px solid #e2e8f0;
+              padding-top: 10px;
+            }
+            
+            @media print {
+              body { margin: 0; }
+              .pdf-page { 
+                margin: 0; 
+                box-shadow: none;
+                page-break-after: always;
+              }
+              .pdf-page:last-child {
+                page-break-after: avoid;
+              }
+            }
+          </style>
+        </head>
+        <body>
+      `;
+
+      // Generate pages for each model
+      Object.keys(productsByModel).forEach(model => {
+        const products = productsByModel[model];
+        const pages = Math.ceil(products.length / 9);
+        
+        for (let page = 0; page < pages; page++) {
+          const startIndex = page * 9;
+          const endIndex = Math.min(startIndex + 9, products.length);
+          const pageProducts = products.slice(startIndex, endIndex);
+          
+          pdfHTML += `
+            <div class="pdf-page">
+              <div class="pdf-header">
+                <div class="pdf-logo-container">
+                  <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="pdf-logo">
+                  <div class="pdf-model-title">${model}</div>
+                </div>
+              </div>
+              
+              <div class="pdf-grid">
+          `;
+          
+          pageProducts.forEach(product => {
+            const imageId = product['ID'] || product['IMAGE LINK'];
+            const imageUrl = imageId && imageId.trim() !== '' ? 
+              `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
+              'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+            
+            const fullDescription = [
+              product['MODEL'] || '',
+              product['MODEL NUMBER'] || '',
+              product['DEVICE'] || '',
+              product['SIZE'] || '',
+              product['ITEM NAME'] || ''
+            ].filter(part => part.trim() !== '').join(' ');
+            
+            pdfHTML += `
+              <div class="pdf-item">
+                <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="pdf-item-image">
+                <div class="pdf-item-name">${fullDescription}</div>
+              </div>
+            `;
+          });
+          
+          pdfHTML += `
+              </div>
+              <div class="pdf-footer">
+                <div>Vinayaka Industries - Quality Parts & Components</div>
+                ${pages > 1 ? `<div>Page ${page + 1} of ${pages}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      pdfHTML += `
+        </body>
+        </html>
+      `;
+
+      return pdfHTML;
+    }
+
     // Event listeners
+    document.getElementById('modelFilter').addEventListener('change', applyFilters);
+    document.getElementById('modelNumberFilter').addEventListener('change', applyFilters);
+    document.getElementById('deviceFilter').addEventListener('change', applyFilters);
+    document.getElementById('itemNameFilter').addEventListener('change', applyFilters);
+
+    // Dashboard filter event listeners
     document.getElementById('dashboardModelFilter').addEventListener('change', applyDashboardFilters);
     document.getElementById('dashboardModelNumberFilter').addEventListener('change', applyDashboardFilters);
     document.getElementById('dashboardDeviceFilter').addEventListener('change', applyDashboardFilters);
     document.getElementById('dashboardItemNameFilter').addEventListener('change', applyDashboardFilters);
+
+    // Export filter event listeners
+    document.getElementById('exportModelFilter').addEventListener('change', renderExportProductGrid);
+    document.getElementById('exportModelNumberFilter').addEventListener('change', renderExportProductGrid);
+    document.getElementById('exportDeviceFilter').addEventListener('change', renderExportProductGrid);
+    document.getElementById('exportItemNameFilter').addEventListener('change', renderExportProductGrid);
+
+    // Search input event listeners
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      if (e.target.value === '') {
+        currentSearchTerm = '';
+        applyFilters();
+        document.getElementById('searchResultsBadge').classList.add('hidden');
+      }
+    });
+
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        performSearch();
+      }
+    });
 
     // Dashboard search input event listeners
     document.getElementById('dashboardSearchInput').addEventListener('input', function(e) {
@@ -1152,7 +2574,9 @@
             console.log('Sample product:', allProducts[0]);
           }
           
+          populateDropdowns(allProducts);
           populateDashboardDropdowns();
+          renderProductTable(filteredProducts);
           renderDashboardProducts();
           hideLoading();
         } catch (err) {
