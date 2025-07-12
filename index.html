@@ -3,744 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vinayaka Industries - Parts Catalog</title>
+  <title>Vinayaka Industries - Premium Parts Catalog</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --secondary: #0d9488;
+      --secondary-dark: #0f766e;
+      --accent: #f59e0b;
+      --accent-dark: #d97706;
+      --surface: rgba(255, 255, 255, 0.95);
+      --surface-hover: rgba(255, 255, 255, 0.98);
+      --glass: rgba(255, 255, 255, 0.85);
+      --shadow-primary: 0 25px 50px -12px rgba(37, 99, 235, 0.25);
+      --shadow-secondary: 0 25px 50px -12px rgba(13, 148, 136, 0.25);
+      --shadow-glass: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --gradient-surface: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+    }
+    
     * {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      box-sizing: border-box;
     }
     
-    .glass-effect {
-      backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.9);
-    }
-    
-    .gradient-bg {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    }
-    
-    .sidebar-gradient {
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-    }
-    
-    .hover-scale {
-      transition: transform 0.2s ease-in-out;
-    }
-    
-    .hover-scale:hover {
-      transform: scale(1.02);
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.3s ease-in-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .modal-backdrop {
-      backdrop-filter: blur(8px);
-      background: rgba(0, 0, 0, 0.5);
-    }
-    
-    .loading-spinner {
-      border: 3px solid #e2e8f0;
-      border-top: 3px solid #0d9488;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .table-row:hover {
-      background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
-    }
-    
-    .search-input:focus {
-      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
-    }
-    
-    .filter-select:focus {
-      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
-    }
-    
-    .image-container {
-      position: relative;
-      overflow: hidden;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    }
-    
-    .reload-btn {
-      transition: all 0.3s ease;
-    }
-    
-    .reload-btn:hover {
-      transform: rotate(180deg);
-      background: #0d9488;
-      color: white;
-    }
-    
-    .image-placeholder {
-      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    }
-    
-    .search-container {
-      position: relative;
-      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-      border: 2px solid transparent;
-      border-radius: 16px;
-      transition: all 0.3s ease;
-    }
-    
-    .search-container:focus-within {
-      border-color: #0d9488;
-      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
-      transform: translateY(-1px);
-    }
-    
-    .search-input-enhanced {
-      background: transparent;
-      border: none;
-      outline: none;
-      width: 100%;
-      padding: 14px 50px 14px 50px;
-      font-size: 16px;
-      color: #1e293b;
-      font-weight: 500;
-    }
-    
-    .search-input-enhanced::placeholder {
-      color: #64748b;
-      font-weight: 400;
-    }
-    
-    .search-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #64748b;
-      transition: all 0.3s ease;
-    }
-    
-    .search-container:focus-within .search-icon {
-      color: #0d9488;
-      transform: translateY(-50%) scale(1.1);
-    }
-    
-    .search-btn {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 8px 16px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
-    }
-    
-    .search-btn:hover {
-      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
-      transform: translateY(-50%) translateY(-1px);
-      box-shadow: 0 6px 16px rgba(13, 148, 136, 0.4);
-    }
-    
-    .search-btn:active {
-      transform: translateY(-50%) translateY(0px);
-    }
-    
-    .search-results-count {
-      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-      color: white;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-
-    .iframe-container {
-      width: 100%;
-      height: 400px;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      background: #f8fafc;
-    }
-
-    .product-iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 16px;
-    }
-
-    .reload-button {
-      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 20px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
-    }
-
-    .reload-button:hover {
-      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
-    }
-
-    /* Export Page Styles */
-    .export-card {
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      border-radius: 20px;
-      padding: 40px;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
-    }
-
-    .export-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.4);
-    }
-
-    .export-title {
-      font-size: 4rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      margin-bottom: 2rem;
-    }
-
-    .export-option {
-      font-size: 2rem;
-      font-weight: 800;
-      text-align: center;
-      letter-spacing: -0.01em;
-    }
-
-    /* Product Grid Styles */
-    .product-grid-item {
-      background: white;
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border: 3px solid transparent;
-    }
-
-    .product-grid-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .product-grid-item.selected {
-      border-color: #0d9488;
-      background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
-    }
-
-    .product-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 12px;
-      background: #f8fafc;
-    }
-
-    .cart-badge {
-      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-      color: white;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      position: absolute;
-      top: -8px;
-      right: -8px;
-    }
-
-    /* Catalog Preview Styles */
-    .catalog-page {
-      width: 210mm;
-      min-height: 297mm;
-      background: white;
-      margin: 0 auto;
-      padding: 20mm;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .catalog-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .catalog-logo {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-    }
-
-    .catalog-model-title {
-      font-size: 4rem;
-      font-weight: 900;
-      color: #1e293b;
-      letter-spacing: -0.02em;
-      margin-bottom: 30px;
-    }
-
-    .catalog-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      margin-bottom: 40px;
-    }
-
-    .catalog-item {
-      text-align: center;
-      position: relative;
-    }
-
-    .catalog-item-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      background: #f8fafc;
-    }
-
-    .catalog-item-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: #2563eb;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .remove-item-btn {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0;
-      transition: all 0.3s ease;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .catalog-item:hover .remove-item-btn {
-      opacity: 1;
-    }
-
-    .remove-item-btn:hover {
-      background: #dc2626;
-      transform: scale(1.1);
-    }
-
-    @media print {
-      .no-print {
-        display: none !important;
-      }
-      
-      .catalog-page {
-        box-shadow: none;
-        margin: 0;
-      }
-    }
-
-    /* Navigation Styles */
-    .nav-button {
-      background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 24px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
-    }
-
-    .nav-button:hover {
-      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
-    }
-
-    .secondary-button {
-      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 24px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
-    }
-
-    .secondary-button:hover {
-      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
-    }
-
-    /* Fast PDF Generation Styles */
-    .pdf-processing {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      text-align: center;
-    }
-
-    .pdf-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #e2e8f0;
-      border-top: 4px solid #0d9488;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    /* PDF Print Styles */
-    @media print {
-      body * {
-        visibility: hidden;
-      }
-      
-      .pdf-content, .pdf-content * {
-        visibility: visible;
-      }
-      
-      .pdf-content {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-      }
-      
-      .pdf-page {
-        page-break-after: always;
-        width: 210mm;
-        min-height: 297mm;
-        padding: 20mm;
-        margin: 0;
-        box-shadow: none;
-      }
-      
-      .pdf-page:last-child {
-        page-break-after: avoid;
-      }
-    }
-
-    /* Premium Dashboard Styles */
-    .dashboard-gradient {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
       min-height: 100vh;
+      overflow-x: hidden;
     }
-
-    .premium-search-container {
-      position: relative;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 20px;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    .premium-search-container:focus-within {
-      border-color: rgba(102, 126, 234, 0.5);
-      box-shadow: 0 0 0 6px rgba(102, 126, 234, 0.1), 0 12px 40px rgba(0, 0, 0, 0.15);
-      transform: translateY(-2px);
-    }
-
-    .premium-search-input {
-      background: transparent;
-      border: none;
-      outline: none;
-      width: 100%;
-      padding: 16px 60px 16px 60px;
-      font-size: 16px;
-      color: #1e293b;
-      font-weight: 500;
-    }
-
-    .premium-search-input::placeholder {
-      color: #64748b;
-      font-weight: 400;
-    }
-
-    .premium-search-icon {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #64748b;
-      transition: all 0.3s ease;
-    }
-
-    .premium-search-container:focus-within .premium-search-icon {
-      color: #667eea;
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .premium-search-btn {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 20px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
-    }
-
-    .premium-search-btn:hover {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-      transform: translateY(-50%) translateY(-1px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    /* Premium Product Cards - Clean Border Effect */
-    .premium-product-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(226, 232, 240, 0.5);
-      border-radius: 24px;
-      padding: 20px;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    .premium-product-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      border-color: #0d9488;
-    }
-
-    .premium-product-image-container {
-      position: relative;
-      width: 100%;
-      height: 280px;
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 16px;
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      border: 2px solid rgba(226, 232, 240, 0.5);
-      transition: all 0.3s ease;
-    }
-
-    .premium-product-card:hover .premium-product-image-container {
-      border-color: #0d9488;
-      box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
-    }
-
-    .premium-product-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 14px;
-      transition: all 0.3s ease;
-    }
-
-    .premium-product-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 8px;
-      line-height: 1.4;
-      position: relative;
-      z-index: 3;
-    }
-
-    .premium-product-specs {
-      font-size: 13px;
-      color: #64748b;
-      margin-bottom: 12px;
-      line-height: 1.5;
-      position: relative;
-      z-index: 3;
-    }
-
-    .premium-product-price {
-      font-size: 18px;
-      font-weight: 800;
-      color: #667eea;
-      margin-bottom: 16px;
-      position: relative;
-      z-index: 3;
-    }
-
-    .premium-view-btn {
-      width: 100%;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 20px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
-      position: relative;
-      z-index: 3;
-    }
-
-    .premium-view-btn:hover {
-      background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    /* Premium Filter Styles */
-    .premium-filter-container {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%);
-      backdrop-filter: blur(20px);
+    
+    /* Premium Glass Morphism Effects */
+    .glass-morphism {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 32px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-glass);
     }
-
-    .premium-filter-select {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
-      border: 2px solid rgba(102, 126, 234, 0.2);
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #1e293b;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
+    
+    .glass-morphism-strong {
+      background: var(--surface);
+      backdrop-filter: blur(30px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.12);
     }
-
-    .premium-filter-select:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-      transform: translateY(-1px);
-    }
-
-    .premium-filter-chips {
-      display: flex;
-      gap: 12px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-
-    .premium-filter-chip {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-      border: 2px solid rgba(102, 126, 234, 0.2);
-      border-radius: 20px;
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #667eea;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .premium-filter-chip:hover,
-    .premium-filter-chip.active {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
-    }
-
-    /* Premium Grid Layout */
-    .premium-products-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-      margin-top: 32px;
-    }
-
-    @media (max-width: 1200px) {
-      .premium-products-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (max-width: 768px) {
-      .premium-products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .premium-products-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Premium Animations */
-    .premium-fade-in {
-      animation: premiumFadeIn 0.6s ease-out;
-    }
-
-    @keyframes premiumFadeIn {
+    
+    /* Advanced Animations */
+    @keyframes slideInUp {
       from {
         opacity: 0;
         transform: translateY(30px);
@@ -750,108 +67,836 @@
         transform: translateY(0);
       }
     }
-
-    .premium-slide-in {
-      animation: premiumSlideIn 0.8s ease-out;
-    }
-
-    @keyframes premiumSlideIn {
+    
+    @keyframes slideInLeft {
       from {
         opacity: 0;
-        transform: translateX(-50px);
+        transform: translateX(-30px);
       }
       to {
         opacity: 1;
         transform: translateX(0);
       }
     }
-
-    /* Logo Styles - Enhanced Visibility */
-    .logo-enhanced {
-      background: white;
+    
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(37, 99, 235, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(37, 99, 235, 0.6); }
+    }
+    
+    .animate-slide-up { animation: slideInUp 0.6s ease-out; }
+    .animate-slide-left { animation: slideInLeft 0.6s ease-out; }
+    .animate-slide-right { animation: slideInRight 0.6s ease-out; }
+    .animate-scale-in { animation: scaleIn 0.5s ease-out; }
+    .animate-pulse-gentle { animation: pulse 2s infinite; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+    .animate-glow { animation: glow 2s ease-in-out infinite; }
+    
+    /* Premium Loading Animation */
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite, glow 2s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Premium Sidebar */
+    .premium-sidebar {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 50%, #020617 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .premium-sidebar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.1));
+      pointer-events: none;
+    }
+    
+    .sidebar-button {
+      position: relative;
+      padding: 16px;
       border-radius: 16px;
-      padding: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid transparent;
+      overflow: hidden;
+    }
+    
+    .sidebar-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .sidebar-button:hover::before {
+      left: 100%;
+    }
+    
+    .sidebar-button:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .sidebar-button.active {
+      color: white;
+      background: var(--gradient-primary);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--shadow-primary);
+    }
+    
+    .sidebar-button svg {
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-button:hover svg,
+    .sidebar-button.active svg {
+      transform: scale(1.1);
+    }
+    
+    /* Premium Logo Container */
+    .premium-logo {
+      background: white;
+      border-radius: 20px;
+      padding: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .premium-logo:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Premium Search Components */
+    .premium-search-container {
+      position: relative;
+      background: var(--gradient-surface);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-glass);
+      overflow: hidden;
+    }
+    
+    .premium-search-container::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: var(--gradient-primary);
+      border-radius: 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+    
+    .premium-search-container:focus-within {
+      border-color: transparent;
+      transform: translateY(-2px);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1), 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+    
+    .premium-search-container:focus-within::before {
+      opacity: 1;
+    }
+    
+    .premium-search-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      width: 100%;
+      padding: 18px 60px 18px 60px;
+      font-size: 16px;
+      color: #1e293b;
+      font-weight: 500;
+    }
+    
+    .premium-search-input::placeholder {
+      color: #64748b;
+      font-weight: 400;
+    }
+    
+    .premium-search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+    
+    .premium-search-container:focus-within .premium-search-icon {
+      color: #667eea;
+      transform: translateY(-50%) scale(1.1);
+    }
+    
+    .premium-search-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 12px 20px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+    }
+    
+    .premium-search-btn:hover {
+      background: var(--gradient-secondary);
+      transform: translateY(-50%) translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+    
+    .premium-search-btn:active {
+      transform: translateY(-50%) translateY(0px);
+    }
+    
+    /* Premium Cards */
+    .premium-card {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-glass);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .premium-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transition: left 0.5s;
+    }
+    
+    .premium-card:hover::before {
+      left: 100%;
+    }
+    
+    .premium-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Premium Product Cards */
+    .premium-product-card {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      padding: 24px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-glass);
+    }
+    
+    .premium-product-card::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: var(--gradient-primary);
+      border-radius: 24px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+    
+    .premium-product-card:hover {
+      transform: translateY(-12px) scale(1.03);
+      box-shadow: 0 35px 70px rgba(0, 0, 0, 0.2);
+      border-color: transparent;
+    }
+    
+    .premium-product-card:hover::before {
+      opacity: 1;
+    }
+    
+    .premium-product-image-container {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
       border: 2px solid rgba(226, 232, 240, 0.5);
+      transition: all 0.3s ease;
+    }
+    
+    .premium-product-card:hover .premium-product-image-container {
+      border-color: rgba(102, 126, 234, 0.5);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: scale(1.02);
+    }
+    
+    .premium-product-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 18px;
+      transition: all 0.3s ease;
+    }
+    
+    .premium-product-card:hover .premium-product-image {
+      transform: scale(1.05);
+    }
+    
+    .premium-product-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 12px;
+      line-height: 1.4;
+      transition: all 0.3s ease;
+    }
+    
+    .premium-product-card:hover .premium-product-title {
+      color: #667eea;
+    }
+    
+    .premium-product-specs {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    
+    .premium-product-price {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0d9488;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .premium-product-card:hover .premium-product-price {
+      color: #667eea;
+      transform: scale(1.05);
+    }
+    
+    /* Premium Buttons */
+    .premium-btn {
+      background: var(--gradient-primary);
+      color: white;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 24px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .premium-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .premium-btn:hover::before {
+      left: 100%;
+    }
+    
+    .premium-btn:hover {
+      background: var(--gradient-secondary);
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .premium-btn:active {
+      transform: translateY(-1px);
+    }
+    
+    .premium-btn-secondary {
+      background: var(--gradient-secondary);
+      box-shadow: 0 8px 25px rgba(13, 148, 136, 0.3);
+    }
+    
+    .premium-btn-secondary:hover {
+      background: var(--gradient-accent);
+      box-shadow: 0 15px 35px rgba(13, 148, 136, 0.4);
+    }
+    
+    /* Premium Filter Components */
+    .premium-filter-select {
+      background: var(--gradient-surface);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1e293b;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+    
+    .premium-filter-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+      background: var(--surface-hover);
+    }
+    
+    .premium-filter-chip {
+      background: rgba(102, 126, 234, 0.1);
+      border: 2px solid rgba(102, 126, 234, 0.2);
+      border-radius: 24px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #667eea;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .premium-filter-chip::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--gradient-primary);
+      transition: left 0.3s;
+      z-index: -1;
+    }
+    
+    .premium-filter-chip:hover::before,
+    .premium-filter-chip.active::before {
+      left: 0;
+    }
+    
+    .premium-filter-chip:hover,
+    .premium-filter-chip.active {
+      color: white;
+      border-color: transparent;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    /* Premium Table Styles */
+    .premium-table {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-glass);
+    }
+    
+    .premium-table-header {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(139, 92, 246, 0.1));
+      backdrop-filter: blur(20px);
+    }
+    
+    .premium-table-row {
+      transition: all 0.3s ease;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.3);
+    }
+    
+    .premium-table-row:hover {
+      background: linear-gradient(90deg, rgba(102, 126, 234, 0.05), rgba(139, 92, 246, 0.05));
+      transform: scale(1.01);
+    }
+    
+    /* Premium Modal */
+    .premium-modal {
+      backdrop-filter: blur(20px);
+      background: rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+    }
+    
+    .premium-modal-content {
+      background: var(--surface);
+      backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 32px;
+      box-shadow: 0 50px 100px rgba(0, 0, 0, 0.2);
+      transform: scale(0.95);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .premium-modal.show .premium-modal-content {
+      transform: scale(1);
+    }
+    
+    /* Loading Screen */
+    .premium-loading {
+      background: var(--gradient-primary);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .premium-loading-content {
+      text-align: center;
+      color: white;
+    }
+    
+    /* Export Cards */
+    .export-hero-card {
+      background: var(--gradient-primary);
+      border-radius: 32px;
+      padding: 60px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-primary);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .export-hero-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 70%);
+      transition: transform 0.5s ease;
+      transform: scale(0);
+    }
+    
+    .export-hero-card:hover::before {
+      transform: scale(1);
+    }
+    
+    .export-hero-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 35px 70px rgba(102, 126, 234, 0.4);
+    }
+    
+    .export-title {
+      font-size: 5rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 2rem;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .export-option {
+      font-size: 2.5rem;
+      font-weight: 800;
+      text-align: center;
+      letter-spacing: -0.01em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .premium-products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+      
+      .export-title {
+        font-size: 3.5rem;
+      }
+      
+      .export-option {
+        font-size: 2rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .premium-products-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .premium-search-container {
+        width: 100%;
+      }
+      
+      .export-hero-card {
+        padding: 40px;
+      }
+      
+      .export-title {
+        font-size: 2.5rem;
+      }
+      
+      .export-option {
+        font-size: 1.5rem;
+      }
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient-primary);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--gradient-secondary);
     }
 
-    .logo-sidebar {
+    /* Enhanced Visual Effects */
+    .premium-glow {
+      position: relative;
+    }
+    
+    .premium-glow::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: var(--gradient-primary);
+      border-radius: inherit;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .premium-glow:hover::after {
+      opacity: 0.7;
+      animation: glow 2s ease-in-out infinite;
+    }
+    
+    /* Premium Grid Layout */
+    .premium-products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 32px;
+      margin-top: 40px;
+    }
+    
+    /* Catalog Specific Styles */
+    .catalog-page {
+      width: 210mm;
+      min-height: 297mm;
       background: white;
+      margin: 0 auto 32px;
+      padding: 20mm;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    
+    .catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+    
+    .catalog-item {
+      text-align: center;
+      position: relative;
+      background: #f8fafc;
+      border-radius: 16px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .catalog-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .catalog-item-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
       border-radius: 12px;
-      padding: 6px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 15px;
+      background: white;
+      border: 2px solid #e2e8f0;
+    }
+    
+    .catalog-item-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2563eb;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.4;
+    }
+    
+    /* Print Styles */
+    @media print {
+      .no-print { display: none !important; }
+      .catalog-page { 
+        box-shadow: none; 
+        margin: 0; 
+        border-radius: 0;
+        page-break-after: always;
+      }
+      .catalog-page:last-child { page-break-after: avoid; }
     }
   </style>
 </head>
-<body class="gradient-bg min-h-screen">
-  <!-- Loading Screen -->
-  <div id="loadingScreen" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-    <div class="text-center">
-      <div class="loading-spinner mx-auto mb-4"></div>
-      <p class="text-slate-600 font-medium">Loading product catalog...</p>
+<body>
+  <!-- Premium Loading Screen -->
+  <div id="loadingScreen" class="premium-loading">
+    <div class="premium-loading-content animate-scale-in">
+      <div class="loading-spinner mx-auto mb-6"></div>
+      <h2 class="text-2xl font-bold mb-2">Loading Premium Catalog</h2>
+      <p class="text-white/80">Preparing your enhanced experience...</p>
     </div>
   </div>
 
   <!-- Error Message -->
-  <div id="errorMessage" class="hidden fixed inset-0 bg-white flex items-center justify-center z-50">
-    <div class="bg-red-50 border border-red-200 rounded-2xl p-8 text-center max-w-md">
-      <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div id="errorMessage" class="hidden premium-loading">
+    <div class="premium-loading-content animate-scale-in">
+      <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
         </svg>
       </div>
-      <h3 class="text-lg font-semibold text-red-800 mb-2">Error Loading Data</h3>
-      <p class="text-red-600" id="errorText">Failed to load product catalog</p>
+      <h2 class="text-2xl font-bold text-red-600 mb-2">Error Loading Data</h2>
+      <p class="text-red-400" id="errorText">Failed to load product catalog</p>
     </div>
   </div>
 
   <!-- PDF Processing Overlay -->
-  <div id="pdfProcessing" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-    <div class="pdf-processing">
-      <div class="pdf-spinner"></div>
-      <h3 class="text-lg font-semibold text-slate-800 mb-2">Generating PDF...</h3>
-      <p class="text-slate-600">Please wait while we prepare your catalog</p>
+  <div id="pdfProcessing" class="hidden premium-modal">
+    <div class="premium-loading-content animate-scale-in">
+      <div class="loading-spinner mx-auto mb-6"></div>
+      <h2 class="text-2xl font-bold mb-2">Generating Premium PDF</h2>
+      <p class="text-white/80">Creating your professional catalog...</p>
     </div>
   </div>
 
   <!-- Main Application Container -->
   <div id="mainApp" class="flex min-h-screen">
-    <!-- Sidebar -->
-    <aside class="w-20 sidebar-gradient flex flex-col items-center py-6 shadow-2xl">
-      <div class="mb-8">
+    <!-- Premium Sidebar -->
+    <aside class="w-24 premium-sidebar flex flex-col items-center py-8 shadow-2xl animate-slide-left">
+      <div class="mb-12 animate-float">
         <img
           src="https://drive.google.com/thumbnail?id=1Z10whv0kAB-PywEZE4mj0pZcfNp0w5nF&sz=s800"
           alt="Logo"
-          class="w-16 h-16 logo-sidebar object-contain"
+          class="w-16 h-16 premium-logo object-contain"
         />
       </div>
       
-      <nav class="flex-1 flex flex-col gap-4">
-        <button id="dashboardBtn" class="p-3 rounded-xl transition-all duration-200 group bg-teal-600 text-white shadow-lg" title="Dashboard" onclick="showDashboardView()">
-          <svg class="w-6 h-6 scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <nav class="flex-1 flex flex-col gap-6">
+        <button id="dashboardBtn" class="sidebar-button active" title="Dashboard" onclick="showDashboardView()">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
           </svg>
         </button>
-        <button id="catalogBtn" class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Catalog" onclick="showCatalogView()">
-          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button id="catalogBtn" class="sidebar-button" title="Catalog" onclick="showCatalogView()">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
           </svg>
         </button>
-        
-        <!-- Export Button -->
-        <button id="exportBtn" class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Export" onclick="showExportView()">
-          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button id="exportBtn" class="sidebar-button" title="Export" onclick="showExportView()">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
         </button>
-       
-        <button class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Analytics">
-          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button class="sidebar-button" title="Analytics">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
           </svg>
         </button>
-        <button class="p-3 rounded-xl transition-all duration-200 group text-slate-300 hover:text-white hover:bg-slate-700" title="Settings">
-          <svg class="w-6 h-6 group-hover:scale-105 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button class="sidebar-button" title="Settings">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
           </svg>
@@ -862,25 +907,25 @@
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-h-screen">
       <!-- Premium Dashboard View -->
-      <div id="dashboardView" class="flex-1 dashboard-gradient">
-        <!-- Dashboard Header with Search -->
-        <header class="p-6">
-          <div class="flex items-center justify-between mb-8">
-            <div class="flex items-center gap-4">
+      <div id="dashboardView" class="flex-1">
+        <!-- Dashboard Header -->
+        <header class="p-8 animate-slide-up">
+          <div class="flex items-center justify-between mb-12">
+            <div class="flex items-center gap-6">
               <img
                 src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
                 alt="Vinayaka Industries"
-                class="w-24 h-24 logo-enhanced object-contain"
+                class="w-28 h-28 premium-logo object-contain animate-float"
               />
               <div>
-                <h1 class="text-3xl font-bold text-white">Premium Parts Collection</h1>
-                <p class="text-white/80 text-lg">Discover high-quality industrial components</p>
+                <h1 class="text-4xl font-black text-white mb-2">Premium Parts Collection</h1>
+                <p class="text-white/90 text-xl font-medium">Discover high-quality industrial components</p>
               </div>
             </div>
             
-            <!-- Premium Search Bar - Top Right -->
-            <div class="premium-search-container w-96">
-              <svg class="premium-search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <!-- Premium Search Bar -->
+            <div class="premium-search-container w-96 animate-slide-right">
+              <svg class="premium-search-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
               <input
@@ -897,41 +942,38 @@
         </header>
 
         <!-- Dashboard Content -->
-        <main class="flex-1 px-6 pb-6">
+        <main class="flex-1 px-8 pb-8">
           <!-- Premium Filters -->
-          <div class="premium-filter-container premium-slide-in">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="p-3 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-xl">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="premium-card p-8 mb-8 animate-slide-up">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="p-4 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
                 </svg>
               </div>
-              <h2 class="text-2xl font-bold text-white">Filter Premium Products</h2>
+              <h2 class="text-3xl font-bold text-white">Filter Premium Products</h2>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              <div class="space-y-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+              <div class="space-y-3">
                 <label class="block text-sm font-semibold text-white/90">Model</label>
                 <select id="dashboardModelFilter" class="premium-filter-select w-full">
                   <option value="">All Models</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-semibold text-white/90">Model Number</label>
                 <select id="dashboardModelNumberFilter" class="premium-filter-select w-full">
                   <option value="">All Model Numbers</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-semibold text-white/90">Device</label>
                 <select id="dashboardDeviceFilter" class="premium-filter-select w-full">
                   <option value="">All Devices</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-semibold text-white/90">Item Name</label>
                 <select id="dashboardItemNameFilter" class="premium-filter-select w-full">
                   <option value="">All Item Names</option>
@@ -940,20 +982,20 @@
             </div>
 
             <!-- Quick Filter Chips -->
-            <div class="premium-filter-chips">
-              <div class="premium-filter-chip active" onclick="setQuickFilter('all')">All Products</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('available')">Available Now</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('motors')">Motors</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('bearings')">Bearings</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('gears')">Gears</div>
+            <div class="flex flex-wrap gap-4">
+              <div class="premium-filter-chip active" onclick="setQuickFilter('all', this)">All Products</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('available', this)">Available Now</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('motors', this)">Motors</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('bearings', this)">Bearings</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('gears', this)">Gears</div>
             </div>
           </div>
 
           <!-- Premium Products Grid -->
-          <div class="premium-fade-in">
-            <div class="flex items-center justify-between mb-6">
-              <h2 class="text-2xl font-bold text-white">Premium Products</h2>
-              <div class="text-white/80" id="dashboardProductCount">0 products</div>
+          <div class="animate-slide-up">
+            <div class="flex items-center justify-between mb-8">
+              <h2 class="text-3xl font-bold text-white">Premium Products</h2>
+              <div class="text-white/90 text-lg" id="dashboardProductCount">0 products</div>
             </div>
             
             <div id="dashboardProductsGrid" class="premium-products-grid">
@@ -966,91 +1008,72 @@
       <!-- Catalog View -->
       <div id="catalogView" class="hidden flex-1 flex flex-col">
         <!-- Header -->
-        <header class="glass-effect border-b border-gray-200 px-6 py-4 sticky top-0 z-40">
+        <header class="glass-morphism border-b border-white/20 px-8 py-6 sticky top-0 z-40 animate-slide-up">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="flex items-center gap-3">
-                <img
-                  src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
-                  alt="Vinayaka Industries"
-                  class="w-20 h-20 logo-enhanced object-contain"
-                />
-                <div>
-                  <h1 class="text-xl font-bold text-slate-800">Parts Catalog</h1>              
-                </div>
+            <div class="flex items-center gap-6">
+              <img
+                src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
+                alt="Vinayaka Industries"
+                class="w-24 h-24 premium-logo object-contain"
+              />
+              <div>
+                <h1 class="text-2xl font-bold text-slate-800">Parts Catalog</h1>
+                <p class="text-slate-600">Professional parts management</p>
               </div>
             </div>
             
-            <div class="flex items-center gap-4">
-              <!-- Enhanced Search Bar -->
-              <div class="search-container w-96">
-                <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <input
-                  type="text"
-                  id="searchInput"
-                  placeholder="Search parts, models, devices... (e.g., '60', 'bearing', 'motor')"
-                  class="search-input-enhanced"
-                />
-                <button class="search-btn" onclick="performSearch()">
-                  Search
-                </button>
-              </div>
+            <div class="premium-search-container w-96">
+              <svg class="premium-search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search parts, models, devices..."
+                class="premium-search-input"
+              />
+              <button class="premium-search-btn" onclick="performSearch()">
+                Search
+              </button>
             </div>
           </div>
         </header>
         
         <!-- Main Content -->
-        <main class="flex-1 p-6 space-y-6" id="mainContent">
+        <main class="flex-1 p-8 space-y-8" id="mainContent">
           <!-- Filters -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 fade-in">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="p-2 bg-teal-100 rounded-lg">
-                <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="premium-card p-8 animate-slide-up">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="p-3 bg-gradient-to-r from-teal-500 to-blue-600 rounded-xl">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
                 </svg>
               </div>
-              <h2 class="text-xl font-semibold text-slate-800">Filter Parts</h2>
+              <h2 class="text-2xl font-semibold text-slate-800">Filter Parts</h2>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div class="space-y-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div class="space-y-3">
                 <label class="block text-sm font-medium text-slate-700">Model</label>
-                <select
-                  id="modelFilter"
-                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
-                >
+                <select id="modelFilter" class="premium-filter-select w-full">
                   <option value="">All Models</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-medium text-slate-700">Model Number</label>
-                <select
-                  id="modelNumberFilter"
-                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
-                >
+                <select id="modelNumberFilter" class="premium-filter-select w-full">
                   <option value="">All Model Numbers</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-medium text-slate-700">Device</label>
-                <select
-                  id="deviceFilter"
-                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
-                >
+                <select id="deviceFilter" class="premium-filter-select w-full">
                   <option value="">All Devices</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-medium text-slate-700">Item Name</label>
-                <select
-                  id="itemNameFilter"
-                  class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white filter-select"
-                >
+                <select id="itemNameFilter" class="premium-filter-select w-full">
                   <option value="">All Item Names</option>
                 </select>
               </div>
@@ -1058,48 +1081,46 @@
           </div>
           
           <!-- Product Count and Table -->
-          <div class="space-y-4 fade-in">
+          <div class="space-y-6 animate-slide-up">
             <div class="flex items-center justify-between">
-              <h2 class="text-2xl font-bold text-slate-800">Product Catalog</h2>
-              <div class="flex items-center gap-3">
-                <div class="text-sm text-slate-600" id="productCount">
-                  0 products
-                </div>
-                <div id="searchResultsBadge" class="search-results-count hidden">
+              <h2 class="text-3xl font-bold text-slate-800">Product Catalog</h2>
+              <div class="flex items-center gap-4">
+                <div class="text-sm text-slate-600" id="productCount">0 products</div>
+                <div id="searchResultsBadge" class="hidden premium-filter-chip active animate-pulse-gentle">
                   Search Results
                 </div>
               </div>
             </div>
             
             <!-- Product Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" id="productTableContainer">
+            <div class="premium-table" id="productTableContainer">
               <div class="overflow-x-auto">
                 <table class="min-w-full">
-                  <thead class="bg-slate-50 border-b border-slate-200">
+                  <thead class="premium-table-header">
                     <tr>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Model</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Model Number</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Device</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Size</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Item Name</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Price</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
+                      <th class="px-8 py-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Model</th>
+                      <th class="px-8 py-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Model Number</th>
+                      <th class="px-8 py-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Device</th>
+                      <th class="px-8 py-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Size</th>
+                      <th class="px-8 py-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Item Name</th>
+                      <th class="px-8 py-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Price</th>
+                      <th class="px-8 py-6 text-left text-xs font-semibold text-slate-700 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
-                  <tbody id="productTable" class="bg-white divide-y divide-slate-200">
+                  <tbody id="productTable" class="bg-white/50 divide-y divide-slate-200/50">
                   </tbody>
                 </table>
               </div>
             </div>
             
             <!-- No Products Message -->
-            <div id="noProductsMessage" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
-              <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div id="noProductsMessage" class="hidden premium-card p-16 text-center">
+              <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
               </div>
-              <h3 class="text-lg font-medium text-slate-600 mb-2">No products found</h3>
+              <h3 class="text-xl font-medium text-slate-600 mb-3">No products found</h3>
               <p class="text-slate-500">Try adjusting your search or filter criteria</p>
             </div>
           </div>
@@ -1109,112 +1130,111 @@
       <!-- Export View -->
       <div id="exportView" class="hidden flex-1 flex flex-col">
         <!-- Export Header -->
-        <header class="glass-effect border-b border-gray-200 px-6 py-4 sticky top-0 z-40">
+        <header class="glass-morphism border-b border-white/20 px-8 py-6 sticky top-0 z-40 animate-slide-up">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <button onclick="showCatalogView()" class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center gap-6">
+              <button onclick="showCatalogView()" class="premium-btn">
+                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
+                Back
               </button>
               <div>
-                <h1 class="text-xl font-bold text-slate-800">Export Catalog</h1>              
+                <h1 class="text-2xl font-bold text-slate-800">Export Catalog</h1>
+                <p class="text-slate-600">Create professional catalogs</p>
               </div>
             </div>
           </div>
         </header>
 
         <!-- Export Main Page -->
-        <div id="exportMainPage" class="flex-1 flex">
+        <div id="exportMainPage" class="flex-1 flex animate-slide-up">
           <!-- Left Side - Export Options -->
-          <div class="w-1/2 flex flex-col justify-center items-center p-12">
-            <h1 class="export-title text-slate-800 mb-12">EXPORT</h1>
+          <div class="w-1/2 flex flex-col justify-center items-center p-16">
+            <h1 class="export-title text-slate-800 mb-16">EXPORT</h1>
             
-            <div class="space-y-8 w-full max-w-md">
-              <div class="export-card" onclick="exportFullCatalog()">
-                <div class="export-option">EXPORT CATALOG</div>
+            <div class="space-y-12 w-full max-w-lg">
+              <div class="export-hero-card" onclick="exportFullCatalog()">
+                <div class="export-option">FULL CATALOG</div>
               </div>
               
-              <div class="export-card" onclick="showCustomExport()">
+              <div class="export-hero-card" onclick="showCustomExport()">
                 <div class="export-option">CUSTOM EXPORT</div>
               </div>
             </div>
           </div>
           
           <!-- Right Side - Preview -->
-          <div class="w-1/2 flex flex-col justify-center items-center p-12 bg-slate-100">
-            <h2 class="text-6xl font-black text-slate-800 mb-8">PREVIEW</h2>
-            <div class="w-full h-96 bg-white rounded-2xl shadow-lg flex items-center justify-center">
+          <div class="w-1/2 flex flex-col justify-center items-center p-16">
+            <h2 class="text-7xl font-black text-slate-800 mb-12">PREVIEW</h2>
+            <div class="w-full h-96 premium-card flex items-center justify-center">
               <div class="text-center text-slate-400">
-                <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-28 h-28 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                <p class="text-xl font-medium">Select an export option to preview</p>
+                <p class="text-2xl font-medium">Select an export option to preview</p>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Custom Export Page -->
-        <div id="customExportPage" class="hidden flex-1 p-6 space-y-6">
+        <div id="customExportPage" class="hidden flex-1 p-8 space-y-8">
           <!-- Back Button and Title -->
-          <div class="flex items-center gap-4 mb-6">
-            <button onclick="showExportMainPage()" class="nav-button">
+          <div class="flex items-center gap-6 mb-8 animate-slide-up">
+            <button onclick="showExportMainPage()" class="premium-btn">
               <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
               </svg>
               Back
             </button>
-            <h2 class="text-3xl font-bold text-slate-800">Custom Export</h2>
-            <div class="ml-auto flex items-center gap-4">
+            <h2 class="text-4xl font-bold text-slate-800">Custom Export</h2>
+            <div class="ml-auto flex items-center gap-6">
               <div class="relative">
-                <button id="cartButton" onclick="showCatalogPreview()" class="nav-button flex items-center gap-2">
+                <button id="cartButton" onclick="showCatalogPreview()" class="premium-btn flex items-center gap-3">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"></path>
                   </svg>
                   View Cart
-                  <span id="cartCount" class="cart-badge">0</span>
+                  <span id="cartCount" class="hidden bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">0</span>
                 </button>
               </div>
             </div>
           </div>
 
           <!-- Custom Export Filters -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="p-2 bg-blue-100 rounded-lg">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="premium-card p-8 animate-slide-up">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
                 </svg>
               </div>
-              <h3 class="text-xl font-semibold text-slate-800">Filter Products</h3>
+              <h3 class="text-2xl font-semibold text-slate-800">Filter Products</h3>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div class="space-y-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div class="space-y-3">
                 <label class="block text-sm font-medium text-slate-700">Model</label>
-                <select id="exportModelFilter" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white">
+                <select id="exportModelFilter" class="premium-filter-select w-full">
                   <option value="">All Models</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-medium text-slate-700">Model Number</label>
-                <select id="exportModelNumberFilter" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white">
+                <select id="exportModelNumberFilter" class="premium-filter-select w-full">
                   <option value="">All Model Numbers</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-medium text-slate-700">Device</label>
-                <select id="exportDeviceFilter" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white">
+                <select id="exportDeviceFilter" class="premium-filter-select w-full">
                   <option value="">All Devices</option>
                 </select>
               </div>
-              
-              <div class="space-y-2">
+              <div class="space-y-3">
                 <label class="block text-sm font-medium text-slate-700">Item Name</label>
-                <select id="exportItemNameFilter" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-slate-50 hover:bg-white">
+                <select id="exportItemNameFilter" class="premium-filter-select w-full">
                   <option value="">All Item Names</option>
                 </select>
               </div>
@@ -1222,40 +1242,40 @@
           </div>
 
           <!-- Product Grid -->
-          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-xl font-semibold text-slate-800">Select Products</h3>
+          <div class="premium-card p-8 animate-slide-up">
+            <div class="flex items-center justify-between mb-8">
+              <h3 class="text-2xl font-semibold text-slate-800">Select Products</h3>
               <div class="text-sm text-slate-600" id="exportProductCount">0 products available</div>
             </div>
             
-            <div id="exportProductGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div id="exportProductGrid" class="premium-products-grid">
               <!-- Products will be populated here -->
             </div>
           </div>
         </div>
 
         <!-- Catalog Preview Page -->
-        <div id="catalogPreviewPage" class="hidden flex-1 p-6 space-y-6">
+        <div id="catalogPreviewPage" class="hidden flex-1 p-8 space-y-8">
           <!-- Preview Header -->
-          <div class="flex items-center justify-between mb-6 no-print">
-            <div class="flex items-center gap-4">
-              <button onclick="showCustomExport()" class="nav-button">
+          <div class="flex items-center justify-between mb-8 no-print animate-slide-up">
+            <div class="flex items-center gap-6">
+              <button onclick="showCustomExport()" class="premium-btn">
                 <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
                 Back to Selection
               </button>
-              <h2 class="text-3xl font-bold text-slate-800">Catalog Preview</h2>
+              <h2 class="text-4xl font-bold text-slate-800">Catalog Preview</h2>
             </div>
             
-            <div class="flex items-center gap-4">
-              <button onclick="generateFastPDF()" class="nav-button">
+            <div class="flex items-center gap-6">
+              <button onclick="generateFastPDF()" class="premium-btn premium-glow">
                 <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
-                Fast PDF Download
+                Generate PDF
               </button>
-              <button onclick="window.print()" class="secondary-button">
+              <button onclick="window.print()" class="premium-btn premium-btn-secondary">
                 <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                 </svg>
@@ -1265,7 +1285,7 @@
           </div>
 
           <!-- Catalog Pages -->
-          <div id="catalogPages" class="space-y-8">
+          <div id="catalogPages" class="space-y-8 animate-slide-up">
             <!-- Pages will be generated here -->
           </div>
         </div>
@@ -1273,29 +1293,29 @@
     </div>
   </div>
   
-  <!-- Product Modal -->
-  <div id="productModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-3xl max-w-7xl w-full max-h-[90vh] overflow-y-auto shadow-2xl fade-in">
-      <div class="sticky top-0 bg-white rounded-t-3xl border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="p-2 bg-teal-100 rounded-lg">
-            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <!-- Premium Product Modal -->
+  <div id="productModal" class="fixed inset-0 premium-modal hidden items-center justify-center z-50 p-8">
+    <div class="premium-modal-content max-w-7xl w-full max-h-[90vh] overflow-y-auto animate-scale-in">
+      <div class="sticky top-0 glass-morphism-strong rounded-t-3xl border-b border-white/20 px-8 py-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="p-3 bg-gradient-to-r from-teal-500 to-blue-600 rounded-xl">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
             </svg>
           </div>
-          <h2 class="text-xl font-semibold text-slate-800">Product Details</h2>
+          <h2 class="text-2xl font-semibold text-slate-800">Product Details</h2>
         </div>
         <button
           onclick="closeModal()"
-          class="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+          class="p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all duration-200"
         >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
       
-      <div class="p-6" id="modalContent">
+      <div class="p-8" id="modalContent">
         <!-- Content will be populated by JavaScript -->
       </div>
     </div>
@@ -1339,12 +1359,7 @@
       document.getElementById('exportView').classList.add('hidden');
       
       // Update sidebar buttons
-      document.getElementById('dashboardBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('dashboardBtn').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
-      document.getElementById('catalogBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('catalogBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
-      document.getElementById('exportBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('exportBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      updateSidebarButtons('dashboardBtn');
     }
 
     function showCatalogView() {
@@ -1354,12 +1369,7 @@
       document.getElementById('exportView').classList.add('hidden');
       
       // Update sidebar buttons
-      document.getElementById('catalogBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('catalogBtn').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
-      document.getElementById('dashboardBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('dashboardBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
-      document.getElementById('exportBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('exportBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      updateSidebarButtons('catalogBtn');
     }
 
     function showExportView() {
@@ -1372,12 +1382,19 @@
       document.getElementById('catalogPreviewPage').classList.add('hidden');
       
       // Update sidebar buttons
-      document.getElementById('exportBtn').classList.add('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('exportBtn').classList.remove('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
-      document.getElementById('catalogBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('catalogBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
-      document.getElementById('dashboardBtn').classList.remove('bg-teal-600', 'text-white', 'shadow-lg');
-      document.getElementById('dashboardBtn').classList.add('text-slate-300', 'hover:text-white', 'hover:bg-slate-700');
+      updateSidebarButtons('exportBtn');
+    }
+
+    function updateSidebarButtons(activeId) {
+      const buttons = ['dashboardBtn', 'catalogBtn', 'exportBtn'];
+      buttons.forEach(id => {
+        const btn = document.getElementById(id);
+        if (id === activeId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
     }
 
     function showExportMainPage() {
@@ -1465,14 +1482,14 @@
       renderDashboardProducts();
     }
 
-    function setQuickFilter(filter) {
+    function setQuickFilter(filter, element) {
       currentQuickFilter = filter;
       
       // Update chip styles
       document.querySelectorAll('.premium-filter-chip').forEach(chip => {
         chip.classList.remove('active');
       });
-      event.target.classList.add('active');
+      element.classList.add('active');
       
       applyDashboardFilters();
     }
@@ -1500,7 +1517,8 @@
         ].filter(part => part.trim() !== '').join(' • ');
         
         const productCard = document.createElement('div');
-        productCard.className = 'premium-product-card';
+        productCard.className = 'premium-product-card animate-slide-up';
+        productCard.style.animationDelay = `${index * 0.1}s`;
         productCard.onclick = () => showProductDetails(product);
         
         productCard.innerHTML = `
@@ -1510,7 +1528,7 @@
           <div class="premium-product-title">${product['ITEM NAME'] || 'Unknown Item'}</div>
           <div class="premium-product-specs">${fullDescription}</div>
           <div class="premium-product-price">₹${product['PRICE'] || 'Contact for Price'}</div>
-          <button class="premium-view-btn" onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])">
+          <button class="premium-btn w-full" onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])">
             View Details
           </button>
         `;
@@ -1600,17 +1618,7 @@
       
       const badge = document.getElementById('searchResultsBadge');
       badge.classList.remove('hidden');
-      badge.textContent = `${filteredProducts.length} Search Results`;
-    }
-
-    // Reload iframe function
-    function reloadIframe(imageId) {
-      const iframe = document.getElementById('productIframe');
-      
-      if (iframe && imageId && imageId.trim() !== '') {
-        const newSrc = `https://drive.google.com/file/d/${imageId.trim()}/preview?t=${Date.now()}`;
-        iframe.src = newSrc;
-      }
+      badge.textContent = `${filteredProducts.length} Results`;
     }
 
     // Render product table
@@ -1638,31 +1646,28 @@
       tbody.innerHTML = '';
       products.forEach((product, index) => {
         const row = document.createElement('tr');
-        row.className = 'table-row hover:bg-slate-50 transition-colors duration-200 cursor-pointer';
+        row.className = 'premium-table-row cursor-pointer';
         row.onclick = () => showProductDetails(product);
         
         row.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['MODEL'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['MODEL NUMBER'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['DEVICE'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">${product['SIZE'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-teal-600">${product['ITEM NAME'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+          <td class="px-8 py-6 whitespace-nowrap text-sm text-slate-900">${product['MODEL'] || ''}</td>
+          <td class="px-8 py-6 whitespace-nowrap text-sm text-slate-900">${product['MODEL NUMBER'] || ''}</td>
+          <td class="px-8 py-6 whitespace-nowrap text-sm text-slate-900">${product['DEVICE'] || ''}</td>
+          <td class="px-8 py-6 whitespace-nowrap text-sm text-slate-900">${product['SIZE'] || ''}</td>
+          <td class="px-8 py-6 whitespace-nowrap text-sm font-medium text-teal-600">${product['ITEM NAME'] || ''}</td>
+          <td class="px-8 py-6 whitespace-nowrap text-sm text-slate-900">
             <div class="flex items-center gap-1">
               <span>₹</span>
               ${product['PRICE'] || ''}
             </div>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">
+          <td class="px-8 py-6 whitespace-nowrap text-sm text-slate-900">
             <button
               onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])"
-              class="p-2 text-slate-500 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+              class="premium-btn text-xs px-4 py-2"
               title="View Details"
             >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
+              View
             </button>
           </td>
         `;
@@ -1698,14 +1703,14 @@
       ];
 
       let modalHTML = `
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="space-y-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div class="space-y-6">
             <div class="flex items-center justify-between">
-              <h3 class="text-lg font-semibold text-slate-800">Product Image</h3>
+              <h3 class="text-2xl font-semibold text-slate-800">Product Image</h3>
               ${imageId && imageId.trim() !== '' ? `
                 <button
                   onclick="reloadIframe('${imageId.trim()}')"
-                  class="reload-button flex items-center gap-2"
+                  class="premium-btn premium-btn-secondary flex items-center gap-2"
                   title="Reload Image"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1716,37 +1721,37 @@
               ` : ''}
             </div>
             
-            <div class="iframe-container">
+            <div class="premium-card p-0 overflow-hidden" style="height: 500px;">
               ${imageId && imageId.trim() !== '' ? `
                 <iframe 
                   id="productIframe"
                   src="${iframeURL}" 
-                  class="product-iframe"
+                  class="w-full h-full border-0 rounded-2xl"
                   allow="autoplay"
                   loading="lazy"
                 ></iframe>
               ` : `
                 <div class="w-full h-full flex items-center justify-center bg-slate-100 rounded-2xl">
                   <div class="text-center text-slate-500">
-                    <svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-20 h-20 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                     </svg>
-                    <p class="font-medium">No image available</p>
-                    <p class="text-sm text-slate-400 mt-1">Image not provided for this product</p>
+                    <p class="font-medium text-lg">No image available</p>
+                    <p class="text-sm text-slate-400 mt-2">Image not provided for this product</p>
                   </div>
                 </div>
               `}
             </div>
             
             ${imageId && imageId.trim() !== '' ? `
-              <div class="p-4 bg-teal-50 rounded-xl border border-teal-200">
+              <div class="premium-card p-6">
                 <a
                   href="${fullImageURL}"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="flex items-center gap-2 text-teal-700 hover:text-teal-800 font-medium transition-colors"
+                  class="flex items-center gap-3 text-teal-700 hover:text-teal-800 font-medium transition-colors"
                 >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                   </svg>
                   Open Full Image in Google Drive
@@ -1755,18 +1760,18 @@
             ` : ''}
           </div>
           
-          <div class="space-y-4">
-            <h3 class="text-lg font-semibold text-slate-800">Product Specifications</h3>
-            <div class="space-y-3">
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-slate-800">Product Specifications</h3>
+            <div class="space-y-4">
       `;
       
       productFields.forEach(({ label, key }) => {
         const value = product[key];
         if (value && value.trim() !== '') {
           modalHTML += `
-            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-              <div class="text-sm font-medium text-slate-600 mb-1">${label}</div>
-              <div class="text-slate-900 font-medium">
+            <div class="premium-card p-6">
+              <div class="text-sm font-medium text-slate-600 mb-2">${label}</div>
+              <div class="text-slate-900 font-semibold text-lg">
                 ${key === 'PRICE' && value ? `₹${value}` : value}
               </div>
             </div>
@@ -1783,13 +1788,31 @@
       content.innerHTML = modalHTML;
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+      
+      // Add show class for animation
+      setTimeout(() => {
+        modal.classList.add('show');
+      }, 10);
     }
 
     // Close modal
     function closeModal() {
       const modal = document.getElementById('productModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      modal.classList.remove('show');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }, 300);
+    }
+
+    // Reload iframe function
+    function reloadIframe(imageId) {
+      const iframe = document.getElementById('productIframe');
+      
+      if (iframe && imageId && imageId.trim() !== '') {
+        const newSrc = `https://drive.google.com/file/d/${imageId.trim()}/preview?t=${Date.now()}`;
+        iframe.src = newSrc;
+      }
     }
 
     // Populate filter dropdowns
@@ -1976,23 +1999,29 @@
           'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
         
         const gridItem = document.createElement('div');
-        gridItem.className = `product-grid-item ${isSelected ? 'selected' : ''}`;
+        gridItem.className = `premium-card p-6 cursor-pointer animate-slide-up ${isSelected ? 'premium-glow' : ''}`;
+        gridItem.style.animationDelay = `${index * 0.05}s`;
         gridItem.onclick = () => toggleProductSelection(product);
         
+        if (isSelected) {
+          gridItem.style.borderColor = '#667eea';
+          gridItem.style.background = 'linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(139, 92, 246, 0.1))';
+        }
+        
         gridItem.innerHTML = `
-          <div class="relative">
-            <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="product-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
+          <div class="relative mb-4">
+            <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="w-full h-48 object-cover rounded-xl" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
             ${isSelected ? `
-              <div class="absolute top-2 right-2 bg-teal-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="absolute top-3 right-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
               </div>
             ` : ''}
           </div>
-          <div class="mt-3">
-            <h4 class="font-semibold text-slate-800 text-sm">${product['ITEM NAME'] || 'Unknown Item'}</h4>
-            <p class="text-xs text-slate-600 mt-1">${product['MODEL'] || ''} ${product['MODEL NUMBER'] || ''}</p>
+          <div>
+            <h4 class="font-semibold text-slate-800 text-sm mb-2">${product['ITEM NAME'] || 'Unknown Item'}</h4>
+            <p class="text-xs text-slate-600 mb-1">${product['MODEL'] || ''} ${product['MODEL NUMBER'] || ''}</p>
             <p class="text-xs text-slate-500">${product['DEVICE'] || ''}</p>
           </div>
         `;
@@ -2060,10 +2089,10 @@
 
     function createCatalogPage(model, products, pageNumber, totalPages) {
       const page = document.createElement('div');
-      page.className = 'catalog-page';
+      page.className = 'catalog-page animate-slide-up';
       
       page.innerHTML = `
-        <div class="catalog-header">
+        <div class="text-center mb-12">
           <div class="flex items-center justify-center gap-8 mb-8">
             <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="w-24 h-24 object-contain">
             <h1 class="text-6xl font-black text-slate-800">${model}</h1>
@@ -2111,11 +2140,11 @@
       item.innerHTML = `
         <div class="relative">
           <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="catalog-item-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
-          <button class="remove-item-btn no-print" onclick="removeFromCatalog('${uniqueId}', '${product['ITEM NAME']}', '${product['MODEL']}')">
+          <button class="absolute -top-2 -right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center text-sm font-bold opacity-0 hover:opacity-100 transition-opacity no-print" onclick="removeFromCatalog('${uniqueId}', '${product['ITEM NAME']}', '${product['MODEL']}')">
             ×
           </button>
         </div>
-        <div class="catalog-item-name">${fullDescription}</div>
+        <div class="catalog-item-name mt-3">${fullDescription}</div>
       `;
       
       item.setAttribute('data-unique-id', uniqueId);
@@ -2188,7 +2217,7 @@
         <html>
         <head>
           <meta charset="UTF-8">
-          <title>Vinayaka Industries - Parts Catalog</title>
+          <title>Vinayaka Industries - Premium Parts Catalog</title>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
             
@@ -2222,8 +2251,11 @@
             .pdf-header {
               text-align: center;
               margin-bottom: 40px;
-              border-bottom: 3px solid #0d9488;
+              border-bottom: 4px solid #667eea;
               padding-bottom: 20px;
+              background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+              border-radius: 16px;
+              padding: 30px;
             }
             
             .pdf-logo-container {
@@ -2238,6 +2270,10 @@
               width: 80px;
               height: 80px;
               object-fit: contain;
+              background: white;
+              border-radius: 16px;
+              padding: 8px;
+              box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             }
             
             .pdf-model-title {
@@ -2245,6 +2281,7 @@
               font-weight: 900;
               color: #1e293b;
               letter-spacing: -1px;
+              text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
             
             .pdf-grid {
@@ -2257,19 +2294,22 @@
             .pdf-item {
               text-align: center;
               border: 2px solid #e2e8f0;
-              border-radius: 12px;
-              padding: 15px;
-              background: #f8fafc;
+              border-radius: 16px;
+              padding: 20px;
+              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+              transition: all 0.3s ease;
             }
             
             .pdf-item-image {
               width: 100%;
               height: 150px;
               object-fit: cover;
-              border-radius: 8px;
-              margin-bottom: 12px;
+              border-radius: 12px;
+              margin-bottom: 15px;
               background: white;
-              border: 1px solid #e2e8f0;
+              border: 2px solid #e2e8f0;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             }
             
             .pdf-item-name {
@@ -2289,8 +2329,11 @@
               text-align: center;
               font-size: 12px;
               color: #64748b;
-              border-top: 1px solid #e2e8f0;
-              padding-top: 10px;
+              border-top: 2px solid #e2e8f0;
+              padding-top: 15px;
+              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+              border-radius: 8px;
+              padding: 15px;
             }
             
             @media print {
@@ -2356,8 +2399,8 @@
           pdfHTML += `
               </div>
               <div class="pdf-footer">
-                <div>Vinayaka Industries - Quality Parts & Components</div>
-                ${pages > 1 ? `<div>Page ${page + 1} of ${pages}</div>` : ''}
+                <div><strong>Vinayaka Industries - Premium Quality Parts & Components</strong></div>
+                ${pages > 1 ? `<div>Page ${page + 1} of ${pages} • ${model}</div>` : ''}
               </div>
             </div>
           `;
