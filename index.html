@@ -402,6 +402,10 @@
       position: sticky;
       top: 0;
       z-index: 40;
+      margin-left: -32px;
+      margin-right: -32px;
+      margin-top: -32px;
+      margin-bottom: 32px;
     }
     
     .search-container {
@@ -491,35 +495,166 @@
       50% { opacity: 0.8; }
     }
     
-    /* Export Styles */
-    .export-card {
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
-      border-radius: 20px;
-      padding: 40px;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 10px 30px rgba(29, 78, 216, 0.3);
+    /* Enhanced Export Styles */
+    .export-hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow: hidden;
     }
     
-    .export-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px rgba(29, 78, 216, 0.4);
+    .export-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+      animation: float 20s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
     }
     
     .export-title {
-      font-size: 4rem;
+      font-size: 6rem;
       font-weight: 900;
-      letter-spacing: -0.02em;
-      margin-bottom: 2rem;
-      color: var(--text-light);
+      letter-spacing: -0.05em;
+      background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
+      position: relative;
+      z-index: 10;
+    }
+    
+    .export-subtitle {
+      font-size: 1.5rem;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .export-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 24px;
+      padding: 3rem;
+      color: white;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .export-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+    
+    .export-card:hover::before {
+      left: 100%;
+    }
+    
+    .export-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
     }
     
     .export-option {
-      font-size: 2rem;
+      font-size: 2.5rem;
       font-weight: 800;
       text-align: center;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
+      position: relative;
+      z-index: 10;
+    }
+    
+    .export-icon {
+      width: 4rem;
+      height: 4rem;
+      margin: 0 auto 2rem;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+    
+    .export-card:hover .export-icon {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    
+    .export-description {
+      font-size: 1rem;
+      opacity: 0.8;
+      margin-top: 1rem;
+      line-height: 1.6;
+    }
+    
+    .export-preview-section {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .export-preview-title {
+      font-size: 4rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .export-preview-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      color: var(--text-gray);
+    }
+    
+    .export-preview-icon {
+      width: 6rem;
+      height: 6rem;
+      margin-bottom: 2rem;
+      opacity: 0.6;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 53%, 80%, 100% {
+        transform: translate3d(0,0,0);
+      }
+      40%, 43% {
+        transform: translate3d(0,-30px,0);
+      }
+      70% {
+        transform: translate3d(0,-15px,0);
+      }
+      90% {
+        transform: translate3d(0,-4px,0);
+      }
     }
     
     .product-grid-item {
@@ -673,6 +808,29 @@
       color: var(--text-light);
     }
     
+    .image-not-found {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-gray);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(29, 78, 216, 0.05) 100%);
+    }
+    
+    .image-not-found svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.6;
+    }
+    
+    .image-not-found-text {
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    
     /* Catalog Preview Styles */
     .catalog-page {
       width: 210mm;
@@ -787,138 +945,6 @@
       margin: 0 auto 20px;
     }
     
-    /* Responsive Design */
-    @media (max-width: 1200px) {
-      .premium-products-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .sidebar-nav {
-        width: 100%;
-        height: auto;
-        flex-direction: row;
-        justify-content: center;
-        padding: 16px;
-        min-height: auto;
-      }
-      
-      .main-content {
-        margin-left: 0 !important;
-      }
-      
-      .premium-products-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-      }
-      
-      .premium-filter-container {
-        padding: 20px;
-      }
-      
-      .filter-grid {
-        grid-template-columns: 1fr !important;
-        gap: 16px;
-      }
-      
-      .premium-search-container {
-        width: 100% !important;
-      }
-      
-      .section-title {
-        font-size: 24px;
-      }
-      
-      .premium-product-image-container {
-        height: 200px;
-      }
-      
-      .catalog-header {
-        padding: 16px 20px;
-      }
-      
-      .search-container {
-        width: 100% !important;
-      }
-      
-      .export-title {
-        font-size: 3rem;
-      }
-      
-      .export-option {
-        font-size: 1.5rem;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .premium-products-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .premium-filter-chips {
-        justify-content: center;
-      }
-      
-      .premium-filter-chip {
-        font-size: 12px;
-        padding: 8px 16px;
-      }
-      
-      .nav-button {
-        padding: 12px;
-        margin-bottom: 8px;
-      }
-      
-      .nav-button svg {
-        width: 20px;
-        height: 20px;
-      }
-      
-      .export-title {
-        font-size: 2.5rem;
-      }
-      
-      .export-option {
-        font-size: 1.2rem;
-      }
-    }
-    
-    /* Additional Premium Styles */
-    .premium-header {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-      padding: 24px 32px;
-      position: sticky;
-      top: 0;
-      z-index: 40;
-    }
-    
-    .logo-container {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    
-    .logo-enhanced {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
-      border-radius: 16px;
-      padding: 8px;
-      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
-      border: 2px solid rgba(59, 130, 246, 0.2);
-    }
-    
-    .main-content {
-      margin-left: 80px;
-      min-height: 100vh;
-      transition: all 0.3s ease;
-    }
-    
-    .content-wrapper {
-      padding: 32px;
-    }
-    
     /* Print Styles */
     @media print {
       .no-print {
@@ -937,7 +963,7 @@
   <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center" style="background: linear-gradient(135deg, var(--primary-dark-blue) 0%, var(--secondary-dark-blue) 100%);">
     <div class="loading-container">
       <div class="loading-spinner mb-6"></div>
-      <h3 class="text-xl font-semibold mb-2">Loading Premium Catalog</h3>
+      <h3 class="text-xl font-semibold mb-2">Loading to VINAYAKA INDUSTRIES CATALOG</h3>
       <p class="text-gray-400">Preparing your premium parts experience...</p>
     </div>
   </div>
@@ -999,21 +1025,22 @@
     </aside>
     
     <!-- Main Content Area -->
-    <div class="main-content flex-1">
+    <div class="flex-1">
       <!-- Premium Dashboard View -->
       <div id="dashboardView" class="min-h-screen">
         <!-- Dashboard Header -->
-        <header class="premium-header">
+        <header class="catalog-header">
           <div class="flex items-center justify-between">
-            <div class="logo-container">
+            <div class="flex items-center gap-6">
               <img
                 src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
                 alt="Vinayaka Industries"
-                class="w-16 h-16 logo-enhanced object-contain"
+                class="w-32 h-32 object-contain bg-slate-700/30 rounded-2xl p-2 border border-slate-600/50"
               />
               <div>
-                <h1 class="section-title">Premium Parts Collection</h1>
-                <p class="section-subtitle">Discover high-quality industrial components</p>
+                <h1 class="text-3xl font-bold text-white mb-2">
+                  Welcome to VINAYAKA INDUSTRIES — your trusted source for Swing and Travel Device spare parts.
+                </h1>
               </div>
             </div>
             
@@ -1036,7 +1063,7 @@
         </header>
 
         <!-- Dashboard Content -->
-        <main class="content-wrapper">
+        <main class="p-8">
           <!-- Premium Filters -->
           <div class="premium-filter-container slide-in">
             <div class="flex items-center gap-4 mb-8">
@@ -1048,7 +1075,7 @@
               <h2 class="section-title">Filter Premium Products</h2>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6 filter-grid">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
               <div class="space-y-3">
                 <label class="filter-label">Model</label>
                 <select id="dashboardModelFilter" class="premium-filter-select w-full">
@@ -1080,11 +1107,13 @@
 
             <!-- Quick Filter Chips -->
             <div class="premium-filter-chips">
-              <div class="premium-filter-chip active" onclick="setQuickFilter('all')">All Products</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('available')">Available Now</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('motors')">Motors</div>
+              <div class="premium-filter-chip active" onclick="setQuickFilter('all')">All Models</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('carrier-assembly')">Carrier Assembly</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('sun-gears')">Sun Gears</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('planetary-gears')">Planetary Gears</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('pinion')">Pinion</div>
               <div class="premium-filter-chip" onclick="setQuickFilter('bearings')">Bearings</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('gears')">Gears</div>
+              <div class="premium-filter-chip" onclick="setQuickFilter('motors')">Motors</div>
             </div>
           </div>
 
@@ -1123,7 +1152,7 @@
                 <img
                   src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
                   alt="Vinayaka Industries"
-                  class="w-20 h-20 logo-enhanced object-contain"
+                  class="w-24 h-24 object-contain bg-slate-700/30 rounded-2xl p-2 border border-slate-600/50"
                 />
                 <div>
                   <h1 class="text-xl font-bold text-slate-100">Parts Catalog</h1>              
@@ -1276,31 +1305,42 @@
 
         <!-- Export Main Page -->
         <div id="exportMainPage" class="flex-1 flex">
-          <!-- Left Side - Export Options -->
-          <div class="w-1/2 flex flex-col justify-center items-center p-12">
-            <h1 class="export-title mb-12">EXPORT</h1>
+          <!-- Left Side - Export Hero Section -->
+          <div class="w-1/2 export-hero flex flex-col justify-center items-center p-12 relative">
+            <div class="text-center relative z-10">
+              <h1 class="export-title mb-4">EXPORT</h1>
+              <p class="export-subtitle">Transform your catalog into powerful formats</p>
+            </div>
             
-            <div class="space-y-8 w-full max-w-md">
+            <div class="grid grid-cols-1 gap-8 w-full max-w-lg mt-12 relative z-10">
               <div class="export-card" onclick="exportFullCatalog()">
-                <div class="export-option">EXPORT CATALOG</div>
+                <svg class="export-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <div class="export-option">FULL CATALOG</div>
+                <div class="export-description">Export complete product database with all specifications and details</div>
               </div>
               
               <div class="export-card" onclick="showCustomExport()">
-                <div class="export-option">CUSTOM EXPORT</div>
+                <svg class="export-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                </svg>
+                <div class="export-option">CUSTOM SELECTION</div>
+                <div class="export-description">Handpick specific products and create personalized catalogs</div>
               </div>
             </div>
           </div>
           
-          <!-- Right Side - Preview -->
-          <div class="w-1/2 flex flex-col justify-center items-center p-12" style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.5) 100%);">
-            <h2 class="text-6xl font-black text-slate-100 mb-8">PREVIEW</h2>
-            <div class="w-full h-96 premium-filter-container rounded-2xl flex items-center justify-center">
-              <div class="text-center text-slate-400">
-                <svg class="w-24 h-24 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <p class="text-xl font-medium">Select an export option to preview</p>
-              </div>
+          <!-- Right Side - Preview Section -->
+          <div class="w-1/2 export-preview-section flex flex-col justify-center items-center p-12">
+            <h2 class="export-preview-title">PREVIEW</h2>
+            <div class="export-preview-content">
+              <svg class="export-preview-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              <p class="text-xl font-medium">Select an export option to preview</p>
+              <p class="text-sm opacity-60 mt-2">Your catalog will be beautifully formatted and ready for download</p>
             </div>
           </div>
         </div>
@@ -1585,14 +1625,22 @@
       if (currentQuickFilter !== 'all') {
         filtered = filtered.filter(product => {
           switch (currentQuickFilter) {
-            case 'available':
-              return product['AVAILABILITY'] && product['AVAILABILITY'].toLowerCase().includes('available');
-            case 'motors':
-              return product['DEVICE'] && product['DEVICE'].toLowerCase().includes('motor');
+            case 'carrier-assembly':
+              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('carrier') ||
+                     product['DEVICE'] && product['DEVICE'].toLowerCase().includes('carrier');
+            case 'sun-gears':
+              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('sun') ||
+                     product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('gear');
+            case 'planetary-gears':
+              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('planetary') ||
+                     product['DEVICE'] && product['DEVICE'].toLowerCase().includes('planetary');
+            case 'pinion':
+              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('pinion') ||
+                     product['DEVICE'] && product['DEVICE'].toLowerCase().includes('pinion');
             case 'bearings':
               return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('bearing');
-            case 'gears':
-              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('gear');
+            case 'motors':
+              return product['DEVICE'] && product['DEVICE'].toLowerCase().includes('motor');
             default:
               return true;
           }
@@ -1635,8 +1683,7 @@
       dashboardProducts.forEach((product, index) => {
         const imageId = product['ID'] || product['IMAGE LINK'];
         const imageUrl = imageId && imageId.trim() !== '' ? 
-          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s1080` : 
-          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTA4MCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiBmaWxsPSIjMUUyOTNCIi8+CjxwYXRoIGQ9Ik01NDAgMzc4VjcwMk0zNzggNTQwSDcwMiIgc3Ryb2tlPSIjM0I4MkY2IiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s1080` : '';
         
         // Create full product description
         const fullDescription = [
@@ -1652,7 +1699,22 @@
         
         productCard.innerHTML = `
           <div class="premium-product-image-container">
-            <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="premium-product-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiB2aWV3Qm94PSIwIDAgMTA4MCAxMDgwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTA4MCIgaGVpZ2h0PSIxMDgwIiBmaWxsPSIjMUUyOTNCIi8+CjxwYXRoIGQ9Ik01NDAgMzc4VjcwMk0zNzggNTQwSDcwMiIgc3Ryb2tlPSIjM0I4MkY2IiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
+            ${imageUrl ? `
+              <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="premium-product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="image-not-found" style="display: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <div class="image-not-found-text">Image not found</div>
+              </div>
+            ` : `
+              <div class="image-not-found">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <div class="image-not-found-text">Image not found</div>
+              </div>
+            `}
           </div>
           <div class="premium-product-title">${product['ITEM NAME'] || 'Unknown Item'}</div>
           <div class="premium-product-specs">${fullDescription}</div>
@@ -1750,16 +1812,6 @@
       badge.textContent = `${filteredProducts.length} Search Results`;
     }
 
-    // Reload iframe function
-    function reloadIframe(imageId) {
-      const iframe = document.getElementById('productIframe');
-      
-      if (iframe && imageId && imageId.trim() !== '') {
-        const newSrc = `https://drive.google.com/file/d/${imageId.trim()}/preview?t=${Date.now()}`;
-        iframe.src = newSrc;
-      }
-    }
-
     // Render product table
     function renderProductTable(products) {
       const tbody = document.getElementById('productTable');
@@ -1825,6 +1877,7 @@
       const imageId = product['ID'] || product['IMAGE LINK'];
       const iframeURL = imageId && imageId.trim() !== '' ? `https://drive.google.com/file/d/${imageId.trim()}/preview` : '';
       const fullImageURL = imageId && imageId.trim() !== '' ? `https://drive.google.com/file/d/${imageId.trim()}/view?usp=sharing` : '';
+      const folderURL = product['FOLDER'] && product['FOLDER'].trim() !== '' ? product['FOLDER'].trim() : '';
 
       const productFields = [
         { label: 'Item Name', key: 'ITEM NAME' },
@@ -1858,15 +1911,35 @@
                   loading="lazy"
                 ></iframe>
               ` : `
-                <div class="w-full h-full flex items-center justify-center">
-                  <div class="text-center text-gray-400">
-                    <svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <p class="font-medium">No image available</p>
-                  </div>
+                <div class="image-not-found">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  <div class="image-not-found-text">Image not found</div>
                 </div>
               `}
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-4">
+              <button
+                onclick="shareImage('${imageId}')"
+                class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                </svg>
+                Share Image
+              </button>
+              <button
+                onclick="openFolder('${folderURL}')"
+                class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                </svg>
+                Open Folder
+              </button>
             </div>
             
             ${imageId && imageId.trim() !== '' ? `
@@ -1914,6 +1987,64 @@
       content.innerHTML = modalHTML;
       modal.classList.remove('hidden');
       modal.classList.add('flex');
+    }
+
+    // Share image function
+    function shareImage(imageId) {
+      if (!imageId || imageId.trim() === '') {
+        alert('No image available for this product');
+        return;
+      }
+
+      const imageUrl = `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s1080`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: 'Product Image',
+          text: 'Check out this product image',
+          url: imageUrl
+        }).catch(err => {
+          console.error('Error sharing:', err);
+          copyToClipboard(imageUrl);
+        });
+      } else {
+        copyToClipboard(imageUrl);
+      }
+    }
+
+    // Open folder function
+    function openFolder(folderUrl) {
+      if (!folderUrl || folderUrl.trim() === '') {
+        alert('No folder available for this product');
+        return;
+      }
+      
+      window.open(folderUrl, '_blank');
+    }
+
+    // Copy to clipboard helper
+    function copyToClipboard(text) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('Image URL copied to clipboard!');
+        }).catch(err => {
+          console.error('Failed to copy:', err);
+          alert('Unable to copy URL');
+        });
+      } else {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          alert('Image URL copied to clipboard!');
+        } catch (err) {
+          alert('Unable to copy URL');
+        }
+        document.body.removeChild(textArea);
+      }
     }
 
     // Close modal
@@ -2103,8 +2234,7 @@
         const isSelected = selectedProducts.some(p => p['ITEM NAME'] === product['ITEM NAME'] && p['MODEL'] === product['MODEL']);
         const imageId = product['ID'] || product['IMAGE LINK'];
         const imageUrl = imageId && imageId.trim() !== '' ? 
-          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
-          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMUUyOTNCIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iIzNCODJGNiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
+          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : '';
         
         const gridItem = document.createElement('div');
         gridItem.className = `product-grid-item ${isSelected ? 'selected' : ''}`;
@@ -2112,7 +2242,22 @@
         
         gridItem.innerHTML = `
           <div class="relative">
-            <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="product-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjMUUyOTNCIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iIzNCODJGNiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
+            ${imageUrl ? `
+              <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="image-not-found" style="display: none;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <div class="image-not-found-text">Image not found</div>
+              </div>
+            ` : `
+              <div class="image-not-found">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <div class="image-not-found-text">Image not found</div>
+              </div>
+            `}
             ${isSelected ? `
               <div class="absolute top-2 right-2 bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
