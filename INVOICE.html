@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dummy Invoice Submit</title>
+</head>
+<body>
+  <h2>Submit Dummy Invoice</h2>
+  <button onclick="submitInvoice()">Submit Invoice</button>
+
+  <script>
+    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwDzGBCoy0NrsZggZVP_6C6qsUFCdKPj3wtjeVY12ATFIFBeIpHj9sbqNHdF7d1ZKyM/exec";
+
+    function submitInvoice() {
+      // Dummy invoice rows (simulate 2 products in a single invoice)
+      const invoiceNo = "0011"; // You can change or generate dynamically
+
+      const invoiceData = [
+        {
+          "Invoice No": invoiceNo,
+          "Date": "15/07/2025",
+          "Customer": "Raju & Co.",
+          "Address": "JP Nagar, Bangalore",
+          "GSTIN": "29ABCDE1234F1Z5",
+          "Product": "Swing Device",
+          "Qty": 2,
+          "Rate": 7500,
+          "GST %": 18,
+          "Amount": 15000,
+          "CGST": 1350,
+          "SGST": 1350
+        },
+        {
+          "Invoice No": invoiceNo,
+          "Date": "15/07/2025",
+          "Customer": "Raju & Co.",
+          "Address": "JP Nagar, Bangalore",
+          "GSTIN": "29ABCDE1234F1Z5",
+          "Product": "Travel Motor",
+          "Qty": 1,
+          "Rate": 9500,
+          "GST %": 18,
+          "Amount": 9500,
+          "CGST": 855,
+          "SGST": 855
+        }
+      ];
+
+      fetch(BACKEND_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          action: "addInvoice",
+          invoice: invoiceData
+        })
+      })
+      .then(res => res.text())
+      .then(msg => {
+        alert("Response from server: " + msg);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error occurred while submitting invoice.");
+      });
+    }
+  </script>
+</body>
+</html>
