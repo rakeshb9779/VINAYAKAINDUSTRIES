@@ -1,29 +1,111 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Test Get Products</title>
+  <title>Product + Customer Dropdown UI</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    label { display: block; margin-top: 15px; }
+    select, input { padding: 8px; margin-top: 5px; width: 300px; }
+  </style>
 </head>
 <body>
-  <h2>Fetch Products (GET Test)</h2>
-  <button onclick="fetchProducts()">Fetch Products</button>
+  <h2>🛒 Product + Customer Dropdown</h2>
 
-  <pre id="output"></pre>
+  <label for="customer">Select Customer:</label>
+  <select id="customer" onchange="fillCustomerDetails()">
+    <option value="">-- Select Customer --</option>
+  </select>
+
+  <label for="cust_gstin">GSTIN:</label>
+  <input type="text" id="cust_gstin" readonly />
+
+  <label for="cust_address">Address:</label>
+  <input type="text" id="cust_address" readonly />
+
+  <label for="cust_state">State:</label>
+  <input type="text" id="cust_state" readonly />
+
+  <hr>
+
+  <label for="product">Select Product:</label>
+  <select id="product" onchange="fillProductDetails()">
+    <option value="">-- Select Product --</option>
+  </select>
+
+  <label for="rate">Rate (₹):</label>
+  <input type="text" id="rate" readonly />
+
+  <label for="hsn">HSN Code:</label>
+  <input type="text" id="hsn" readonly />
+
+  <label for="gst">GST %:</label>
+  <input type="text" id="gst" readonly />
 
   <script>
-    const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwDzGBCoy0NrsZggZVP_6C6qsUFCdKPj3wtjeVY12ATFIFBeIpHj9sbqNHdF7d1ZKyM/exec";
+    const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv";
+    let products = [];
+    let customers = [];
 
-    function fetchProducts() {
-      fetch(`${BACKEND_URL}?action=getProducts`)
-        .then(res => res.json())
-        .then(data => {
-          console.log("Product data:", data);
-          document.getElementById("output").textContent = JSON.stringify(data, null, 2);
-        })
-        .catch(err => {
-          console.error("Fetch Error:", err);
-          alert("Failed to fetch products. Check browser console.");
-        });
+    // Load and split customers/products by header detection
+    async function loadCSV() {
+      const res = await fetch(CSV_URL);
+      const text = await res.text();
+      const rows = text.split("\n").map(r => r.split(","));
+      const headers = rows[0];
+
+      let productStart = headers.includes("Item Name");
+      let customerStart = headers.includes("Customer Name");
+
+      rows.slice(1).forEach(row => {
+        if (row.length < 2) return;
+        const obj = headers.reduce((o, h, i) => (o[h.trim()] = row[i]?.trim(), o), {});
+        if (obj["Item Name"]) products.push(obj);
+        else if (obj["Customer Name"]) customers.push(obj);
+      });
+
+      populateDropdowns();
     }
+
+    function populateDropdowns() {
+      const prodDropdown = document.getElementById("product");
+      products.forEach(p => {
+        const opt = document.createElement("option");
+        opt.value = p["Item Name"];
+        opt.text = p["Item Name"];
+        prodDropdown.add(opt);
+      });
+
+      const custDropdown = document.getElementById("customer");
+      customers.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c["Customer Name"];
+        opt.text = c["Customer Name"];
+        custDropdown.add(opt);
+      });
+    }
+
+    function fillProductDetails() {
+      const val = document.getElementById("product").value;
+      const item = products.find(p => p["Item Name"] === val);
+      if (item) {
+        document.getElementById("rate").value = item["Rate"];
+        document.getElementById("hsn").value = item["HSN Code"];
+        document.getElementById("gst").value = item["GST %"];
+      }
+    }
+
+    function fillCustomerDetails() {
+      const val = document.getElementById("customer").value;
+      const cust = customers.find(c => c["Customer Name"] === val);
+      if (cust) {
+        document.getElementById("cust_gstin").value = cust["GSTIN"];
+        document.getElementById("cust_address").value = cust["Address"];
+        document.getElementById("cust_state").value = cust["State"];
+      }
+    }
+
+    window.onload = loadCSV;
   </script>
 </body>
 </html>
