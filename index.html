@@ -158,13 +158,13 @@
     function init() {
       Papa.parse(CUSTOMER_CSV, { download:true, header:true, complete: res => {
         customers = res.data.filter(c => c['Customer Name']);
-        customers.forEach(c => document.getElementById('customerSelect').append(new Option(c['Customer Name'], c['Customer Name'])));
+        const sel = document.getElementById('customerSelect');
+        customers.forEach(c => sel.append(new Option(c['Customer Name'], c['Customer Name'])));
       }});
 
       Papa.parse(PRODUCT_CSV, { download:true, header:true, complete: res => {
         products = res.data.filter(p => p['ITEM NAME']);
-        const set = new Set(products.map(p => `${p['MODEL']} ${p['MODEL NUMBER']}`));
-        modelsList = Array.from(set);
+        modelsList = [...new Set(products.map(p => `${p['MODEL']} ${p['MODEL NUMBER']}`))];
       }});
 
       document.getElementById('addItemBtn').addEventListener('click', addItemRow);
@@ -178,11 +178,11 @@
       tr.innerHTML = `
         <td class="border p-2 text-center text-gray-100">${idx+1}</td>
         <td class="border p-2">
-          <select class="model-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">`
-      + `<option value="">Select Model</option>`
-      + modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')
-      + `<option value="__add_new__" class="text-green-400">➕ Add New</option>`
-      + `</select>
+          <select class="model-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">
+            <option value="">Select Model</option>
+            ${modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')}
+            <option value="__add_new__" class="text-green-400">➕ Add New</option>
+          </select>
         </td>
         <td class="border p-2">
           <select class="product-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" disabled>
@@ -199,54 +199,82 @@
       tbody.appendChild(tr);
 
       const modelSel = tr.querySelector('.model-select');
-      const prodSel = tr.querySelector('.product-select');
-      modelSel.onchange = () => {
+      const prodSel  = tr.querySelector('.product-select');
+      modelSel.addEventListener('change', ()=>{
         if(modelSel.value==='__add_new__'){
-          const newM=prompt('Enter Model + Model Number');
+          const newM = prompt('Enter Model + Number');
           if(newM){
-            const dev=prompt('Enter Device');
-            const nm=prompt('Enter Size + Item Name');
-            const rate=prompt('Enter Rate');
-            const [model,modelNum]=newM.split(/\s(?=[^\s]+$)/);
-            const newProd={ 'MODEL':model,'MODEL NUMBER':modelNum||'','DEVICE':dev||'','SIZE':nm.split(' ')[0]||'','ITEM NAME':nm.split(' ').slice(1).join(' ')||'','PRICE':rate||'0' };
-            fetch(ADD_PRODUCT_URL,{ method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(newProd) });
-            products.push(newProd);
+            const dev = prompt('Enter Device');
+            const nm  = prompt('Enter Size + Item Name');
+            const rate= prompt('Enter Rate');
+            const [mdl, mnum] = newM.split(/\s(?=[^\s]+$)/);
+            const np={ 'MODEL':mdl,'MODEL NUMBER':mnum||'', 'DEVICE': dev||'', 'SIZE': nm.split(' ')[0]||'', 'ITEM NAME': nm.split(' ').slice(1).join(' ')||'', 'PRICE': rate||'0' };
+            fetch(`${ADD_PRODUCT_URL}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(np)});
+            products.push(np);
             modelsList.push(newM);
             updateAllModelSelects();
             modelSel.value=newM;
           } else modelSel.value='';
         }
-        prodSel.disabled=!modelSel.value;
-        prodSel.innerHTML='<option value="">Select Product</option>';
+        prodSel.disabled = !modelSel.value;
+        prodSel.innerHTML = '<option value="">Select Product</option>';
         products.filter(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`===modelSel.value)
-          .forEach((p,i)=>prodSel.append(new Option(`${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`,i)));
-      };
-      prodSel.onchange = ()=>{
+          .forEach((p,i)=>prodSel.append(new Option(`${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`, i)));
+      });
+      prodSel.addEventListener('change', ()=>{
         const sel=products[prodSel.value];
-        tr.querySelector('.hsn-cell').textContent=sel['MODEL NUMBER'];
-        tr.querySelector('.rate-cell').textContent=sel['PRICE'];
-        calculateRow(tr);calculateTotals();
-      };
-      tr.querySelector('.qty-input').oninput = ()=>{ calculateRow(tr);calculateTotals(); };
-      tr.querySelector('.remove-row-btn').onclick = ()=>{ tr.remove();updateRowNumbers();calculateTotals(); };
+        tr.querySelector('.hsn-cell').textContent = sel['MODEL NUMBER'];
+        tr.querySelector('.rate-cell').textContent = sel['PRICE'];
+        calculateRow(tr); calculateTotals();
+      });
+      tr.querySelector('.qty-input').addEventListener('input', ()=>{ calculateRow(tr); calculateTotals(); });
+      tr.querySelector('.remove-row-btn').addEventListener('click', ()=>{ tr.remove(); updateRowNumbers(); calculateTotals(); });
     }
 
     function updateAllModelSelects(){
       document.querySelectorAll('.model-select').forEach(sel=>{
         const cur=sel.value;
-        sel.innerHTML=`<option value="">Select Model</option>`
-          +modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')
-          +`<option value="__add_new__" class="text-green-400">➕ Add New</option>`;
-        sel.value=cur;
+        sel.innerHTML = `<option value="">Select Model</option>`
+          + modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')
+          + `<option value="__add_new__" class="text-green-400">➕ Add New</option>`;
+        sel.value = cur;
       });
     }
 
     function calculateRow(tr){
       const rate=parseFloat(tr.querySelector('.rate-cell').textContent)||0;
-      const qty=parseFloat(tr.querySelector('.qty-input').value)||0;
+      const qty =parseFloat(tr.querySelector('.qty-input').value)||0;
       const igst=parseFloat(tr.querySelector('.igst-cell').textContent)||0;
-      const amt=rate*qty;
-      tr.querySelector('.amount-cell').textContent=amt.toFixed(2);
+      const amt = rate*qty;
+      tr.querySelector('.amount-cell').textContent = amt.toFixed(2);
       return amt;
     }
-    function calculateTotals(){let sub=0,gst=0;document.querySelectorAll('#itemsTable tr').forEach(tr=>{const a=parseFloat(tr.querySelector('.amount-cell').textContent)||0;const i=parseFloat(tr.querySelector('.igst-cell').textContent)||0;sub+=a;gst+=a*i/100;});const raw=sub+gst;const rnd=Math.round(raw);document.getElementById('previewSubtotal').textContent=sub.toFixed(2);document.getElementById('previewTotalGST').textContent=gst.toFixed(2);document.getElementById('previewRoundOff').textContent=(rnd-raw).toFixed(2);document.getElementById('previewGrandTotal').textContent=rnd.toFixed(2);}function updateRowNumbers(){document.querySelectorAll('#itemsTable tr').forEach((tr,i)=>tr.querySelector('td').textContent=i+1);}function saveAndPDF(){/* TODO */
+
+    function calculateTotals(){
+      let subtotal=0, totalGST=0;
+      document.querySelectorAll('#itemsTable tr').forEach(tr=>{
+        const amt=parseFloat(tr.querySelector('.amount-cell').textContent)||0;
+        const igst=parseFloat(tr.querySelector('.igst-cell').textContent)||0;
+        subtotal+=amt;
+        totalGST+=amt*igst/100;
+      });
+      const rawTotal = subtotal + totalGST;
+      const rounded = Math.round(rawTotal);
+      document.getElementById('previewSubtotal').textContent = subtotal.toFixed(2);
+      document.getElementById('previewTotalGST').textContent = totalGST.toFixed(2);
+      document.getElementById('previewRoundOff').textContent = (rounded-rawTotal).toFixed(2);
+      document.getElementById('previewGrandTotal').textContent = rounded.toFixed(2);
+    }
+
+    function updateRowNumbers(){
+      document.querySelectorAll('#itemsTable tr').forEach((tr,i)=>tr.querySelector('td').textContent = i+1);
+    }
+
+    function saveAndPDF(){
+      // TODO: implement save to history via Apps Script + generate PDF
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>
