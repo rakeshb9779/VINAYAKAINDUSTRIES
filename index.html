@@ -157,6 +157,16 @@
       document.getElementById('previewGSTIN').textContent = c['Customer GSTIN'] || '';
     }
 
+    function updateAllModelSelects() {
+      document.querySelectorAll('.model-select').forEach(sel => {
+        const cur = sel.value;
+        sel.innerHTML = `<option value="">Select Model</option>`;
+        modelsList.forEach(m => sel.append(new Option(m, m)));
+        sel.append(new Option('➕ Add New', '__add_new__'));
+        sel.value = cur;
+      });
+    }
+
     function addItemRow() {
       const tbody = document.getElementById('itemsTable');
       const idx = tbody.children.length;
@@ -171,7 +181,7 @@
           </select>
         </td>
         <td class="border p-2">
-          <select class="product-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" disabled>
+          <select class="product-selector w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" disabled>
             <option value="">Select Product</option>
           </select>
         </td>
@@ -185,26 +195,25 @@
       tbody.appendChild(tr);
 
       const modelSel = tr.querySelector('.model-select');
-      const prodSel = tr.querySelector('.product-select');
+      const prodSel = tr.querySelector('.product-selector');
+
       modelSel.addEventListener('change', () => {
         if (modelSel.value === '__add_new__') {
-          // Editable new-entry row
           tr.innerHTML = `
             <td class="border p-2 text-center text-gray-100">${idx+1}</td>
-            <td class="border p-2" colspan="2"><input type="text" placeholder="Model ModelNumber" class="new-model w-full rounded p-1"></td>
-            <td class="border p-2" colspan="2"><input type="text" placeholder="Device" class="new-device w-full rounded p-1"></td>
-            <td class="border p-2" colspan="2"><input type="text" placeholder="Size ItemName" class="new-name w-full rounded p-1"></td>
-            <td class="border p-2"><input type="number" placeholder="Rate" class="new-rate w-24 rounded p-1"></td>
+            <td class="border p-2" colspan="2"><input type="text" class="new-model w-full rounded p-1" placeholder="Model ModelNumber"></td>
+            <td class="border p-2" colspan="2"><input type="text" class="new-device w-full rounded p-1" placeholder="Device"></td>
+            <td class="border p-2" colspan="2"><input type="text" class="new-name w-full rounded p-1" placeholder="Size ItemName"></td>
+            <td class="border p-2"><input type="number" class="new-rate w-24 rounded p-1" placeholder="Rate"></td>
             <td class="border p-2 text-center"><button class="remove-row-btn text-red-400">X</button></td>
           `;
           tr.classList.add('new-entry');
           tr.querySelector('.remove-row-btn').addEventListener('click', () => { tr.remove(); updateRowNumbers(); calculateTotals(); });
         } else {
-          // Populate products dropdown
           prodSel.disabled = false;
           prodSel.innerHTML = '<option value="">Select Product</option>';
           products.filter(p => `${p['MODEL']} ${p['MODEL NUMBER']}` === modelSel.value)
-            .forEach((p, i) => prodSel.append(new Option(`${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`, i)));
+             .forEach((p,i)=>prodSel.append(new Option(`${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`, i)));
         }
       });
 
@@ -212,69 +221,43 @@
         const sel = products[prodSel.value] || {};
         tr.querySelector('.hsn-cell').textContent = sel['MODEL NUMBER'] || '';
         tr.querySelector('.rate-cell').textContent = sel['PRICE'] || '';
-        calculateRow(tr);
-        calculateTotals();
+        calculateRow(tr); calculateTotals();
       });
-
+      
       tr.querySelector('.qty-input').addEventListener('input', () => { calculateRow(tr); calculateTotals(); });
       tr.querySelector('.remove-row-btn').addEventListener('click', () => { tr.remove(); updateRowNumbers(); calculateTotals(); });
     }
 
-    function calculateRow(tr) {
-      const rate = parseFloat(tr.querySelector('.rate-cell').textContent) || 0;
-      const qty = parseFloat(tr.querySelector('.qty-input').value) || 0;
-      const igst = parseFloat(tr.querySelector('.igst-cell').textContent) || 0;
-      const amt = rate * qty;
-      tr.querySelector('.amount-cell').textContent = amt.toFixed(2);
-      return amt;
-    }
-
-    function calculateTotals() {
-      let subtotal = 0, totalGST = 0;
-      document.querySelectorAll('#itemsTable tr').forEach(tr => {
-        const amt = parseFloat(tr.querySelector('.amount-cell').textContent) || 0;
-        const igst = parseFloat(tr.querySelector('.igst-cell').textContent) || 0;
-        subtotal += amt;
-        totalGST += amt * igst / 100;
-      });
-      const rawTotal = subtotal + totalGST;
-      const rounded = Math.round(rawTotal);
-      document.getElementById('previewSubtotal').textContent = subtotal.toFixed(2);
-      document.getElementById('previewTotalGST').textContent = totalGST.toFixed(2);
-      document.getElementById('previewRoundOff').textContent = (rounded - rawTotal).toFixed(2);
-      document.getElementById('previewGrandTotal').textContent = rounded.toFixed(2);
-    }
-
-    function updateRowNumbers() {
-      document.querySelectorAll('#itemsTable tr').forEach((tr, i) => tr.querySelector('td').textContent = i + 1);
-    }
-
-    function saveAndPDF() {
-      // Save new entries to Sheet1
-      document.querySelectorAll('tr.new-entry').forEach(tr => {
+    async function saveAndPDF() {
+      // Save new entries
+      const entries = document.querySelectorAll('tr.new-entry');
+      for (let tr of entries) {
         const m = tr.querySelector('.new-model').value;
         const dev = tr.querySelector('.new-device').value;
         const nm = tr.querySelector('.new-name').value;
         const rate = tr.querySelector('.new-rate').value;
         const [model, modelNum] = m.split(/\s+(?=[^\s]+$)/);
-        fetch(ADD_PRODUCT_URL, {
+        const resp = await fetch(ADD_PRODUCT_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            MODEL: model,
-            'MODEL NUMBER': modelNum || '',
-            DEVICE: dev,
-            SIZE: nm.split(' ')[0] || '',
-            'ITEM NAME': nm.split(' ').slice(1).join(' ') || '',
-            PRICE: rate
-          })
+          body: JSON.stringify({ MODEL: model, 'MODEL NUMBER': modelNum||'', DEVICE: dev, SIZE: nm.split(' ')[0]||'', 'ITEM NAME': nm.split(' ').slice(1).join(' ')||'', PRICE: rate })
         });
-      });
-      // TODO: save invoice history & generate PDF
+        const result = await resp.json();
+        if (!result.success) {
+          alert('Error adding product: '+result.error);
+          return;
+        }
+      }
+      // Reload products dropdowns
+      const prodData = await parseCSV(PRODUCT_CSV);
+      products = prodData.filter(p=>p['ITEM NAME']);
+      modelsList = [...new Set(products.map(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`))];
+      updateAllModelSelects();
+      alert('Products updated successfully!');
+      // TODO: now generate PDF
     }
 
-    // Initialize
-    init();
+    window.onload = init;
   </script>
 </body>
 </html>
