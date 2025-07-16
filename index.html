@@ -113,7 +113,7 @@
       <div class="flex justify-between text-sm">
         <div class="w-1/2">
           <p><span class="font-semibold">GSTIN:</span> 21AQCPK0903A1ZI</p>
-          <p class="mt-4 font-semibold">Note:</p>
+          <p class="mt-4 font-semibold">Note:</span></p>
           <ul class="list-disc list-inside text-gray-300">
             <li>Goods once sold will not be taken back.</li>
             <li>Interest @18% p.a. will be charged if payment is delayed.</li>
@@ -150,9 +150,9 @@
 
   <script>
     // CSV URLs & Data Stores
-    const CUSTOMER_CSV = 'https://docs.google.com/spreadsheets/d/e/.../pub?output=csv&gid=1988877295';
-    const PRODUCT_CSV  = 'https://docs.google.com/spreadsheets/d/e/.../pub?output=csv&gid=0';
-    const ADD_PRODUCT_URL = 'https://script.google.com/macros/s/.../exec?action=addProduct';
+    const CUSTOMER_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=1988877295';
+    const PRODUCT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=0';
+    const ADD_PRODUCT_URL = 'https://script.google.com/macros/s/AKfycbwDzGBCoy0NrsZggZVP_6C6qsUFCdKPj3wtjeVY12ATFIFBeIpHj9sbqNHdF7d1ZKyM/exec?action=addProduct';
     let customers = [], products = [], modelsList = [];
 
     function init() {
@@ -160,6 +160,7 @@
         customers = res.data.filter(c => c['Customer Name']);
         const sel = document.getElementById('customerSelect');
         customers.forEach(c => sel.append(new Option(c['Customer Name'], c['Customer Name'])));
+        sel.addEventListener('change', onCustomer);
       }});
 
       Papa.parse(PRODUCT_CSV, { download:true, header:true, complete: res => {
@@ -169,6 +170,14 @@
 
       document.getElementById('addItemBtn').addEventListener('click', addItemRow);
       document.getElementById('resetBtn').addEventListener('click', () => location.reload());
+    }
+
+    function onCustomer() {
+      const c = customers.find(x => x['Customer Name'] === this.value);
+      document.getElementById('previewCustomer').textContent = c['Customer Name'] || '';
+      document.getElementById('previewAddress').textContent = c['Address'] || '';
+      document.getElementById('previewContact').textContent = c['contact'] || '';
+      document.getElementById('previewGSTIN').textContent = c['Customer GSTIN'] || '';
     }
 
     function addItemRow() {
@@ -200,77 +209,80 @@
 
       const modelSel = tr.querySelector('.model-select');
       const prodSel  = tr.querySelector('.product-select');
-      modelSel.addEventListener('change', ()=>{
-        if(modelSel.value==='__add_new__'){
+      modelSel.addEventListener('change', () => {
+        if (modelSel.value === '__add_new__') {
           const newM = prompt('Enter Model + Number');
-          if(newM){
+          if (newM) {
             const dev = prompt('Enter Device');
             const nm  = prompt('Enter Size + Item Name');
             const rate= prompt('Enter Rate');
             const [mdl, mnum] = newM.split(/\s(?=[^\s]+$)/);
-            const np={ 'MODEL':mdl,'MODEL NUMBER':mnum||'', 'DEVICE': dev||'', 'SIZE': nm.split(' ')[0]||'', 'ITEM NAME': nm.split(' ').slice(1).join(' ')||'', 'PRICE': rate||'0' };
-            fetch(`${ADD_PRODUCT_URL}`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(np)});
+            const np = { 'MODEL':mdl, 'MODEL NUMBER':mnum||'', 'DEVICE': dev||'', 'SIZE': nm.split(' ')[0]||'', 'ITEM NAME': nm.split(' ').slice(1).join(' ')||'', 'PRICE': rate||'0' };
+            fetch(ADD_PRODUCT_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(np)});
             products.push(np);
             modelsList.push(newM);
             updateAllModelSelects();
-            modelSel.value=newM;
-          } else modelSel.value='';
+            modelSel.value = newM;
+          } else modelSel.value = '';
+        } else {
+          prodSel.disabled = !modelSel.value;
+          prodSel.innerHTML = '<option value="">Select Product</option>';
+          products.filter(p => `${p['MODEL']} ${p['MODEL NUMBER']}` === modelSel.value)
+            .forEach((p, i) => prodSel.append(new Option(`${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`, i)));
         }
-        prodSel.disabled = !modelSel.value;
-        prodSel.innerHTML = '<option value="">Select Product</option>';
-        products.filter(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`===modelSel.value)
-          .forEach((p,i)=>prodSel.append(new Option(`${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`, i)));
       });
-      prodSel.addEventListener('change', ()=>{
-        const sel=products[prodSel.value];
+
+      prodSel.addEventListener('change', () => {
+        const sel = products[prodSel.value];
         tr.querySelector('.hsn-cell').textContent = sel['MODEL NUMBER'];
         tr.querySelector('.rate-cell').textContent = sel['PRICE'];
         calculateRow(tr); calculateTotals();
       });
-      tr.querySelector('.qty-input').addEventListener('input', ()=>{ calculateRow(tr); calculateTotals(); });
-      tr.querySelector('.remove-row-btn').addEventListener('click', ()=>{ tr.remove(); updateRowNumbers(); calculateTotals(); });
+
+      tr.querySelector('.qty-input').addEventListener('input', () => { calculateRow(tr); calculateTotals(); });
+      tr.querySelector('.remove-row-btn').addEventListener('click', () => { tr.remove(); updateRowNumbers(); calculateTotals(); });
     }
 
-    function updateAllModelSelects(){
-      document.querySelectorAll('.model-select').forEach(sel=>{
-        const cur=sel.value;
+    function updateAllModelSelects() {
+      document.querySelectorAll('.model-select').forEach(sel => {
+        const cur = sel.value;
         sel.innerHTML = `<option value="">Select Model</option>`
-          + modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')
+          + modelsList.map(m => `<option value="${m}">${m}</option>`).join('')
           + `<option value="__add_new__" class="text-green-400">➕ Add New</option>`;
         sel.value = cur;
       });
     }
 
-    function calculateRow(tr){
-      const rate=parseFloat(tr.querySelector('.rate-cell').textContent)||0;
-      const qty =parseFloat(tr.querySelector('.qty-input').value)||0;
-      const igst=parseFloat(tr.querySelector('.igst-cell').textContent)||0;
-      const amt = rate*qty;
+    function calculateRow(tr) {
+      const rate = parseFloat(tr.querySelector('.rate-cell').textContent) || 0;
+      const qty = parseFloat(tr.querySelector('.qty-input').value) || 0;
+      const igst = parseFloat(tr.querySelector('.igst-cell').textContent) || 0;
+      const amt = rate * qty;
       tr.querySelector('.amount-cell').textContent = amt.toFixed(2);
       return amt;
     }
 
-    function calculateTotals(){
-      let subtotal=0, totalGST=0;
-      document.querySelectorAll('#itemsTable tr').forEach(tr=>{
-        const amt=parseFloat(tr.querySelector('.amount-cell').textContent)||0;
-        const igst=parseFloat(tr.querySelector('.igst-cell').textContent)||0;
-        subtotal+=amt;
-        totalGST+=amt*igst/100;
+    function calculateTotals() {
+      let subtotal = 0, totalGST = 0;
+      document.querySelectorAll('#itemsTable tr').forEach(tr => {
+        const amt = parseFloat(tr.querySelector('.amount-cell').textContent) || 0;
+        const igst = parseFloat(tr.querySelector('.igst-cell').textContent) || 0;
+        subtotal += amt;
+        totalGST += amt * igst / 100;
       });
       const rawTotal = subtotal + totalGST;
       const rounded = Math.round(rawTotal);
       document.getElementById('previewSubtotal').textContent = subtotal.toFixed(2);
       document.getElementById('previewTotalGST').textContent = totalGST.toFixed(2);
-      document.getElementById('previewRoundOff').textContent = (rounded-rawTotal).toFixed(2);
+      document.getElementById('previewRoundOff').textContent = (rounded - rawTotal).toFixed(2);
       document.getElementById('previewGrandTotal').textContent = rounded.toFixed(2);
     }
 
-    function updateRowNumbers(){
-      document.querySelectorAll('#itemsTable tr').forEach((tr,i)=>tr.querySelector('td').textContent = i+1);
+    function updateRowNumbers() {
+      document.querySelectorAll('#itemsTable tr').forEach((tr, i) => tr.querySelector('td').textContent = i+1);
     }
 
-    function saveAndPDF(){
+    function saveAndPDF() {
       // TODO: implement save to history via Apps Script + generate PDF
     }
 
