@@ -67,6 +67,8 @@
         <div class="space-y-1">
           <p><span class="font-semibold">Debit Memo / Tax Invoice</span></p>
           <p><span class="font-semibold">M/s:</span> <span id="previewCustomer"></span></p>
+          <p><span class="font-semibold">Address:</span> <span id="previewAddress"></span></p>
+          <p><span class="font-semibold">Contact:</span> <span id="previewContact"></span></p>
           <p><span class="font-semibold">Place of Supply:</span> <span id="previewPlace"></span></p>
           <p><span class="font-semibold">GSTIN:</span> <span id="previewGSTIN"></span></p>
         </div>
@@ -160,8 +162,9 @@
     function onCustomer() {
       const c = customers.find(x => x['Customer Name'] === this.value);
       document.getElementById('previewCustomer').textContent = c['Customer Name'] || '';
+      document.getElementById('previewAddress').textContent = c['Address'] || '';
+      document.getElementById('previewContact').textContent = c['contact'] || '';
       document.getElementById('previewGSTIN').textContent = c['Customer GSTIN'] || '';
-      // You can also populate address or contact if needed
     }
 
     function addItemRow() {
