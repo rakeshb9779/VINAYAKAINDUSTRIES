@@ -138,20 +138,17 @@
     const PRODUCT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=0';
     const HISTORY_URL  = 'https://script.google.com/macros/s/AKfycbwDzGBCoy0NrsZggZVP_6C6qsUFCdKPj3wtjeVY12ATFIFBeIpHj9sbqNHdF7d1ZKyM/exec';
 
-    let customers = [], products = [], items = [];
+    let customers = [], products = [];
 
     function init() {
-      Papa.parse(CUSTOMER_CSV, {
-        download:true, header:true,
-        complete: res => {
-          customers = res.data.filter(c => c['Customer Name']);
-          const sel = document.getElementById('customerSelect');
-          customers.forEach(c => sel.appendChild(new Option(c['Customer Name'], c['Customer Name'])));
-        }
-      });
-      Papa.parse(PRODUCT_CSV, { download:true, header:true,
-        complete: res => products = res.data.filter(p => p['ITEM NAME'])
-      });
+      Papa.parse(CUSTOMER_CSV, {download:true, header:true, complete: res => {
+        customers = res.data.filter(c => c['Customer Name']);
+        const sel = document.getElementById('customerSelect');
+        customers.forEach(c => sel.appendChild(new Option(c['Customer Name'], c['Customer Name'])));
+      }});
+      Papa.parse(PRODUCT_CSV, {download:true, header:true, complete: res => {
+        products = res.data.filter(p => p['ITEM NAME']);
+      }});
 
       document.getElementById('customerSelect').addEventListener('change', onCustomer);
       document.getElementById('addItemBtn').addEventListener('click', addItemRow);
@@ -168,11 +165,102 @@
     }
 
     function addItemRow() {
-      // TODO: implement dynamic item rows
+      const tbody = document.getElementById('itemsTable');
+      const rowCount = tbody.querySelectorAll('tr').length;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="border p-2 text-center">${rowCount+1}</td>
+        <td class="border p-2">
+          <select class="item-select w-full border rounded p-1">
+            <option value="">Select</option>
+          </select>
+        </td>
+        <td class="border p-2 hsn-cell"></td>
+        <td class="border p-2 rate-cell"></td>
+        <td class="border p-2">
+          <input type="number" class="qty-input w-16 border rounded p-1" value="1" min="1">
+        </td>
+        <td class="border p-2 igst-cell">18</td>
+        <td class="border p-2 amount-cell">0.00</td>
+        <td class="border p-2 text-center">
+          <button class="remove-row-btn text-red-500">X</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+
+      // Populate product dropdown
+      const select = tr.querySelector('.item-select');
+      products.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p['ITEM NAME'];
+        opt.textContent = p['ITEM NAME'];
+        select.appendChild(opt);
+      });
+
+      // Listeners
+      select.addEventListener('change', function() {
+        const selected = products.find(x => x['ITEM NAME'] === this.value);
+        const hsnCell = tr.querySelector('.hsn-cell');
+        const rateCell = tr.querySelector('.rate-cell');
+        const qtyInput = tr.querySelector('.qty-input');
+        const igstCell = tr.querySelector('.igst-cell');
+        const amountCell = tr.querySelector('.amount-cell');
+        if (selected) {
+          hsnCell.textContent = selected['MODEL NUMBER'] || '';
+          rateCell.textContent = selected['PRICE'] || '0';
+          calculateRow(tr);
+          calculateTotals();
+        }
+      });
+      tr.querySelector('.qty-input').addEventListener('input', () => {
+        calculateRow(tr);
+        calculateTotals();
+      });
+      tr.querySelector('.remove-row-btn').addEventListener('click', () => {
+        tr.remove();
+        updateRowNumbers();
+        calculateTotals();
+      });
     }
+
+    function calculateRow(tr) {
+      const rate = parseFloat(tr.querySelector('.rate-cell').textContent) || 0;
+      const qty = parseFloat(tr.querySelector('.qty-input').value) || 0;
+      const igst = parseFloat(tr.querySelector('.igst-cell').textContent) || 0;
+      const amount = rate * qty;
+      tr.querySelector('.amount-cell').textContent = amount.toFixed(2);
+      return amount;
+    }
+
+    function calculateTotals() {
+      const rows = document.querySelectorAll('#itemsTable tr');
+      let subtotal = 0;
+      let totalGST = 0;
+      rows.forEach(tr => {
+        const amt = parseFloat(tr.querySelector('.amount-cell').textContent) || 0;
+        const igst = parseFloat(tr.querySelector('.igst-cell').textContent) || 0;
+        subtotal += amt;
+        totalGST += (amt * igst / 100);
+      });
+      const rawTotal = subtotal + totalGST;
+      const rounded = Math.round(rawTotal);
+      const roundOff = (rounded - rawTotal).toFixed(2);
+      document.getElementById('previewSubtotal').textContent = subtotal.toFixed(2);
+      document.getElementById('previewTotalGST').textContent = totalGST.toFixed(2);
+      document.getElementById('previewRoundOff').textContent = roundOff;
+      document.getElementById('previewGrandTotal').textContent = rounded.toFixed(2);
+    }
+
+    function updateRowNumbers() {
+      document.querySelectorAll('#itemsTable tr').forEach((tr, i) => {
+        tr.querySelector('td').textContent = i+1;
+      });
+    }
+
     function saveAndPDF() {
-      // TODO: implement save to history + generate PDF
+      // TODO: implement save to history via Apps Script + generate PDF
     }
+
     function resetForm() {
       location.reload();
     }
