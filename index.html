@@ -68,7 +68,7 @@
           <p><span class="font-semibold">Debit Memo / Tax Invoice</span></p>
           <p><span class="font-semibold">M/s:</span> <span id="previewCustomer"></span></p>
           <p><span class="font-semibold">Place of Supply:</span> <span id="previewPlace"></span></p>
-          <p><span class="font-semibold">GSTIN:</span> 21AQCPK0903A1ZI</p>
+          <p><span class="font-semibold">GSTIN:</span> <span id="previewGSTIN"></span></p>
         </div>
         <div class="text-right space-y-1">
           <p><span class="font-semibold">Invoice No:</span> <span id="previewInvoiceNo"></span></p>
@@ -98,8 +98,8 @@
           <p class="mt-4 font-semibold">Note:</p>
           <ul class="list-disc list-inside">
             <li>Goods once sold will not be taken back.</li>
-            <li>Interest @18% p.a. if payment delayed.</li>
-            <li>Our risk & responsibility ceases once goods leave premises.</li>
+            <li>Interest @18% p.a. will be charged if payment is delayed.</li>
+            <li>Our risk & responsibility ceases once goods leave the premises.</li>
           </ul>
         </div>
         <div class="w-1/2">
@@ -132,19 +132,24 @@
 
   <script>
     // CSV URLs
-    const CUSTOMER_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5gWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=770007065';
-    const PRODUCT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5gWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=0';
+    const CUSTOMER_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=1988877295';
+    const PRODUCT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=0';
     const HISTORY_URL  = 'https://script.google.com/macros/s/AKfycbwDzGBCoy0NrsZggZVP_6C6qsUFCdKPj3wtjeVY12ATFIFBeIpHj9sbqNHdF7d1ZKyM/exec';
 
     let customers = [], products = [], items = [];
 
     function init() {
-      Papa.parse(CUSTOMER_CSV, { download:true, header:true, complete: r => {
-        customers = r.data.filter(c=>c.Name);
-        const sel = document.getElementById('customerSelect');
-        customers.forEach(c=> sel.appendChild(new Option(c.Name,c.Name)));
-      }});
-      Papa.parse(PRODUCT_CSV, { download:true, header:true, complete: r => products = r.data.filter(p=>p['Item Name']) });
+      Papa.parse(CUSTOMER_CSV, {
+        download:true, header:true,
+        complete: res => {
+          customers = res.data.filter(c => c['Customer Name']);
+          const sel = document.getElementById('customerSelect');
+          customers.forEach(c => sel.appendChild(new Option(c['Customer Name'], c['Customer Name'])));
+        }
+      });
+      Papa.parse(PRODUCT_CSV, { download:true, header:true,
+        complete: res => products = res.data.filter(p => p['ITEM NAME'])
+      });
 
       document.getElementById('customerSelect').addEventListener('change', onCustomer);
       document.getElementById('addItemBtn').addEventListener('click', addItemRow);
@@ -153,30 +158,21 @@
     }
 
     function onCustomer() {
-      const c = customers.find(x=>x.Name===this.value);
-      document.getElementById('previewCustomer').textContent = c.Name;
-      document.getElementById('previewPlace').textContent = c.State;
+      const c = customers.find(x => x['Customer Name'] === this.value);
+      document.getElementById('previewCustomer').textContent = c['Customer Name'] || '';
+      document.getElementById('previewGSTIN').textContent = c['Customer GSTIN'] || '';
+      // You can also populate address or contact if needed
     }
 
     function addItemRow() {
-      const idx = items.length+1;
-      items.push({});
-      renderFormItems();
-      renderPreviewItems();
+      // TODO: implement dynamic item rows
     }
-
-    function renderFormItems(){ /* similar dynamic rows... */ }
-    function renderPreviewItems(){ /* reflect items in preview table */ }
-
-    function calculateTotals(){ /* compute subtotal, GST, roundoff, grand total */ }
-
-    function saveAndPDF(){
-      const invoiceData = { customer:document.getElementById('customerSelect').value, items };
-      fetch(HISTORY_URL+'?action=save&data='+encodeURIComponent(JSON.stringify(invoiceData)));
-      html2pdf().from(document.getElementById('invoicePreview')).save();
+    function saveAndPDF() {
+      // TODO: implement save to history + generate PDF
     }
-
-    function resetForm(){ location.reload(); }
+    function resetForm() {
+      location.reload();
+    }
 
     window.onload = init;
   </script>
