@@ -42,6 +42,7 @@
           <thead>
             <tr class="bg-accent-blue text-white">
               <th class="border p-2">Sr.No.</th>
+              <th class="border p-2">Model</th>
               <th class="border p-2">Product</th>
               <th class="border p-2">HSN/SAC</th>
               <th class="border p-2">Rate</th>
@@ -97,6 +98,7 @@
         <thead>
           <tr class="bg-accent-blue text-white">
             <th class="border p-2">Sr.No.</th>
+            <th class="border p-2">Model</th>
             <th class="border p-2">Product</th>
             <th class="border p-2">HSN/SAC</th>
             <th class="border p-2">Qty</th>
@@ -147,21 +149,25 @@
   </div>
 
   <script>
-    // CSV URLs
+    // CSV URLs & Data Stores
     const CUSTOMER_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=1988877295';
     const PRODUCT_CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv&gid=0';
     const HISTORY_URL  = 'https://script.google.com/macros/s/AKfycbwDzGBCoy0NrsZggZVP_6C6qsUFCdKPj3wtjeVY12ATFIFBeIpHj9sbqNHdF7d1ZKyM/exec';
-
-    let customers = [], products = [];
+    let customers = [], products = [], modelsList = [];
 
     function init() {
-      Papa.parse(CUSTOMER_CSV, {download:true, header:true, complete: res => {
+      Papa.parse(CUSTOMER_CSV, { download:true, header:true, complete: res => {
         customers = res.data.filter(c => c['Customer Name']);
         const sel = document.getElementById('customerSelect');
         customers.forEach(c => sel.appendChild(new Option(c['Customer Name'], c['Customer Name'])));
       }});
-      Papa.parse(PRODUCT_CSV, {download:true, header:true, complete: res => {
+
+      Papa.parse(PRODUCT_CSV, { download:true, header:true, complete: res => {
         products = res.data.filter(p => p['ITEM NAME']);
+        // Build unique model list
+        const set = new Set();
+        products.forEach(p => set.add(`${p['MODEL']} ${p['MODEL NUMBER']}`));
+        modelsList = Array.from(set);
       }});
 
       document.getElementById('customerSelect').addEventListener('change', onCustomer);
@@ -180,13 +186,18 @@
 
     function addItemRow() {
       const tbody = document.getElementById('itemsTable');
-      const rowCount = tbody.children.length;
+      const idx = tbody.children.length;
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td class="border p-2 text-center text-gray-100">${rowCount+1}</td>
+        <td class="border p-2 text-center text-gray-100">${idx+1}</td>
         <td class="border p-2">
-          <select class="item-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">
-            <option value="">Select</option>
+          <select class="model-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">
+            <option value="">Select Model</option>
+          </select>
+        </td>
+        <td class="border p-2">
+          <select class="product-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" disabled>
+            <option value="">Select Product</option>
           </select>
         </td>
         <td class="border p-2 hsn-cell text-gray-100"></td>
@@ -202,15 +213,23 @@
       `;
       tbody.appendChild(tr);
 
-      const select = tr.querySelector('.item-select');
-      products.forEach((p,i) => {
-        const opt = document.createElement('option');
-        opt.value = i;
-        opt.textContent = `${p['MODEL']} ${p['MODEL NUMBER']} | ${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`;
-        select.appendChild(opt);
+      const modelSel = tr.querySelector('.model-select');
+      const prodSel  = tr.querySelector('.product-select');
+      modelsList.forEach((m, i) => modelSel.appendChild(new Option(m, m)));
+
+      modelSel.addEventListener('change', function() {
+        const selectedModel = this.value;
+        prodSel.innerHTML = '<option value="">Select Product</option>';
+        prodSel.disabled = !selectedModel;
+        const filtered = products.filter(p => `${p['MODEL']} ${p['MODEL NUMBER']}` === selectedModel);
+        filtered.forEach(p => {
+          const label = `${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`;
+          const opt = new Option(label, products.indexOf(p));
+          prodSel.appendChild(opt);
+        });
       });
 
-      select.addEventListener('change', function() {
+      prodSel.addEventListener('change', function() {
         const sel = products[this.value];
         if (sel) {
           tr.querySelector('.hsn-cell').textContent = sel['MODEL NUMBER'];
