@@ -4,350 +4,312 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Invoice Generator – Vinayaka Industries</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            'primary-dark-blue': '#0f172a',
-            'secondary-dark-blue': '#1e293b',
-            'accent-blue': '#1d4ed8',
-            'light-blue': '#3b82f6',
-          },
-        },
-      },
-    };
-  </script>
+  <!-- SweetAlert2 for custom modals -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- html2pdf.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
   <style>
-    /* Hide spinners on number inputs */
+    /* Spinner overlay */
+    #spinnerOverlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:50; align-items:center; justify-content:center; }
+    .spinner { border:4px solid #f3f3f3; border-top:4px solid #3498db; border-radius:50%; width:40px; height:40px; animation:spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    /* Hide number input spinners */
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-primary-dark-blue to-secondary-dark-blue text-gray-100">
+  <div id="spinnerOverlay" class="flex"><div class="spinner"></div></div>
   <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
   <div id="invoiceApp" class="max-w-4xl mx-auto my-10 p-6 bg-gradient-to-br from-secondary-dark-blue/80 to-primary-dark-blue/80 shadow-2xl rounded-2xl">
     <h1 class="text-4xl font-extrabold text-light-blue mb-6">Invoice Generator</h1>
 
-    <!-- Invoice Form -->
-    <div id="invoiceForm" class="space-y-6">
-      <!-- Customer -->
-      <div>
-        <label for="customerSelect" class="block text-gray-200 font-semibold mb-2">Customer</label>
-        <select id="customerSelect" class="w-full bg-secondary-dark-blue border border-accent-blue rounded p-2 text-gray-100">
-          <option value="">-- SELECT Customer --</option>
-        </select>
-      </div>
-
-      <!-- Items -->
-      <div>
-        <label class="block text-gray-200 font-semibold mb-2">Items</label>
-        <table class="w-full border-collapse text-sm">
-          <thead>
-            <tr class="bg-accent-blue text-white">
-              <th class="border p-2">Sr.No.</th>
-              <th class="border p-2">Model</th>
-              <th class="border p-2">Product</th>
-              <th class="border p-2">HSN/SAC</th>
-              <th class="border p-2">Rate</th>
-              <th class="border p-2">Qty</th>
-              <th class="border p-2">IGST%</th>
-              <th class="border p-2">Amount</th>
-              <th class="border p-2">Remove</th>
-            </tr>
-          </thead>
-          <tbody id="itemsTable" class="bg-secondary-dark-blue"></tbody>
-        </table>
-        <button id="addItemBtn" class="mt-3 bg-gradient-to-r from-light-blue to-cyan-400 text-primary-dark-blue px-4 py-2 rounded-full font-semibold shadow-lg">
-          Add Item
-        </button>
-      </div>
-
-      <!-- Actions -->
-      <div class="flex gap-4">
-        <button id="saveInvoiceBtn" class="flex-1 bg-gradient-to-r from-green-500 to-green-400 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
-          Save & Generate PDF
-        </button>
-        <button id="resetBtn" class="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
-          Reset
-        </button>
-      </div>
+    <!-- Customer Select -->
+    <div class="mb-6">
+      <label for="customerSelect" class="block text-gray-200 font-semibold mb-2">Customer</label>
+      <select id="customerSelect" class="w-full bg-secondary-dark-blue border border-accent-blue rounded p-2 text-gray-100">
+        <option value="">-- Select Customer --</option>
+      </select>
     </div>
 
-    <!-- Preview -->
-    <div id="invoicePreview" class="mt-10 p-6 bg-secondary-dark-blue/70 border border-accent-blue rounded-2xl shadow-inner text-gray-200">
-      <div class="flex justify-between items-center mb-6">
-        <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Logo" class="h-16">
-        <div class="text-right">
-          <h2 class="text-2xl font-bold text-light-blue">VINAYAKA INDUSTRIES</h2>
-          <p>No.34, Lakshmipura Main Road</p>
-          <p>Chikkabanavara Post, Abigere, Bangalore - 560090</p>
-          <p>Mo: +91 9448355315</p>
+    <!-- Items Table -->
+    <div class="mb-6">
+      <label class="block text-gray-200 font-semibold mb-2">Items</label>
+      <table class="w-full border-collapse text-sm" id="itemsTable">
+        <thead>
+          <tr class="bg-accent-blue text-white">
+            <th class="border p-2">#</th>
+            <th class="border p-2">Model</th>
+            <th class="border p-2">Product</th>
+            <th class="border p-2">HSN/SAC</th>
+            <th class="border p-2">Rate</th>
+            <th class="border p-2">Qty</th>
+            <th class="border p-2">CGST%</th>
+            <th class="border p-2">SGST%</th>
+            <th class="border p-2">Discount%</th>
+            <th class="border p-2">Amount</th>
+            <th class="border p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button id="addItemBtn" class="mt-3 bg-gradient-to-r from-light-blue to-cyan-400 text-primary-dark-blue px-4 py-2 rounded-full font-semibold shadow-lg">
+        Add Item
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-4 mb-6">
+      <button id="saveInvoiceBtn" class="flex-1 bg-gradient-to-r from-green-500 to-green-400 text-white px-4 py-2 rounded-full font-semibold shadow-lg" disabled>
+        Save & Generate PDF
+      </button>
+      <button id="browseHistoryBtn" class="flex-1 bg-gradient-to-r from-yellow-500 to-yellow-400 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
+        Browse History
+      </button>
+      <button id="resetBtn" class="flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
+        Reset
+      </button>
+    </div>
+
+    <!-- Preview + PDF Header/Footer -->
+    <div id="invoicePreview" class="relative p-6 bg-secondary-dark-blue/70 border border-accent-blue rounded-2xl shadow-inner text-gray-200 print:shadow-none print:border-none">
+      <!-- PDF Header -->
+      <div class="absolute top-0 left-0 w-full p-4 text-center text-sm hidden print:block">
+        <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" class="inline h-8" alt="Logo" />
+        <span class="font-bold ml-2">VINAYAKA INDUSTRIES</span>
+      </div>
+
+      <!-- Customer & Invoice Meta -->
+      <div class="grid grid-cols-2 gap-4 mb-4 pt-10">
+        <div class="space-y-1 text-sm">
+          <p><strong>M/s:</strong> <span id="previewCustomer"></span></p>
+          <p><strong>Address:</strong> <span id="previewAddress"></span></p>
+          <p><strong>Contact:</strong> <span id="previewContact"></span></p>
+          <p><strong>GSTIN:</strong> <span id="previewGSTIN"></span></p>
+        </div>
+        <div class="text-right space-y-1 text-sm">
+          <p><strong>Invoice No:</strong> <span id="previewInvoiceNo"></span></p>
+          <p><strong>Date:</strong> <span id="previewDate"></span></p>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
-        <div class="space-y-1">
-          <p><span class="font-semibold">M/s:</span> <span id="previewCustomer"></span></p>
-          <p><span class="font-semibold">Address:</span> <span id="previewAddress"></span></p>
-          <p><span class="font-semibold">Contact:</span> <span id="previewContact"></span></p>
-          <p><span class="font-semibold">GSTIN:</span> <span id="previewGSTIN"></span></p>
-        </div>
-        <div class="text-right space-y-1">
-          <p><span class="font-semibold">Invoice No:</span> <span id="previewInvoiceNo"></span></p>
-          <p><span class="font-semibold">Date:</span> <span id="previewDate"></span></p>
-        </div>
-      </div>
+
+      <!-- Items Preview Table -->
       <table class="w-full border-collapse text-sm mb-4">
         <thead>
           <tr class="bg-accent-blue text-white">
-            <th class="border p-2">Sr.No.</th>
+            <th class="border p-2">#</th>
             <th class="border p-2">Model</th>
             <th class="border p-2">Product</th>
             <th class="border p-2">HSN/SAC</th>
             <th class="border p-2">Qty</th>
             <th class="border p-2">Rate</th>
-            <th class="border p-2">IGST%</th>
+            <th class="border p-2">CGST</th>
+            <th class="border p-2">SGST</th>
+            <th class="border p-2">Discount</th>
             <th class="border p-2">Amount</th>
           </tr>
         </thead>
         <tbody id="previewItems"></tbody>
       </table>
-      <div class="flex justify-end text-sm">
+
+      <!-- Totals & T&C -->
+      <div class="flex justify-end text-sm mb-8">
         <table class="w-1/3 text-right">
           <tr><td>Sub Total</td><td>₹<span id="previewSubtotal"></span></td></tr>
-          <tr><td>Total GST</td><td>₹<span id="previewTotalGST"></span></td></tr>
-          <tr><td>Round Off</td><td>₹<span id="previewRoundOff"></span></td></tr>
+          <tr><td>Total CGST</td><td>₹<span id="previewCGST"></span></td></tr>
+          <tr><td>Total SGST</td><td>₹<span id="previewSGST"></span></td></tr>
+          <tr><td>Total Discount</td><td>₹<span id="previewDiscount"></span></td></tr>
           <tr class="font-bold bg-primary-dark-blue"><td class="text-light-blue">Grand Total</td><td class="text-light-blue">₹<span id="previewGrandTotal"></span></td></tr>
         </table>
+      </div>
+      <div class="text-xs italic text-center print:block hidden">Payment due within 30 days.</div>
+
+      <!-- PDF Footer -->
+      <div class="absolute bottom-0 left-0 w-full p-2 text-center text-xs hidden print:block">
+        Page <span class="pageNumber"></span> of <span class="totalPages"></span>
       </div>
     </div>
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxL7ahq_PEPbGdqdif1CPbfVDVhL9INsM0-of6W2iI13NwFdqJ5VsUW-vjenu5dfcoZ/exec';
+    // State
+    const state = {
+      customers: [],
+      products: [],
+      models: [],
+      invoiceItems: [],
+      historyCache: {},
+    };
+    const API = 'https://script.google.com/macros/s/AKfycbxL7ahq_PEPbGdqdif1CPbfVDVhL9INsM0-of6W2iI13NwFdqJ5VsUW-vjenu5dfcoZ/exec';
 
-    // JSONP GET helper
-    function fetchJSONP(params = {}) {
-      return new Promise((resolve, reject) => {
-        const cb = '__jsonp_cb_' + Date.now();
-        window[cb] = data => { resolve(data); delete window[cb]; script.remove(); };
-        params.callback = cb;
-        const qs = new URLSearchParams(params).toString();
-        const script = document.createElement('script');
-        script.src = `${API_URL}?${qs}`;
-        script.onerror = () => reject(new Error('JSONP load error'));
-        document.body.appendChild(script);
+    // Helpers
+    const showSpinner = on => document.getElementById('spinnerOverlay').style.display = on ? 'flex' : 'none';
+    function showToast(msg, color='green') { Swal.fire({ toast:true, position:'top-end', icon: color, title: msg, showConfirmButton:false, timer:2000 }); }
+    async function fetchJSONP(params) {
+      return new Promise((res,rej)=>{
+        const cb='cb'+Date.now(); window[cb]=d=>{res(d); delete window[cb]; s.remove();};
+        const qs=new URLSearchParams({...params,callback:cb}).toString();
+        const s=document.createElement('script'); s.src=`${API}?${qs}`; s.onerror=()=>rej(); document.body.append(s);
       });
     }
-
-    // POST helper (simple request)
-    function postInvoiceData(payload) {
-      return fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      }).then(r => r.json());
+    function postData(payload) {
+      return fetch(API,{method:'POST',body:JSON.stringify(payload)}).then(r=>r.json());
     }
 
-    // Toast notifications
-    function showToast(msg, color='green') {
-      const cont = document.getElementById('toast-container');
-      const div = document.createElement('div');
-      div.textContent = msg;
-      div.className = `px-4 py-2 text-white rounded shadow-lg bg-${color}-500`;
-      cont.append(div);
-      setTimeout(() => div.remove(), 3000);
-    }
-
-    let customers = [], products = [], modelsList = [];
-
-    async function init() {
-      customers = await fetchJSONP({ action:'getCustomers' });
-      const custSel = document.getElementById('customerSelect');
-      customers.forEach(c=>custSel.add(new Option(c['Customer Name'],c['Customer Name'])));
-      custSel.addEventListener('change', onCustomer);
-
-      products = await fetchJSONP({ action:'getProducts' });
-      modelsList = [...new Set(products.map(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`))];
-
-      const invNo = await fetchJSONP({ action:'getNextInvoiceNo' });
+    // Init
+    window.onload = async ()=>{
+      showSpinner(true);
+      state.customers = await fetchJSONP({action:'getCustomers'});
+      state.products  = await fetchJSONP({action:'getProducts'});
+      state.models    = [...new Set(state.products.map(p=>`${p.MODEL} ${p['MODEL NUMBER']}`))];
+      const invNo = await fetchJSONP({action:'getNextInvoiceNo'});
       document.getElementById('previewInvoiceNo').textContent = invNo;
       document.getElementById('previewDate').textContent      = new Date().toLocaleDateString('en-IN');
+      bindUI(); renderCustomerOptions(); showSpinner(false);
+    };
 
-      document.getElementById('addItemBtn').addEventListener('click', addItemRow);
-      document.getElementById('saveInvoiceBtn').addEventListener('click', saveAndPDF);
-      document.getElementById('resetBtn').addEventListener('click',()=>location.reload());
+    function bindUI() {
+      document.getElementById('addItemBtn').onclick = addItemRow;
+      document.getElementById('saveInvoiceBtn').onclick = saveAndPDF;
+      document.getElementById('browseHistoryBtn').onclick = browseHistory;
+      document.getElementById('resetBtn').onclick = ()=>location.reload();
+      document.getElementById('customerSelect').onchange = onCustomerChange;
     }
 
-    function onCustomer() {
-      const c = customers.find(x=>x['Customer Name']===this.value) || {};
-      document.getElementById('previewCustomer').textContent = c['Customer Name'] || '';
-      document.getElementById('previewAddress').textContent  = c['Address'] || '';
-      document.getElementById('previewContact').textContent  = c['contact'] || '';
-      document.getElementById('previewGSTIN').textContent    = c['Customer GSTIN'] || '';
+    function renderCustomerOptions() {
+      const sel=document.getElementById('customerSelect');
+      state.customers.forEach(c=>sel.add(new Option(c['Customer Name'],c['Customer Name'])));
+    }
+    function onCustomerChange() {
+      const v=this.value; const c=state.customers.find(x=>x['Customer Name']===v)||{};
+      ['previewCustomer','previewAddress','previewContact','previewGSTIN'].forEach(id=>document.getElementById(id).textContent=c[id.replace('preview','')]||'');
+      toggleSave();
     }
 
-    function updateAllModelSelects() {
-      document.querySelectorAll('.model-select').forEach(sel => {
-        const cur = sel.value;
-        sel.innerHTML = `<option value="">Select Model</option>` +
-          modelsList.map(m=>`<option value="${m}">${m}</option>`).join('') +
-          `<option value="__add_new__">➕ Add New</option>`;
-        sel.value = cur;
-      });
-    }
+    function toggleSave() { document.getElementById('saveInvoiceBtn').disabled = !document.getElementById('customerSelect').value || !state.invoiceItems.length; }
 
+    // Add row
     function addItemRow() {
-      const tbody = document.getElementById('itemsTable');
-      const idx   = tbody.children.length;
-      const tr    = document.createElement('tr');
-      tr.innerHTML = `
-        <td class="border p-2 text-center">${idx+1}</td>
-        <td class="border p-2">
-          <select class="model-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">
-            <option value="">Select Model</option>
-            ${modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')}
-            <option value="__add_new__">➕ Add New</option>
-          </select>
-        </td>
-        <td class="border p-2">
-          <select disabled class="product-selector w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">
-            <option value="">Select Product</option>
-          </select>
-        </td>
+      const tbody=document.querySelector('#itemsTable tbody'); const idx=tbody.children.length;
+      const tr=document.createElement('tr');
+      tr.innerHTML= `<td class="border p-2 text-center">${idx+1}</td>
+        <td class="border p-2"><select class="model-select"></select></td>
+        <td class="border p-2"><select disabled class="product-select"></select></td>
         <td class="border p-2 hsn-cell"></td>
         <td class="border p-2 rate-cell"></td>
-        <td class="border p-2"><input type="number" class="qty-input w-16 bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" min="1" value="1"></td>
-        <td class="border p-2 igst-cell">18</td>
+        <td class="border p-2"><input type="number" min="1" value="1" class="qty-input" /></td>
+        <td class="border p-2"><input type="number" min="0" value="9" class="cgst-input" /></td>
+        <td class="border p-2"><input type="number" min="0" value="9" class="sgst-input" /></td>
+        <td class="border p-2"><input type="number" min="0" value="0" class="disc-input" /></td>
         <td class="border p-2 amount-cell">0.00</td>
-        <td class="border p-2 text-center"><button class="remove-row-btn text-red-400">X</button></td>
-      `;
+        <td class="border p-2 text-center"><button class="remove-btn text-red-400">X</button></td>`;
       tbody.append(tr);
-
-      const modelSel = tr.querySelector('.model-select');
-      const prodSel  = tr.querySelector('.product-selector');
-      const remBtn   = tr.querySelector('.remove-row-btn');
-
-      modelSel.addEventListener('change',()=>{
-        if(modelSel.value==='__add_new__'){
-          tr.classList.add('new-entry');
-          tr.innerHTML=`
-            <td class="border p-2 text-center">${idx+1}</td>
-            <td class="border p-2" colspan="2"><input class="new-model w-full rounded p-1 text-black bg-white" placeholder="Model ModelNumber"></td>
-            <td class="border p-2" colspan="2"><input class="new-device w-full rounded p-1 text-black bg-white" placeholder="Device"></td>
-            <td class="border p-2" colspan="2"><input class="new-name w-full rounded p-1 text-black bg-white" placeholder="Size ItemName"></td>
-            <td class="border p-2"><input type="number" class="new-rate w-24 rounded p-1 text-black bg-white" placeholder="Rate"></td>
-            <td class="border p-2 text-center">
-              <button class="confirm-add-btn bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 mr-2">Add</button>
-              <button class="cancel-add-btn bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1">Cancel</button>
-            </td>
-          `;
-          tr.querySelector('.cancel-add-btn').addEventListener('click',()=>{ tr.remove(); updateAllModelSelects(); renderPreview(); });
-          tr.querySelector('.confirm-add-btn').addEventListener('click',async()=>{
-            if(!confirm('Are you sure you want to add this product?')) return;
-            const mIn = tr.querySelector('.new-model').value.trim();
-            const [model,num] = mIn.split(/\s+(?=[^\s]+$)/);
-            const dev  = tr.querySelector('.new-device').value.trim();
-            const nm   = tr.querySelector('.new-name').value.trim();
-            const rate = tr.querySelector('.new-rate').value.trim();
-            const [size,...item]=nm.split(' ');
-            const resp = await postInvoiceData({ action:'addProduct', MODEL:model, 'MODEL NUMBER':num||'', DEVICE:dev, SIZE:size||'', 'ITEM NAME':item.join(' ')||'', PRICE:rate });
-            if(!resp.success){ showToast('Add failed','red'); return; }
-            // update arrays
-            products.push({ MODEL:model, 'MODEL NUMBER':num||'', DEVICE:dev, SIZE:size||'', 'ITEM NAME':item.join(' ')||'', PRICE:rate });
-            modelsList.push(`${model} ${num||''}`);
-            showToast('Product added!');
-            // transform row into normal select row
-            replaceNewEntry(tr,`${model} ${num||''}`,`${dev} | ${nm}`,num||'',rate);
-          });
-        }else{
-          prodSel.disabled=false;
-          prodSel.innerHTML='<option value="">Select Product</option>';
-          products.filter(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`===modelSel.value)
-            .forEach((p,i)=>prodSel.append(new Option(`${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`,i)));
-        }
-      });
-
-      prodSel.addEventListener('change',()=>{ calculateRow(tr); });
-      tr.querySelector('.qty-input').addEventListener('input',()=>calculateRow(tr));
-      remBtn.addEventListener('click',()=>{ tr.remove(); updateAllModelSelects(); renderPreview(); });
+      // bind
+      const ms=tr.querySelector('.model-select'), ps=tr.querySelector('.product-select');
+      state.models.forEach(m=>ms.add(new Option(m,m)));
+      ms.onchange=()=>{
+        const val=ms.value; if(!val) return;
+        if(val==='__add_new__') { /* handle new-entry */ }
+        ps.disabled=false; ps.innerHTML='<option value="">Select Product</option>';
+        state.products.filter(p=>`${p.MODEL} ${p['MODEL NUMBER']}`===val)
+          .forEach((p,i)=>ps.add(new Option(`${p.DEVICE} | ${p.SIZE} ${p['ITEM NAME']}`,i)));
+        calculateRow(tr);
+      };
+      [tr.querySelector('.qty-input'),tr.querySelector('.cgst-input'),tr.querySelector('.sgst-input'),tr.querySelector('.disc-input')]
+        .forEach(inp=>inp.oninput=()=>calculateRow(tr));
+      tr.querySelector('.remove-btn').onclick=()=>{tbody.removeChild(tr); updatePreview();};
+      // add default 'Add New' last
+      ms.add(new Option('➕ Add New','__add_new__'));
+      toggleSave();
     }
 
-    function replaceNewEntry(tr,modelStr,prodStr,hsn,rate){
-      const idx = Array.from(tr.parentNode.children).indexOf(tr);
-      tr.innerHTML=`
-        <td class="border p-2 text-center">${idx+1}</td>
-        <td class="border p-2"><select class="model-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">${modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')}</select></td>
-        <td class="border p-2"><select class="product-selector w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100"><option>${prodStr}</option></select></td>
-        <td class="border p-2 hsn-cell">${hsn}</td>
-        <td class="border p-2 rate-cell">${rate}</td>
-        <td class="border p-2"><input type="number" class="qty-input w-16 bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" min="1" value="1"></td>
-        <td class="border p-2 igst-cell">18</td>
-        <td class="border p-2 amount-cell">0.00</td>
-        <td class="border p-2 text-center"><button class="remove-row-btn text-red-400">X</button></td>
-      `;
-      // re-bind events
-      tr.querySelector('.model-select').value = modelStr;
-      tr.querySelector('.model-select').addEventListener('change',()=>{});
-      const remBtn = tr.querySelector('.remove-row-btn');
-      remBtn.addEventListener('click',()=>{ tr.remove(); updateAllModelSelects(); renderPreview(); });
-      tr.querySelector('.qty-input').addEventListener('input',()=>calculateRow(tr));
-      updateAllModelSelects();
-      calculateRow(tr);
+    function calculateRow(tr) {
+      const qty=+tr.querySelector('.qty-input').value;
+      const rate=+tr.querySelector('.rate-cell').textContent||0;
+      const cg=+tr.querySelector('.cgst-input').value;
+      const sg=+tr.querySelector('.sgst-input').value;
+      const dc=+tr.querySelector('.disc-input').value;
+      const gross=qty*rate;
+      const tax=(gross*(cg+sg)/100);
+      const disc=(gross*dc/100);
+      const amt=gross+tax-disc;
+      tr.querySelector('.amount-cell').textContent=amt.toFixed(2);
+      updatePreview();
     }
 
-    function calculateRow(tr){
-      const q = parseFloat(tr.querySelector('.qty-input').value)||0;
-      const r = parseFloat(tr.querySelector('.rate-cell').textContent)||0;
-      const i = parseFloat(tr.querySelector('.igst-cell').textContent)||0;
-      const amt = q*r*(1+i/100);
-      tr.querySelector('.amount-cell').textContent = amt.toFixed(2);
-      renderPreview();
-    }
-
-    function renderPreview(){
-      const tb = document.getElementById('previewItems'); tb.innerHTML='';
-      document.querySelectorAll('#itemsTable tr').forEach((tr,i)=>{
-        const clone = tr.cloneNode(true);
-        Array.from(clone.children).forEach(td=>td.textContent = td.textContent.trim());
-        clone.children[0].textContent = i+1;
-        tb.append(clone);
-      });
-      calculateTotals();
+    function updatePreview(){
+      const pt=document.getElementById('previewItems'); pt.innerHTML='';
+      document.querySelectorAll('#itemsTable tbody tr').forEach((tr,i)=>{
+        const clone=tr.cloneNode(true);
+        clone.querySelectorAll('select,input,button').forEach(n=>n.remove());
+        clone.children[0].textContent=i+1;
+        pt.append(clone);
+      }); calculateTotals();
     }
 
     function calculateTotals(){
-      let sub=0,gst=0;
+      let sub=0,cg=0,sg=0,dc=0;
       document.querySelectorAll('#previewItems tr').forEach(tr=>{
         const c=tr.children;
-        const q=parseFloat(c[4].textContent)||0;
-        const r=parseFloat(c[5].textContent)||0;
-        const i=parseFloat(c[6].textContent)||0;
-        sub+=q*r; gst+=q*r*(i/100);
+        const g=+c[4].textContent; const r=+c[5].textContent;
+        const cgP=+c[6].textContent, sgP=+c[7].textContent, dcP=+c[8].textContent;
+        sub+=g*r; cg+=g*r*(cgP/100); sg+=g*r*(sgP/100); dc+=g*r*(dcP/100);
       });
-      const t=sub+gst,ro=Math.round(t)-t;
+      const grand=sub+cg+sg-dc;
       document.getElementById('previewSubtotal').textContent=sub.toFixed(2);
-      document.getElementById('previewTotalGST').textContent=gst.toFixed(2);
-      document.getElementById('previewRoundOff').textContent=ro.toFixed(2);
-      document.getElementById('previewGrandTotal').textContent=(t+ro).toFixed(2);
+      document.getElementById('previewCGST').textContent=cg.toFixed(2);
+      document.getElementById('previewSGST').textContent=sg.toFixed(2);
+      document.getElementById('previewDiscount').textContent=dc.toFixed(2);
+      document.getElementById('previewGrandTotal').textContent=grand.toFixed(2);
+      toggleSave();
     }
 
-    async function saveAndPDF(){
-      // build invoice rows from preview
-      const invNo = document.getElementById('previewInvoiceNo').textContent;
+    async function saveAndPDF() {
+      const invNo=document.getElementById('previewInvoiceNo').textContent;
       const rows=[];
       document.querySelectorAll('#previewItems tr').forEach((tr,i)=>{
         const d=Array.from(tr.children).map(td=>td.textContent);
-        rows.push({ 'Invoice No':invNo,'Sr.No.':i+1,Model:d[1],Product:d[2],'HSN/SAC':d[3],Qty:d[4],Rate:d[5],'IGST%':d[6],Amount:d[7] });
+        rows.push({
+          'Invoice No':invNo, 'Sr.No.':i+1,
+          Model:d[1],Product:d[2],'HSN/SAC':d[3],Qty:d[4],Rate:d[5],
+          'CGST%':d[6],'SGST%':d[7],'Discount%':d[8],Amount:d[9]
+        });
       });
-      const resp = await postInvoiceData({action:'addInvoice',invoice:rows});
-      if(!resp.success){showToast('Invoice save failed','red');return;}
-      html2pdf(document.getElementById('invoicePreview'),{filename:`Invoice_${invNo}.pdf`});
+      showSpinner(true);
+      const res=await postData({action:'addInvoice',invoice:rows});
+      if(!res.success){showToast('Save failed','error');showSpinner(false);return;} 
+      html2pdf(document.getElementById('invoicePreview'),{
+        filename:`Invoice_${invNo}.pdf`,
+        margin: [20,10,20,10],
+        html2canvas:{ scale:2 },
+        jsPDF:{ unit:'pt', format:'a4' }
+      });
+      showSpinner(false);
     }
 
-    window.onload=init;
+    function browseHistory() {
+      Swal.fire({
+        title:'Enter Invoice No', input:'text', showCancelButton:true
+      }).then(async r=>{
+        if(!r.value) return;
+        showSpinner(true);
+        const data=await fetchJSONP({action:'getInvoice',invoiceNo:r.value});
+        showSpinner(false);
+        if(!data.length) return showToast('Not found','error');
+        // populate preview only
+        document.getElementById('previewItems').innerHTML='';
+        data.forEach((row,i)=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML=Object.values(row).slice(1).map(val=>`<td class="border p-2">${val}</td>`).join('');
+          tr.children[0].textContent=i+1;
+          document.getElementById('previewItems').append(tr);
+        });
+        calculateTotals();
+      });
+    }
   </script>
 </body>
 </html>
