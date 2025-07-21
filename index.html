@@ -9,8 +9,7 @@
     /* Hide spinners on number inputs */
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
+      -webkit-appearance: none; margin: 0;
     }
   </style>
 </head>
@@ -21,18 +20,20 @@
     <h1 class="text-4xl font-extrabold text-light-blue mb-6">Invoice Generator</h1>
 
     <div id="invoiceForm" class="space-y-6">
+      <!-- Customer -->
       <div>
         <label for="customerSelect" class="block text-gray-200 font-semibold mb-2">Customer</label>
         <select id="customerSelect" class="w-full bg-secondary-dark-blue border border-accent-blue rounded p-2 text-gray-100">
-          <option value="">-- Select A Customer --</option>
+          <option value="">-- Select Customer --</option>
         </select>
       </div>
 
+      <!-- Items -->
       <div>
         <label class="block text-gray-200 font-semibold mb-2">Items</label>
         <table class="w-full border-collapse text-sm">
           <thead>
-            <tr>
+            <tr class="bg-accent-blue text-white">
               <th class="border p-2">Sr.</th>
               <th class="border p-2">Model</th>
               <th class="border p-2">Product</th>
@@ -41,7 +42,7 @@
               <th class="border p-2">Qty</th>
               <th class="border p-2">IGST%</th>
               <th class="border p-2">Amount</th>
-              <th class="border p-2">Actions</th>
+              <th class="border p-2">Remove</th>
             </tr>
           </thead>
           <tbody id="itemsTable" class="bg-secondary-dark-blue"></tbody>
@@ -51,6 +52,7 @@
         </button>
       </div>
 
+      <!-- Actions -->
       <div class="flex gap-4">
         <button id="saveInvoiceBtn" class="flex-1 bg-gradient-to-r from-green-500 to-green-400 text-white px-4 py-2 rounded-full font-semibold shadow-lg">
           Save & Generate PDF
@@ -61,6 +63,7 @@
       </div>
     </div>
 
+    <!-- Preview -->
     <div id="invoicePreview" class="mt-10 p-6 bg-secondary-dark-blue/70 border border-accent-blue rounded-2xl shadow-inner text-gray-200">
       <div class="flex justify-between items-center mb-6">
         <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Logo" class="h-16" />
@@ -84,7 +87,7 @@
       </div>
       <table class="w-full border-collapse text-sm mb-4">
         <thead>
-          <tr>
+          <tr class="bg-accent-blue text-white">
             <th class="border p-2">Sr.</th>
             <th class="border p-2">Model</th>
             <th class="border p-2">Product</th>
@@ -97,11 +100,11 @@
         </thead>
         <tbody id="previewItems"></tbody>
       </table>
-      <div class="text-right space-y-1 text-sm">
-        <p>Subtotal: <span id="previewSubtotal"></span></p>
-        <p>Total GST: <span id="previewTotalGST"></span></p>
-        <p>Round Off: <span id="previewRoundOff"></span></p>
-        <p class="font-semibold">Grand Total: <span id="previewGrandTotal"></span></p>
+      <div class="text-right text-sm space-y-1">
+        <p>Subtotal: ₹<span id="previewSubtotal"></span></p>
+        <p>Total GST: ₹<span id="previewTotalGST"></span></p>
+        <p>Round Off: ₹<span id="previewRoundOff"></span></p>
+        <p class="font-semibold">Grand Total: ₹<span id="previewGrandTotal"></span></p>
       </div>
     </div>
   </div>
@@ -137,16 +140,21 @@
     }
 
     async function init() {
+      // Load data
       customers = await fetchJSONP({ action: 'getCustomers' });
       products  = await fetchJSONP({ action: 'getProducts' });
+
+      // Populate customers
       const custSel = document.getElementById('customerSelect');
       customers.forEach(c => custSel.add(new Option(c['Customer Name'], c['Customer Name'])));
       custSel.addEventListener('change', onCustomer);
 
+      // Buttons
       document.getElementById('addItemBtn').addEventListener('click', addItemRow);
       document.getElementById('saveInvoiceBtn').addEventListener('click', saveAndPDF);
       document.getElementById('resetBtn').addEventListener('click', () => location.reload());
 
+      // Invoice No & Date
       const invNo = await fetchJSONP({ action: 'getNextInvoiceNo' });
       document.getElementById('previewInvoiceNo').textContent = invNo;
       document.getElementById('previewDate').textContent = new Date().toLocaleDateString('en-IN');
@@ -178,25 +186,32 @@
         </td>
         <td class="border p-2 hsn-cell"></td>
         <td class="border p-2 rate-cell"></td>
-        <td class="border p-2"><input type="number" class="qty-input w-16 bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" min="1" value="1"></td>
+        <td class="border p-2">
+          <input type="number" class="qty-input w-16 bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" min="1" value="1">
+        </td>
         <td class="border p-2 igst-cell">18</td>
         <td class="border p-2 amount-cell">0.00</td>
-        <td class="border p-2 text-center"><button class="remove-row-btn text-red-400">X</button></td>
+        <td class="border p-2 text-center">
+          <button class="remove-row-btn text-red-400">X</button>
+        </td>
       `;
-
       tbody.appendChild(tr);
+
       const modelSel = tr.querySelector('.model-select');
       const prodSel  = tr.querySelector('.product-selector');
       const remBtn   = tr.querySelector('.remove-row-btn');
 
       modelSel.addEventListener('change', () => {
         if (modelSel.value === '__add_new__') {
-          // handle new entry logic if needed
+          // (new-entry logic if desired)
         } else {
+          // Constant HSN = 8431, rate from sheet
+          const sel = products.find(p => `${p.MODEL} ${p['MODEL NUMBER']}` === modelSel.value) || {};
+          tr.querySelector('.hsn-cell').textContent  = '8431';
+          tr.querySelector('.rate-cell').textContent = sel.PRICE || '';
           prodSel.disabled = false;
-          prodSel.innerHTML = '<option value="">Select Product</option>';
-          products.filter(p => `${p.MODEL} ${p['MODEL NUMBER']}` === modelSel.value)
-            .forEach((p, i) => prodSel.append(new Option(`${p.DEVICE} | ${p.SIZE} ${p['ITEM NAME']}`, i)));
+          prodSel.innerHTML = `<option>${sel.DEVICE} | ${sel.SIZE} ${sel['ITEM NAME']}</option>`;
+          calculateRow(tr);
         }
       });
 
@@ -218,55 +233,67 @@
       const ptb = document.getElementById('previewItems');
       ptb.innerHTML = '';
       document.querySelectorAll('#itemsTable tr').forEach((tr, i) => {
-        const clone = tr.cloneNode(true);
-        Array.from(clone.children).forEach(td => td.textContent = td.textContent.trim());
-        clone.children[0].textContent = i+1;
-        ptb.appendChild(clone);
+        const m = tr.querySelector('.model-select').value;
+        const p = tr.querySelector('.product-selector').selectedOptions[0]?.textContent || '';
+        const h = '8431';
+        const q = tr.querySelector('.qty-input').value;
+        const r = tr.querySelector('.rate-cell').textContent;
+        const g = tr.querySelector('.igst-cell').textContent;
+        const a = tr.querySelector('.amount-cell').textContent;
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="border p-2 text-center">${i+1}</td>
+          <td class="border p-2">${m}</td>
+          <td class="border p-2">${p}</td>
+          <td class="border p-2">${h}</td>
+          <td class="border p-2">${q}</td>
+          <td class="border p-2">${r}</td>
+          <td class="border p-2">${g}</td>
+          <td class="border p-2">${a}</td>
+        `;
+        ptb.appendChild(row);
       });
       calculateTotals();
     }
 
     function calculateTotals() {
-      let sub = 0, gst = 0;
+      let sub=0, gst=0;
       document.querySelectorAll('#previewItems tr').forEach(tr => {
-        const c = tr.children;
-        const q = parseFloat(c[4].textContent) || 0;
-        const r = parseFloat(c[5].textContent) || 0;
-        const i = parseFloat(c[6].textContent) || 0;
-        sub += q * r;
-        gst += q * r * (i/100);
+        const c=tr.children;
+        const q=parseFloat(c[4].textContent)||0;
+        const r=parseFloat(c[5].textContent)||0;
+        const g=parseFloat(c[6].textContent)||0;
+        sub += q*r;
+        gst += q*r*(g/100);
       });
-      const t = sub + gst;
-      const ro = Math.round(t) - t;
+      const total = sub+gst;
+      const ro = Math.round(total) - total;
       document.getElementById('previewSubtotal').textContent  = sub.toFixed(2);
       document.getElementById('previewTotalGST').textContent  = gst.toFixed(2);
       document.getElementById('previewRoundOff').textContent = ro.toFixed(2);
-      document.getElementById('previewGrandTotal').textContent = (t + ro).toFixed(2);
+      document.getElementById('previewGrandTotal').textContent = (total+ro).toFixed(2);
     }
 
     async function saveAndPDF() {
       const invNo = document.getElementById('previewInvoiceNo').textContent;
       const rows = [];
       document.querySelectorAll('#previewItems tr').forEach((tr, i) => {
-        const d = Array.from(tr.children).map(td => td.textContent);
+        const c = Array.from(tr.children).map(td => td.textContent);
         rows.push({
-          'Invoice No': invNo,
-          'Sr.No.': i+1,
-          Model: d[1],
-          Product: d[2],
-          'HSN/SAC': d[3],
-          Qty: d[4],
-          Rate: d[5],
-          'IGST%': d[6],
-          Amount: d[7]
+          'Invoice No': invNo, 'Sr.No.': i+1,
+          Model:c[1], Product:c[2], 'HSN/SAC':c[3],
+          Qty:c[4], Rate:c[5], 'IGST%':c[6], Amount:c[7]
         });
       });
-      const resp = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'addInvoice', invoice: rows }) }).then(r => r.json());
+      const resp = await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action:'addInvoice', invoice: rows })
+      }).then(r=>r.json());
       if (!resp.success) {
-        showToast('Invoice save failed', 'red');
+        showToast('Invoice save failed','red');
         return;
       }
-      html2pdf(document.getElementById('invoicePreview'), { filename: `Invoice_${invNo}.pdf` });
+      html2pdf(document.getElementById('invoicePreview'), { filename:`Invoice_${invNo}.pdf` });
     }
 
     window.onload = init;
