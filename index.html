@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Invoice Generator – Vinayaka Industries</title>
+  <title>voice Generator – Vinayaka Industries</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -229,33 +229,86 @@
       const prodSel  = tr.querySelector('.product-selector');
 
       modelSel.addEventListener('change',()=>{
-        if(modelSel.value==='__add_new__'){
-          // ... existing "__add_new__" logic untouched ...
+        if (modelSel.value === '__add_new__') {
+          // FULL Add-New logic restored unchanged
+          tr.classList.add('new-entry');
+          tr.innerHTML = `
+            <td class="p-2 text-center">${idx+1}</td>
+            <td class="border p-2" colspan="2">
+              <input class="new-model w-full rounded p-1 text-black bg-white" placeholder="Model ModelNumber">
+            </td>
+            <td class="border p-2" colspan="2">
+              <select class="new-device w-full rounded p-1 text-black bg-white">
+                <option value="Swing Device">Swing Device</option>
+                <option value="Travel Device">Travel Device</option>
+              </select>
+            </td>
+            <td class="border p-2" colspan="2">
+              <input class="new-name w-full rounded p-1 text-black bg-white" placeholder="Size ItemName">
+            </td>
+            <td class="border p-2">
+              <input type="number" class="new-rate w-24 rounded p-1 text-black bg-white" placeholder="Rate">
+            </td>
+            <td class="border p-2 text-center">
+              <button class="confirm-add-btn bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 mr-2">Add</button>
+              <button class="cancel-add-btn bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1">Cancel</button>
+            </td>
+          `;
+          tr.querySelector('.cancel-add-btn').addEventListener('click', ()=>{
+            tr.remove();
+            updateAllModelSelects();
+            renderPreview();
+          });
+          tr.querySelector('.confirm-add-btn').addEventListener('click', async ()=>{
+            if (!confirm('Are you sure you want to add this product?')) return;
+            const mIn = tr.querySelector('.new-model').value.trim();
+            const [model, num] = mIn.split(/\s+(?=[^\s]+$)/);
+            const dev  = tr.querySelector('.new-device').value.trim();
+            const nm   = tr.querySelector('.new-name').value.trim();
+            const rate = tr.querySelector('.new-rate').value.trim();
+            const [size, ...item] = nm.split(' ');
+            const resp = await postInvoiceData({
+              action: 'addProduct',
+              MODEL: model,
+              'MODEL NUMBER': num || '',
+              DEVICE: dev,
+              SIZE: size || '',
+              'ITEM NAME': item.join('') || '',
+              PRICE: rate
+            });
+            if (!resp.success) { showToast('Add failed','red'); return; }
+            products.push({ MODEL: model, 'MODEL NUMBER': num||'', DEVICE: dev, SIZE: size||'', 'ITEM NAME': item.join('')||'', PRICE: rate });
+            modelsList.push(`${model} ${num||''}`);
+            showToast('Product added!');
+            replaceNewEntry(tr, `${model} ${num||''}`, `${dev} | ${nm}`, rate);
+          });
         } else {
+          // Existing branch: populate product dropdown
           prodSel.disabled = false;
           prodSel.innerHTML = `<option value="">Select Product</option>` +
-            products.filter(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`===modelSel.value)
-                    .map((p,i)=>`<option value="${i}">${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}</option>`)
-                    .join('');
+            products
+              .filter(p => `${p['MODEL']} ${p['MODEL NUMBER']}` === modelSel.value)
+              .map((p,i) => `<option value="${i}">${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}</option>`)
+              .join('');
         }
         renderPreview();
       });
 
-      prodSel.addEventListener('change',()=>{
-        // NEW: auto-populate rate and HSN when a product is selected
-        const selIdx = parseInt(prodSel.value);
-        const matched = products.filter(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`===modelSel.value);
-        if (!isNaN(selIdx) && matched[selIdx]) {
-          tr.querySelector('.rate-cell').textContent = matched[selIdx]['PRICE'];
+      prodSel.addEventListener('change', ()=>{
+        // NEW: auto-populate rate & HSN
+        const idx = parseInt(prodSel.value);
+        const list = products.filter(p => `${p['MODEL']} ${p['MODEL NUMBER']}` === modelSel.value);
+        if (!isNaN(idx) && list[idx]) {
+          tr.querySelector('.rate-cell').textContent = list[idx]['PRICE'];
           tr.querySelector('.hsn-cell').textContent  = '8413';
         }
         calculateRow(tr);
       });
 
-      tr.querySelector('.qty-input').addEventListener('input',()=>calculateRow(tr));
+      tr.querySelector('.qty-input').addEventListener('input', ()=>calculateRow(tr));
     }
 
-    // ... rest of your functions (replaceNewEntry, calculateRow, renderPreview, etc.) remain unchanged ...
+    // (All other functions—replaceNewEntry, calculateRow, renderPreview, calculateTotals, saveAndPDF—remain exactly as before.)
 
     window.onload = init;
   </script>
