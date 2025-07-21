@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vinayaka Industries - Invoice Generator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Generator – Vinayaka Industries</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'primary-dark-blue': '#0f172a',
+            'secondary-dark-blue': '#1e293b',
+            'accent-blue': '#1d4ed8',
+            'light-blue': '#3b82f6',
+          },
+        },
+      },
+    };
+  </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
   <style>
     /* Hide spinners on number inputs */
     input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button {
-      -webkit-appearance: none; margin: 0;
-    }
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   </style>
 </head>
 <body class="bg-gradient-to-br from-primary-dark-blue to-secondary-dark-blue text-gray-100">
@@ -19,6 +32,7 @@
   <div id="invoiceApp" class="max-w-4xl mx-auto my-10 p-6 bg-gradient-to-br from-secondary-dark-blue/80 to-primary-dark-blue/80 shadow-2xl rounded-2xl">
     <h1 class="text-4xl font-extrabold text-light-blue mb-6">Invoice Generator</h1>
 
+    <!-- Invoice Form -->
     <div id="invoiceForm" class="space-y-6">
       <!-- Customer -->
       <div>
@@ -34,7 +48,7 @@
         <table class="w-full border-collapse text-sm">
           <thead>
             <tr class="bg-accent-blue text-white">
-              <th class="border p-2">Sr.</th>
+              <th class="border p-2">Sr.No.</th>
               <th class="border p-2">Model</th>
               <th class="border p-2">Product</th>
               <th class="border p-2">HSN/SAC</th>
@@ -66,8 +80,9 @@
     <!-- Preview -->
     <div id="invoicePreview" class="mt-10 p-6 bg-secondary-dark-blue/70 border border-accent-blue rounded-2xl shadow-inner text-gray-200">
       <div class="flex justify-between items-center mb-6">
-        <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Logo" class="h-16" />
+        <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Logo" class="h-16">
         <div class="text-right">
+          <h2 class="text-2xl font-bold text-light-blue">VINAYAKA INDUSTRIES</h2>
           <p>No.34, Lakshmipura Main Road</p>
           <p>Chikkabanavara Post, Abigere, Bangalore - 560090</p>
           <p>Mo: +91 9448355315</p>
@@ -88,7 +103,7 @@
       <table class="w-full border-collapse text-sm mb-4">
         <thead>
           <tr class="bg-accent-blue text-white">
-            <th class="border p-2">Sr.</th>
+            <th class="border p-2">Sr.No.</th>
             <th class="border p-2">Model</th>
             <th class="border p-2">Product</th>
             <th class="border p-2">HSN/SAC</th>
@@ -100,29 +115,43 @@
         </thead>
         <tbody id="previewItems"></tbody>
       </table>
-      <div class="text-right text-sm space-y-1">
-        <p>Subtotal: ₹<span id="previewSubtotal"></span></p>
-        <p>Total GST: ₹<span id="previewTotalGST"></span></p>
-        <p>Round Off: ₹<span id="previewRoundOff"></span></p>
-        <p class="font-semibold">Grand Total: ₹<span id="previewGrandTotal"></span></p>
+      <div class="flex justify-end text-sm">
+        <table class="w-1/3 text-right">
+          <tr><td>Sub Total</td><td>₹<span id="previewSubtotal"></span></td></tr>
+          <tr><td>Total GST</td><td>₹<span id="previewTotalGST"></span></td></tr>
+          <tr><td>Round Off</td><td>₹<span id="previewRoundOff"></span></td></tr>
+          <tr class="font-bold bg-primary-dark-blue"><td class="text-light-blue">Grand Total</td><td class="text-light-blue">₹<span id="previewGrandTotal"></span></td></tr>
+        </table>
       </div>
     </div>
   </div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbxL7ahq_PEPbGdqdif1CPbfVDVhL9INsM0-of6W2iI13NwFdqJ5VsUW-vjenu5dfcoZ/exec';
-    let customers = [], products = [], modelsList = [];
 
+    // JSONP GET helper
     function fetchJSONP(params = {}) {
       return new Promise((resolve, reject) => {
         const cb = '__jsonp_cb_' + Date.now();
-        window[cb] = data => { resolve(data); delete window[cb]; };
+        window[cb] = data => { resolve(data); delete window[cb]; script.remove(); };
+        params.callback = cb;
+        const qs = new URLSearchParams(params).toString();
         const script = document.createElement('script');
-        script.src = `${API_URL}?callback=${cb}&` + new URLSearchParams(params).toString();
+        script.src = `${API_URL}?${qs}`;
+        script.onerror = () => reject(new Error('JSONP load error'));
         document.body.appendChild(script);
       });
     }
 
+    // POST helper (simple request)
+    function postInvoiceData(payload) {
+      return fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      }).then(r => r.json());
+    }
+
+    // Toast notifications
     function showToast(msg, color='green') {
       const cont = document.getElementById('toast-container');
       const div = document.createElement('div');
@@ -132,40 +161,42 @@
       setTimeout(() => div.remove(), 3000);
     }
 
-    function buildModelHTML() {
-      modelsList = [...new Set(products.map(p => `${p.MODEL} ${p['MODEL NUMBER']}`))];
-      return '<option value="">Select Model</option>' +
-        modelsList.map(m => `<option value="${m}">${m}</option>`).join('') +
-        '<option value="__add_new__">➕ Add New</option>';
-    }
+    let customers = [], products = [], modelsList = [];
 
     async function init() {
-      // Load data
-      customers = await fetchJSONP({ action: 'getCustomers' });
-      products  = await fetchJSONP({ action: 'getProducts' });
-
-      // Populate customers
+      customers = await fetchJSONP({ action:'getCustomers' });
       const custSel = document.getElementById('customerSelect');
-      customers.forEach(c => custSel.add(new Option(c['Customer Name'], c['Customer Name'])));
+      customers.forEach(c=>custSel.add(new Option(c['Customer Name'],c['Customer Name'])));
       custSel.addEventListener('change', onCustomer);
 
-      // Buttons
+      products = await fetchJSONP({ action:'getProducts' });
+      modelsList = [...new Set(products.map(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`))];
+
+      const invNo = await fetchJSONP({ action:'getNextInvoiceNo' });
+      document.getElementById('previewInvoiceNo').textContent = invNo;
+      document.getElementById('previewDate').textContent      = new Date().toLocaleDateString('en-IN');
+
       document.getElementById('addItemBtn').addEventListener('click', addItemRow);
       document.getElementById('saveInvoiceBtn').addEventListener('click', saveAndPDF);
-      document.getElementById('resetBtn').addEventListener('click', () => location.reload());
-
-      // Invoice No & Date
-      const invNo = await fetchJSONP({ action: 'getNextInvoiceNo' });
-      document.getElementById('previewInvoiceNo').textContent = invNo;
-      document.getElementById('previewDate').textContent = new Date().toLocaleDateString('en-IN');
+      document.getElementById('resetBtn').addEventListener('click',()=>location.reload());
     }
 
     function onCustomer() {
-      const c = customers.find(x => x['Customer Name'] === this.value) || {};
+      const c = customers.find(x=>x['Customer Name']===this.value) || {};
       document.getElementById('previewCustomer').textContent = c['Customer Name'] || '';
       document.getElementById('previewAddress').textContent  = c['Address'] || '';
       document.getElementById('previewContact').textContent  = c['contact'] || '';
       document.getElementById('previewGSTIN').textContent    = c['Customer GSTIN'] || '';
+    }
+
+    function updateAllModelSelects() {
+      document.querySelectorAll('.model-select').forEach(sel => {
+        const cur = sel.value;
+        sel.innerHTML = `<option value="">Select Model</option>` +
+          modelsList.map(m=>`<option value="${m}">${m}</option>`).join('') +
+          `<option value="__add_new__">➕ Add New</option>`;
+        sel.value = cur;
+      });
     }
 
     function addItemRow() {
@@ -176,7 +207,9 @@
         <td class="border p-2 text-center">${idx+1}</td>
         <td class="border p-2">
           <select class="model-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">
-            ${buildModelHTML()}
+            <option value="">Select Model</option>
+            ${modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')}
+            <option value="__add_new__">➕ Add New</option>
           </select>
         </td>
         <td class="border p-2">
@@ -186,117 +219,135 @@
         </td>
         <td class="border p-2 hsn-cell"></td>
         <td class="border p-2 rate-cell"></td>
-        <td class="border p-2">
-          <input type="number" class="qty-input w-16 bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" min="1" value="1">
-        </td>
+        <td class="border p-2"><input type="number" class="qty-input w-16 bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" min="1" value="1"></td>
         <td class="border p-2 igst-cell">18</td>
         <td class="border p-2 amount-cell">0.00</td>
-        <td class="border p-2 text-center">
-          <button class="remove-row-btn text-red-400">X</button>
-        </td>
+        <td class="border p-2 text-center"><button class="remove-row-btn text-red-400">X</button></td>
       `;
-      tbody.appendChild(tr);
+      tbody.append(tr);
 
       const modelSel = tr.querySelector('.model-select');
       const prodSel  = tr.querySelector('.product-selector');
       const remBtn   = tr.querySelector('.remove-row-btn');
 
-      modelSel.addEventListener('change', () => {
-        if (modelSel.value === '__add_new__') {
-          // (new-entry logic if desired)
-        } else {
-          // Constant HSN = 8431, rate from sheet
-          const sel = products.find(p => `${p.MODEL} ${p['MODEL NUMBER']}` === modelSel.value) || {};
-          tr.querySelector('.hsn-cell').textContent  = '8431';
-          tr.querySelector('.rate-cell').textContent = sel.PRICE || '';
-          prodSel.disabled = false;
-          prodSel.innerHTML = `<option>${sel.DEVICE} | ${sel.SIZE} ${sel['ITEM NAME']}</option>`;
-          calculateRow(tr);
+      modelSel.addEventListener('change',()=>{
+        if(modelSel.value==='__add_new__'){
+          tr.classList.add('new-entry');
+          tr.innerHTML=`
+            <td class="border p-2 text-center">${idx+1}</td>
+            <td class="border p-2" colspan="2"><input class="new-model w-full rounded p-1 text-black bg-white" placeholder="Model ModelNumber"></td>
+            <td class="border p-2" colspan="2"><input class="new-device w-full rounded p-1 text-black bg-white" placeholder="Device"></td>
+            <td class="border p-2" colspan="2"><input class="new-name w-full rounded p-1 text-black bg-white" placeholder="Size ItemName"></td>
+            <td class="border p-2"><input type="number" class="new-rate w-24 rounded p-1 text-black bg-white" placeholder="Rate"></td>
+            <td class="border p-2 text-center">
+              <button class="confirm-add-btn bg-green-500 hover:bg-green-600 text-white rounded px-2 py-1 mr-2">Add</button>
+              <button class="cancel-add-btn bg-red-500 hover:bg-red-600 text-white rounded px-2 py-1">Cancel</button>
+            </td>
+          `;
+          tr.querySelector('.cancel-add-btn').addEventListener('click',()=>{ tr.remove(); updateAllModelSelects(); renderPreview(); });
+          tr.querySelector('.confirm-add-btn').addEventListener('click',async()=>{
+            if(!confirm('Are you sure you want to add this product?')) return;
+            const mIn = tr.querySelector('.new-model').value.trim();
+            const [model,num] = mIn.split(/\s+(?=[^\s]+$)/);
+            const dev  = tr.querySelector('.new-device').value.trim();
+            const nm   = tr.querySelector('.new-name').value.trim();
+            const rate = tr.querySelector('.new-rate').value.trim();
+            const [size,...item]=nm.split(' ');
+            const resp = await postInvoiceData({ action:'addProduct', MODEL:model, 'MODEL NUMBER':num||'', DEVICE:dev, SIZE:size||'', 'ITEM NAME':item.join(' ')||'', PRICE:rate });
+            if(!resp.success){ showToast('Add failed','red'); return; }
+            // update arrays
+            products.push({ MODEL:model, 'MODEL NUMBER':num||'', DEVICE:dev, SIZE:size||'', 'ITEM NAME':item.join(' ')||'', PRICE:rate });
+            modelsList.push(`${model} ${num||''}`);
+            showToast('Product added!');
+            // transform row into normal select row
+            replaceNewEntry(tr,`${model} ${num||''}`,`${dev} | ${nm}`,num||'',rate);
+          });
+        }else{
+          prodSel.disabled=false;
+          prodSel.innerHTML='<option value="">Select Product</option>';
+          products.filter(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`===modelSel.value)
+            .forEach((p,i)=>prodSel.append(new Option(`${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}`,i)));
         }
       });
 
-      prodSel.addEventListener('change', () => calculateRow(tr));
-      tr.querySelector('.qty-input').addEventListener('input', () => calculateRow(tr));
-      remBtn.addEventListener('click', () => { tr.remove(); renderPreview(); });
+      prodSel.addEventListener('change',()=>{ calculateRow(tr); });
+      tr.querySelector('.qty-input').addEventListener('input',()=>calculateRow(tr));
+      remBtn.addEventListener('click',()=>{ tr.remove(); updateAllModelSelects(); renderPreview(); });
     }
 
-    function calculateRow(tr) {
-      const q   = parseFloat(tr.querySelector('.qty-input').value) || 0;
-      const r   = parseFloat(tr.querySelector('.rate-cell').textContent)  || 0;
-      const i   = parseFloat(tr.querySelector('.igst-cell').textContent)  || 0;
-      const amt = q * r * (1 + i/100);
+    function replaceNewEntry(tr,modelStr,prodStr,hsn,rate){
+      const idx = Array.from(tr.parentNode.children).indexOf(tr);
+      tr.innerHTML=`
+        <td class="border p-2 text-center">${idx+1}</td>
+        <td class="border p-2"><select class="model-select w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100">${modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')}</select></td>
+        <td class="border p-2"><select class="product-selector w-full bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100"><option>${prodStr}</option></select></td>
+        <td class="border p-2 hsn-cell">${hsn}</td>
+        <td class="border p-2 rate-cell">${rate}</td>
+        <td class="border p-2"><input type="number" class="qty-input w-16 bg-secondary-dark-blue border border-accent-blue rounded p-1 text-gray-100" min="1" value="1"></td>
+        <td class="border p-2 igst-cell">18</td>
+        <td class="border p-2 amount-cell">0.00</td>
+        <td class="border p-2 text-center"><button class="remove-row-btn text-red-400">X</button></td>
+      `;
+      // re-bind events
+      tr.querySelector('.model-select').value = modelStr;
+      tr.querySelector('.model-select').addEventListener('change',()=>{});
+      const remBtn = tr.querySelector('.remove-row-btn');
+      remBtn.addEventListener('click',()=>{ tr.remove(); updateAllModelSelects(); renderPreview(); });
+      tr.querySelector('.qty-input').addEventListener('input',()=>calculateRow(tr));
+      updateAllModelSelects();
+      calculateRow(tr);
+    }
+
+    function calculateRow(tr){
+      const q = parseFloat(tr.querySelector('.qty-input').value)||0;
+      const r = parseFloat(tr.querySelector('.rate-cell').textContent)||0;
+      const i = parseFloat(tr.querySelector('.igst-cell').textContent)||0;
+      const amt = q*r*(1+i/100);
       tr.querySelector('.amount-cell').textContent = amt.toFixed(2);
       renderPreview();
     }
 
-    function renderPreview() {
-      const ptb = document.getElementById('previewItems');
-      ptb.innerHTML = '';
-      document.querySelectorAll('#itemsTable tr').forEach((tr, i) => {
-        const m = tr.querySelector('.model-select').value;
-        const p = tr.querySelector('.product-selector').selectedOptions[0]?.textContent || '';
-        const h = '8431';
-        const q = tr.querySelector('.qty-input').value;
-        const r = tr.querySelector('.rate-cell').textContent;
-        const g = tr.querySelector('.igst-cell').textContent;
-        const a = tr.querySelector('.amount-cell').textContent;
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td class="border p-2 text-center">${i+1}</td>
-          <td class="border p-2">${m}</td>
-          <td class="border p-2">${p}</td>
-          <td class="border p-2">${h}</td>
-          <td class="border p-2">${q}</td>
-          <td class="border p-2">${r}</td>
-          <td class="border p-2">${g}</td>
-          <td class="border p-2">${a}</td>
-        `;
-        ptb.appendChild(row);
+    function renderPreview(){
+      const tb = document.getElementById('previewItems'); tb.innerHTML='';
+      document.querySelectorAll('#itemsTable tr').forEach((tr,i)=>{
+        const clone = tr.cloneNode(true);
+        Array.from(clone.children).forEach(td=>td.textContent = td.textContent.trim());
+        clone.children[0].textContent = i+1;
+        tb.append(clone);
       });
       calculateTotals();
     }
 
-    function calculateTotals() {
-      let sub=0, gst=0;
-      document.querySelectorAll('#previewItems tr').forEach(tr => {
+    function calculateTotals(){
+      let sub=0,gst=0;
+      document.querySelectorAll('#previewItems tr').forEach(tr=>{
         const c=tr.children;
         const q=parseFloat(c[4].textContent)||0;
         const r=parseFloat(c[5].textContent)||0;
-        const g=parseFloat(c[6].textContent)||0;
-        sub += q*r;
-        gst += q*r*(g/100);
+        const i=parseFloat(c[6].textContent)||0;
+        sub+=q*r; gst+=q*r*(i/100);
       });
-      const total = sub+gst;
-      const ro = Math.round(total) - total;
-      document.getElementById('previewSubtotal').textContent  = sub.toFixed(2);
-      document.getElementById('previewTotalGST').textContent  = gst.toFixed(2);
-      document.getElementById('previewRoundOff').textContent = ro.toFixed(2);
-      document.getElementById('previewGrandTotal').textContent = (total+ro).toFixed(2);
+      const t=sub+gst,ro=Math.round(t)-t;
+      document.getElementById('previewSubtotal').textContent=sub.toFixed(2);
+      document.getElementById('previewTotalGST').textContent=gst.toFixed(2);
+      document.getElementById('previewRoundOff').textContent=ro.toFixed(2);
+      document.getElementById('previewGrandTotal').textContent=(t+ro).toFixed(2);
     }
 
-    async function saveAndPDF() {
+    async function saveAndPDF(){
+      // build invoice rows from preview
       const invNo = document.getElementById('previewInvoiceNo').textContent;
-      const rows = [];
-      document.querySelectorAll('#previewItems tr').forEach((tr, i) => {
-        const c = Array.from(tr.children).map(td => td.textContent);
-        rows.push({
-          'Invoice No': invNo, 'Sr.No.': i+1,
-          Model:c[1], Product:c[2], 'HSN/SAC':c[3],
-          Qty:c[4], Rate:c[5], 'IGST%':c[6], Amount:c[7]
-        });
+      const rows=[];
+      document.querySelectorAll('#previewItems tr').forEach((tr,i)=>{
+        const d=Array.from(tr.children).map(td=>td.textContent);
+        rows.push({ 'Invoice No':invNo,'Sr.No.':i+1,Model:d[1],Product:d[2],'HSN/SAC':d[3],Qty:d[4],Rate:d[5],'IGST%':d[6],Amount:d[7] });
       });
-      const resp = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action:'addInvoice', invoice: rows })
-      }).then(r=>r.json());
-      if (!resp.success) {
-        showToast('Invoice save failed','red');
-        return;
-      }
-      html2pdf(document.getElementById('invoicePreview'), { filename:`Invoice_${invNo}.pdf` });
+      const resp = await postInvoiceData({action:'addInvoice',invoice:rows});
+      if(!resp.success){showToast('Invoice save failed','red');return;}
+      html2pdf(document.getElementById('invoicePreview'),{filename:`Invoice_${invNo}.pdf`});
     }
 
-    window.onload = init;
+    window.onload=init;
   </script>
 </body>
 </html>
