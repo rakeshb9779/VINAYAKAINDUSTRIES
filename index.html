@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice Generator – Vinayaka Industries</title>
+  
+  <!-- External Dependencies -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  
+  <!-- Tailwind Configuration -->
   <script>
     tailwind.config = {
       theme: {
@@ -14,272 +19,437 @@
             'secondary-dark-blue': '#1e293b',
             'accent-blue': '#1d4ed8',
             'light-blue': '#3b82f6',
-            'navy': '#1e3a8a',
-            'slate': '#334155',
-            'primary': '#0ea5e9',
-            'secondary': '#06b6d4',
           },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-in-out',
-            'slide-up': 'slideUp 0.3s ease-out',
-            'bounce-gentle': 'bounceGentle 0.6s ease-in-out',
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0', transform: 'translateY(10px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' },
-            },
-            slideUp: {
-              '0%': { transform: 'translateY(20px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' },
-            },
-            bounceGentle: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-5px)' },
-            },
-          },
-          backdropBlur: {
-            'xs': '2px',
-          },
-          boxShadow: {
-            'elegant': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-            'inner-elegant': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
-            'glow': '0 0 20px rgba(59, 130, 246, 0.3)',
+          fontFamily: {
+            'inter': ['Inter', 'system-ui', 'sans-serif'],
           },
         },
       },
     };
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
+  
   <style>
-    /* Hide spinners on number inputs */
-    input[type=number]::-webkit-outer-spin-button,
-    input[type=number]::-webkit-inner-spin-button {
-      -webkit-appearance: none; 
+    /* CSS Reset and Base Styles */
+    * {
+      box-sizing: border-box;
+    }
+    
+    /* Custom Properties for Design System */
+    :root {
+      --primary-dark-blue: #0f172a;
+      --secondary-dark-blue: #1e293b;
+      --accent-blue: #1d4ed8;
+      --light-blue: #3b82f6;
+      --success-green: #10b981;
+      --warning-yellow: #f59e0b;
+      --error-red: #ef4444;
+      --border-radius-sm: 0.5rem;
+      --border-radius-md: 0.75rem;
+      --border-radius-lg: 1rem;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      --transition-fast: 0.15s ease-in-out;
+      --transition-normal: 0.3s ease-in-out;
+    }
+    
+    /* Typography Improvements */
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Remove Number Input Spinners */
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button {
+      -webkit-appearance: none;
       margin: 0;
     }
-
-    /* Custom scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
+    
+    input[type="number"] {
+      -moz-appearance: textfield;
     }
-    ::-webkit-scrollbar-track {
-      background: #1e293b;
-      border-radius: 4px;
+    
+    /* Enhanced Form Controls */
+    .form-control {
+      transition: all var(--transition-fast);
+      border: 2px solid transparent;
     }
-    ::-webkit-scrollbar-thumb {
-      background: #3b82f6;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #1d4ed8;
-    }
-
-    /* Smooth transitions */
-    * {
-      transition: all 0.2s ease-in-out;
-    }
-
-    /* Glass morphism effect */
-    .glass {
-      backdrop-filter: blur(10px);
-      background: rgba(30, 41, 59, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* Hover effects */
-    .hover-lift:hover {
-      transform: translateY(-2px);
-    }
-
-    /* Focus effects */
-    .focus-ring:focus {
+    
+    .form-control:focus {
       outline: none;
-      ring-width: 2px;
-      ring-color: rgb(59 130 246);
-      ring-offset-width: 2px;
-      ring-offset-color: rgb(15 23 42);
+      border-color: var(--light-blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      transform: translateY(-1px);
     }
-
-    /* Button press animation */
-    .btn-press:active {
-      transform: scale(0.98);
+    
+    .form-control:hover {
+      border-color: rgba(59, 130, 246, 0.3);
     }
-
-    /* Gradient text */
-    .gradient-text {
-      background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    
+    /* Enhanced Buttons */
+    .btn {
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition-normal);
+      transform: translateY(0);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left var(--transition-normal);
+    }
+    
+    .btn:hover::before {
+      left: 100%;
+    }
+    
+    /* Enhanced Table Styles */
+    .invoice-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .invoice-table thead th {
+      background: linear-gradient(135deg, var(--accent-blue), var(--light-blue));
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      padding: 1rem 0.75rem;
+      border: none;
+    }
+    
+    .invoice-table tbody td {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 0.75rem;
+      transition: background-color var(--transition-fast);
+    }
+    
+    .invoice-table tbody tr:hover td {
+      background: rgba(30, 41, 59, 1);
+    }
+    
+    /* Loading States */
+    .loading {
+      opacity: 0.7;
+      pointer-events: none;
+      position: relative;
+    }
+    
+    .loading::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid var(--light-blue);
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Enhanced Toast Notifications */
+    .toast {
+      animation: slideInRight 0.3s ease-out, slideOutRight 0.3s ease-in 2.7s forwards;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+    
+    /* Preview Section Enhancements */
+    .preview-section {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.8));
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    
+    /* Logo Enhancement */
+    .company-logo {
+      transition: transform var(--transition-normal);
+    }
+    
+    .company-logo:hover {
+      transform: scale(1.05);
+    }
+    
+    /* Responsive Improvements */
+    @media (max-width: 768px) {
+      .invoice-table {
+        font-size: 0.75rem;
+      }
+      
+      .invoice-table th,
+      .invoice-table td {
+        padding: 0.5rem 0.25rem;
+      }
+      
+      .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+      }
+    }
+    
+    /* Accessibility Improvements */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
+    /* Focus Indicators */
+    .focus-visible:focus {
+      outline: 2px solid var(--light-blue);
+      outline-offset: 2px;
     }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-primary-dark-blue to-navy text-gray-100 font-sans">
-  <!-- Animated background elements -->
-  <div class="fixed inset-0 overflow-hidden pointer-events-none">
-    <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+
+<body class="bg-gradient-to-br from-primary-dark-blue via-secondary-dark-blue to-primary-dark-blue text-gray-100 min-h-screen">
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+  
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 hidden">
+    <div class="bg-secondary-dark-blue rounded-lg p-6 flex items-center space-x-4">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-light-blue"></div>
+      <span class="text-gray-200 font-medium">Processing...</span>
+    </div>
   </div>
 
-  <!-- Toast Container -->
-  <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-3"></div>
-
   <!-- Main Container -->
-  <div id="invoiceApp" class="relative max-w-7xl mx-auto my-8 p-8 glass rounded-3xl shadow-elegant animate-fade-in">
-    <!-- Header -->
-    <div class="text-center mb-12">
-      <h1 class="text-6xl font-black gradient-text mb-4 tracking-tight">Invoice Generator</h1>
-      <div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto rounded-full"></div>
-      <p class="text-gray-400 mt-4 text-lg">Professional Invoice Management System</p>
-    </div>
+  <div id="invoiceApp" class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <header class="text-center mb-8">
+      <h1 class="text-5xl font-extrabold bg-gradient-to-r from-light-blue via-cyan-400 to-blue-500 bg-clip-text text-transparent mb-2">
+        Invoice Generator
+      </h1>
+      <p class="text-gray-400 text-lg">Professional Invoice Management System</p>
+    </header>
 
-    <!-- Invoice Form -->
-    <div id="invoiceForm" class="space-y-8 animate-slide-up">
-      <!-- Customer Section -->
-      <div class="glass p-6 rounded-2xl shadow-inner-elegant hover-lift">
-        <div class="flex items-center mb-4">
-          <div class="w-3 h-8 bg-gradient-to-b from-primary to-secondary rounded-full mr-3"></div>
-          <label for="customerSelect" class="block text-xl font-bold text-gray-200">Customer Information</label>
+    <!-- Main Content Card -->
+    <div class="bg-gradient-to-br from-secondary-dark-blue/90 to-primary-dark-blue/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-accent-blue/20 overflow-hidden">
+      
+      <!-- Invoice Form Section -->
+      <div id="invoiceForm" class="p-8">
+        <h2 class="text-2xl font-bold text-light-blue mb-6 flex items-center">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Invoice Details
+        </h2>
+
+        <!-- Customer Selection -->
+        <div class="mb-8">
+          <label for="customerSelect" class="block text-gray-200 font-semibold mb-3 text-lg">
+            Select Customer
+          </label>
+          <select id="customerSelect" 
+                  class="form-control w-full bg-secondary-dark-blue border-2 border-accent-blue/50 rounded-xl p-4 text-gray-100 text-lg focus:border-light-blue">
+            <option value="">-- SELECT Customer --</option>
+          </select>
         </div>
-        <select id="customerSelect" class="w-full bg-slate/50 border-2 border-slate-600 hover:border-primary focus:border-secondary rounded-xl p-4 text-gray-100 focus-ring transition-all duration-300 text-lg font-medium">
-          <option value="">-- SELECT Customer --</option>
-        </select>
-      </div>
 
-      <!-- Items Section -->
-      <div class="glass p-6 rounded-2xl shadow-inner-elegant hover-lift">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center">
-            <div class="w-3 h-8 bg-gradient-to-b from-primary to-secondary rounded-full mr-3"></div>
-            <label class="block text-xl font-bold text-gray-200">Invoice Items</label>
-          </div>
-          <button id="addItemBtn" class="group bg-gradient-to-r from-emerald-500 via-primary to-secondary hover:from-emerald-600 hover:via-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:shadow-glow btn-press transform hover:scale-105 transition-all duration-300">
-            <span class="flex items-center gap-2">
-              <svg class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        <!-- Items Section -->
+        <div class="mb-8">
+          <div class="flex items-center justify-between mb-4">
+            <label class="text-gray-200 font-semibold text-lg flex items-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
               </svg>
-              Add Item
+              Invoice Items
+            </label>
+            <button id="addItemBtn" 
+                    class="btn bg-gradient-to-r from-light-blue to-cyan-400 text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all">
+              <span class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                Add Item
+              </span>
+            </button>
+          </div>
+          
+          <div class="overflow-x-auto rounded-xl">
+            <table class="invoice-table w-full">
+              <thead>
+                <tr>
+                  <th class="text-center">Sr.No.</th>
+                  <th>Model</th>
+                  <th>Product</th>
+                  <th>HSN/SAC</th>
+                  <th>Rate</th>
+                  <th>Qty</th>
+                  <th>IGST%</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody id="itemsTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 mt-8">
+          <button id="saveInvoiceBtn" 
+                  class="btn flex-1 bg-gradient-to-r from-green-500 to-emerald-400 text-white px-6 py-4 rounded-xl font-semibold text-lg shadow-lg">
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Save & Generate PDF
+            </span>
+          </button>
+          <button id="resetBtn" 
+                  class="btn flex-1 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-6 py-4 rounded-xl font-semibold text-lg shadow-lg">
+            <span class="flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              Reset Form
             </span>
           </button>
         </div>
+      </div>
+
+      <!-- Invoice Preview Section -->
+      <div id="invoicePreview" class="preview-section mx-8 mb-8 p-8 rounded-2xl">
+        <h2 class="text-2xl font-bold text-light-blue mb-6 flex items-center">
+          <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          Invoice Preview
+        </h2>
         
-        <div class="overflow-x-auto rounded-xl border-2 border-slate-600">
-          <table class="w-full border-collapse text-sm">
+        <!-- Company Header -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 pb-6 border-b border-accent-blue/30">
+          <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" 
+               alt="Vinayaka Industries Logo" 
+               class="company-logo h-20 w-auto mb-4 lg:mb-0 rounded-lg shadow-lg">
+          <div class="text-left lg:text-right">
+            <h3 class="text-3xl font-bold text-light-blue mb-2">VINAYAKA INDUSTRIES</h3>
+            <div class="text-gray-300 space-y-1">
+              <p>No.34, Lakshmipura Main Road</p>
+              <p>Chikkabanavara Post, Abigere, Bangalore - 560090</p>
+              <p class="font-semibold">Mo: +91 9448355315</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Invoice & Customer Details -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div class="space-y-3">
+            <h4 class="text-lg font-semibold text-light-blue mb-4">Bill To:</h4>
+            <div class="space-y-2 text-gray-300">
+              <p><span class="font-semibold text-gray-100">M/s:</span> <span id="previewCustomer" class="text-cyan-400"></span></p>
+              <p><span class="font-semibold text-gray-100">Address:</span> <span id="previewAddress"></span></p>
+              <p><span class="font-semibold text-gray-100">Contact:</span> <span id="previewContact"></span></p>
+              <p><span class="font-semibold text-gray-100">GSTIN:</span> <span id="previewGSTIN"></span></p>
+            </div>
+          </div>
+          <div class="text-left lg:text-right space-y-3">
+            <h4 class="text-lg font-semibold text-light-blue mb-4">Invoice Details:</h4>
+            <div class="space-y-2 text-gray-300">
+              <p><span class="font-semibold text-gray-100">Invoice No:</span> <span id="previewInvoiceNo" class="text-cyan-400 font-mono"></span></p>
+              <p><span class="font-semibold text-gray-100">Date:</span> <span id="previewDate" class="font-mono"></span></p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Items Table -->
+        <div class="overflow-x-auto rounded-xl mb-6">
+          <table class="invoice-table w-full">
             <thead>
-              <tr class="bg-gradient-to-r from-navy to-accent-blue text-white">
-                <th class="border border-slate-600 p-4 font-bold text-center">Sr.No.</th>
-                <th class="border border-slate-600 p-4 font-bold">Model</th>
-                <th class="border border-slate-600 p-4 font-bold">Product</th>
-                <th class="border border-slate-600 p-4 font-bold">HSN/SAC</th>
-                <th class="border border-slate-600 p-4 font-bold">Rate</th>
-                <th class="border border-slate-600 p-4 font-bold">Qty</th>
-                <th class="border border-slate-600 p-4 font-bold">IGST%</th>
-                <th class="border border-slate-600 p-4 font-bold">Amount</th>
+              <tr>
+                <th class="text-center">Sr.No.</th>
+                <th>Model</th>
+                <th>Product</th>
+                <th>HSN/SAC</th>
+                <th>Qty</th>
+                <th>Rate</th>
+                <th>IGST%</th>
+                <th>Amount</th>
               </tr>
             </thead>
-            <tbody id="itemsTable" class="bg-slate-800/50"></tbody>
+            <tbody id="previewItems"></tbody>
           </table>
         </div>
-      </div>
-
-      <!-- Action Buttons -->
-      <div class="flex gap-6 pt-4">
-        <button id="saveInvoiceBtn" class="group flex-1 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white px-8 py-4 rounded-2xl font-bold shadow-elegant hover:shadow-glow btn-press transform hover:scale-105 transition-all duration-300">
-          <span class="flex items-center justify-center gap-3 text-lg">
-            <svg class="w-6 h-6 group-hover:animate-bounce-gentle" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 0V6a2 2 0 00-2-2H10a2 2 0 00-2 2v1m1 0h4m-4 0a2 2 0 002 2v3a2 2 0 01-2 2H9a2 2 0 01-2-2v-3a2 2 0 012-2h2z"></path>
-            </svg>
-            Save & Generate PDF
-          </span>
-        </button>
-        <button id="resetBtn" class="group flex-1 bg-gradient-to-r from-gray-600 to-slate-700 hover:from-gray-700 hover:to-slate-800 text-white px-8 py-4 rounded-2xl font-bold shadow-elegant hover:shadow-xl btn-press transform hover:scale-105 transition-all duration-300">
-          <span class="flex items-center justify-center gap-3 text-lg">
-            <svg class="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0V9a8 8 0 1115.356 2m-15.356-2H9"></path>
-            </svg>
-            Reset Form
-          </span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Invoice Preview -->
-    <div id="invoicePreview" class="mt-12 p-8 glass rounded-2xl shadow-inner-elegant animate-slide-up border-2 border-slate-600/50">
-      <!-- Header -->
-      <div class="flex justify-between items-start mb-8 p-6 bg-gradient-to-r from-slate-800/50 to-slate-700/50 rounded-xl">
-        <div class="flex items-center gap-4">
-          <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Logo" class="h-20 w-20 object-contain rounded-lg shadow-lg border-2 border-primary/20">
-        </div>
-        <div class="text-right">
-          <h2 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary mb-2">VINAYAKA INDUSTRIES</h2>
-          <div class="text-gray-300 space-y-1 text-sm">
-            <p class="font-medium">No.34, Lakshmipura Main Road</p>
-            <p class="font-medium">Chikkabanavara Post, Abigere, Bangalore - 560090</p>
-            <p class="font-semibold text-primary">Mo: +91 9448355315</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Customer & Invoice Details -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div class="space-y-3 p-6 bg-slate-800/30 rounded-xl border border-slate-600/50">
-          <h3 class="text-lg font-bold text-primary mb-4 border-b border-primary/30 pb-2">Bill To:</h3>
-          <div class="space-y-2 text-sm">
-            <p><span class="font-semibold text-gray-400 w-20 inline-block">M/s:</span> <span id="previewCustomer" class="text-gray-200 font-medium"></span></p>
-            <p><span class="font-semibold text-gray-400 w-20 inline-block">Address:</span> <span id="previewAddress" class="text-gray-200"></span></p>
-            <p><span class="font-semibold text-gray-400 w-20 inline-block">Contact:</span> <span id="previewContact" class="text-gray-200"></span></p>
-            <p><span class="font-semibold text-gray-400 w-20 inline-block">GSTIN:</span> <span id="previewGSTIN" class="text-gray-200 font-mono"></span></p>
-          </div>
-        </div>
-        <div class="space-y-3 p-6 bg-slate-800/30 rounded-xl border border-slate-600/50">
-          <h3 class="text-lg font-bold text-secondary mb-4 border-b border-secondary/30 pb-2">Invoice Details:</h3>
-          <div class="space-y-2 text-sm">
-            <p><span class="font-semibold text-gray-400">Invoice No:</span> <span id="previewInvoiceNo" class="text-gray-200 font-bold text-lg text-primary"></span></p>
-            <p><span class="font-semibold text-gray-400">Date:</span> <span id="previewDate" class="text-gray-200 font-medium"></span></p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Items Table -->
-      <div class="overflow-x-auto rounded-xl border-2 border-slate-600/50 mb-8">
-        <table class="w-full border-collapse text-sm">
-          <thead>
-            <tr class="bg-gradient-to-r from-navy via-accent-blue to-primary text-white">
-              <th class="border border-slate-500 p-4 font-bold">Sr.No.</th>
-              <th class="border border-slate-500 p-4 font-bold">Model</th>
-              <th class="border border-slate-500 p-4 font-bold">Product</th>
-              <th class="border border-slate-500 p-4 font-bold">HSN/SAC</th>
-              <th class="border border-slate-500 p-4 font-bold">Qty</th>
-              <th class="border border-slate-500 p-4 font-bold">Rate</th>
-              <th class="border border-slate-500 p-4 font-bold">IGST%</th>
-              <th class="border border-slate-500 p-4 font-bold">Amount</th>
-            </tr>
-          </thead>
-          <tbody id="previewItems" class="bg-slate-800/20"></tbody>
-        </table>
-      </div>
-
-      <!-- Totals Section -->
-      <div class="flex justify-end">
-        <div class="w-full md:w-1/2 lg:w-1/3">
-          <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 border-2 border-slate-600/50 shadow-elegant">
-            <table class="w-full text-right text-sm space-y-2">
-              <tr class="border-b border-slate-600 pb-2">
-                <td class="py-2 text-gray-400 font-medium">Sub Total</td>
-                <td class="py-2 text-gray-200 font-bold">₹<span id="previewSubtotal"></span></td>
+        
+        <!-- Totals Section -->
+        <div class="flex justify-end">
+          <div class="bg-primary-dark-blue/50 rounded-xl p-6 border border-accent-blue/30">
+            <table class="text-right text-gray-300">
+              <tr class="border-b border-gray-600">
+                <td class="py-2 pr-8">Sub Total</td>
+                <td class="py-2 font-mono">₹<span id="previewSubtotal">0.00</span></td>
               </tr>
-              <tr class="border-b border-slate-600 pb-2">
-                <td class="py-2 text-gray-400 font-medium">Total GST</td>
-                <td class="py-2 text-gray-200 font-bold">₹<span id="previewTotalGST"></span></td>
+              <tr class="border-b border-gray-600">
+                <td class="py-2 pr-8">Total GST</td>
+                <td class="py-2 font-mono">₹<span id="previewTotalGST">0.00</span></td>
               </tr>
-              <tr class="border-b border-slate-600 pb-2">
-                <td class="py-2 text-gray-400 font-medium">Round Off</td>
-                <td class="py-2 text-gray-200 font-bold">₹<span id="previewRoundOff"></span></td>
+              <tr class="border-b border-gray-600">
+                <td class="py-2 pr-8">Round Off</td>
+                <td class="py-2 font-mono">₹<span id="previewRoundOff">0.00</span></td>
               </tr>
-              <tr class="bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg">
-                <td class="py-4 px-4 text-primary font-bold text-lg">Grand Total</td>
-                <td class="py-4 px-4 text-primary font-black text-xl">₹<span id="previewGrandTotal"></span></td>
+              <tr class="text-xl font-bold text-light-blue">
+                <td class="py-3 pr-8">Grand Total</td>
+                <td class="py-3 font-mono">₹<span id="previewGrandTotal">0.00</span></td>
               </tr>
             </table>
           </div>
@@ -289,321 +459,776 @@
   </div>
 
   <script>
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxL7ahq_PEPbGdqdif1CPbfVDVhL9INsM0-of6W2iI13NwFdqJ5VsUW-vjenu5dfcoZ/exec';
+    // =======================
+    // Application State & Configuration
+    // =======================
+    const CONFIG = {
+      API_URL: 'https://script.google.com/macros/s/AKfycbxL7ahq_PEPbGdqdif1CPbfVDVhL9INsM0-of6W2iI13NwFdqJ5VsUW-vjenu5dfcoZ/exec',
+      TOAST_DURATION: 3000,
+      DEBOUNCE_DELAY: 300
+    };
 
+    const appState = {
+      customers: [],
+      products: [],
+      modelsList: [],
+      currentInvoiceNumber: '',
+      isLoading: false
+    };
+
+    // =======================
+    // Utility Functions
+    // =======================
+    
+    /**
+     * Debounce function to limit API calls
+     */
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    /**
+     * Show loading state
+     */
+    function showLoading() {
+      appState.isLoading = true;
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+
+    /**
+     * Hide loading state
+     */
+    function hideLoading() {
+      appState.isLoading = false;
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+
+    /**
+     * Enhanced toast notification system
+     */
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        warning: 'bg-yellow-500',
+        info: 'bg-blue-500'
+      };
+
+      const icons = {
+        success: '✓',
+        error: '✕',
+        warning: '⚠',
+        info: 'ℹ'
+      };
+
+      toast.className = `toast px-6 py-4 text-white rounded-xl shadow-xl ${colors[type]} flex items-center space-x-2`;
+      toast.innerHTML = `
+        <span class="font-bold text-lg">${icons[type]}</span>
+        <span class="font-medium">${message}</span>
+      `;
+      
+      container.appendChild(toast);
+      
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.remove();
+        }
+      }, CONFIG.TOAST_DURATION);
+    }
+
+    // =======================
+    // API Communication
+    // =======================
+    
+    /**
+     * JSONP request handler with error handling
+     */
     function fetchJSONP(params = {}) {
       return new Promise((resolve, reject) => {
-        const cb = '__jsonp_cb_' + Date.now();
-        window[cb] = data => { resolve(data); delete window[cb]; script.remove(); };
-        params.callback = cb;
-        const qs = new URLSearchParams(params).toString();
+        const callbackName = '__jsonp_cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        window[callbackName] = (data) => {
+          resolve(data);
+          delete window[callbackName];
+          if (script.parentNode) {
+            script.remove();
+          }
+        };
+        
+        params.callback = callbackName;
+        const queryString = new URLSearchParams(params).toString();
         const script = document.createElement('script');
-        script.src = `${API_URL}?${qs}`;
-        script.onerror = () => reject(new Error('JSONP load error'));
+        script.src = `${CONFIG.API_URL}?${queryString}`;
+        
+        script.onerror = () => {
+          reject(new Error('JSONP request failed'));
+          delete window[callbackName];
+          if (script.parentNode) {
+            script.remove();
+          }
+        };
+        
         document.body.appendChild(script);
+        
+        // Timeout after 10 seconds
+        setTimeout(() => {
+          if (window[callbackName]) {
+            reject(new Error('JSONP request timeout'));
+            delete window[callbackName];
+            if (script.parentNode) {
+              script.remove();
+            }
+          }
+        }, 10000);
       });
     }
 
-    function postInvoiceData(payload) {
-      return fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      }).then(r => r.json());
+    /**
+     * POST request handler with error handling
+     */
+    async function postInvoiceData(payload) {
+      try {
+        const response = await fetch(CONFIG.API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+      } catch (error) {
+        console.error('API Error:', error);
+        showToast('Network error occurred. Please try again.', 'error');
+        throw error;
+      }
     }
 
-    function showToast(msg, color='green') {
-      const cont = document.getElementById('toast-container');
-      const div = document.createElement('div');
-      div.textContent = msg;
-      div.className = `px-6 py-4 text-white rounded-2xl shadow-elegant bg-${color}-500 border border-${color}-400 animate-slide-up backdrop-blur-sm`;
-      cont.append(div);
-      setTimeout(() => {
-        div.style.opacity = '0';
-        div.style.transform = 'translateX(100px)';
-        setTimeout(() => div.remove(), 300);
-      }, 3000);
+    // =======================
+    // Application Initialization
+    // =======================
+    
+    /**
+     * Initialize the application
+     */
+    async function initializeApp() {
+      try {
+        showLoading();
+        
+        // Load customers
+        appState.customers = await fetchJSONP({ action: 'getCustomers' });
+        populateCustomerDropdown();
+        
+        // Load products
+        appState.products = await fetchJSONP({ action: 'getProducts' });
+        appState.modelsList = [...new Set(appState.products.map(p => `${p['MODEL']} ${p['MODEL NUMBER']}`))];
+        generateModelOptions();
+        
+        // Get next invoice number
+        appState.currentInvoiceNumber = await fetchJSONP({ action: 'getNextInvoiceNo' });
+        updateInvoicePreview();
+        
+        // Setup event listeners
+        setupEventListeners();
+        
+        showToast('Application initialized successfully!', 'success');
+        
+      } catch (error) {
+        console.error('Initialization error:', error);
+        showToast('Failed to initialize application. Please refresh the page.', 'error');
+      } finally {
+        hideLoading();
+      }
     }
 
-    let customers = [], products = [], modelsList = [];
+    /**
+     * Populate customer dropdown
+     */
+    function populateCustomerDropdown() {
+      const customerSelect = document.getElementById('customerSelect');
+      const options = appState.customers
+        .map(customer => `<option value="${customer['Customer Name']}">${customer['Customer Name']}</option>`)
+        .join('');
+      
+      customerSelect.innerHTML = `<option value="">-- SELECT Customer --</option>${options}`;
+    }
 
-    async function init() {
-      customers = await fetchJSONP({ action:'getCustomers' });
-      const custSel = document.getElementById('customerSelect');
-      const custOptions = customers.map(c=>`<option value="${c['Customer Name']}">${c['Customer Name']}</option>`).join('');
-      custSel.innerHTML = `<option value="">-- SELECT Customer --</option>${custOptions}`;
-      custSel.addEventListener('change', onCustomer);
+    /**
+     * Generate model options HTML
+     */
+    function generateModelOptions() {
+      window.modelOptionsHTML = `
+        <option value="">Select Model</option>
+        ${appState.modelsList.map(model => `<option value="${model}">${model}</option>`).join('')}
+        <option value="__add_new__">➕ Add New Model</option>
+      `;
+    }
 
-      products = await fetchJSONP({ action:'getProducts' });
-      modelsList = [...new Set(products.map(p=>`${p['MODEL']} ${p['MODEL NUMBER']}`))];
-      window.modelOptionsHTML = `<option value="">Select Model</option>${modelsList.map(m=>`<option value="${m}">${m}</option>`).join('')}<option value="__add_new__">➕ Add New</option>`;
+    /**
+     * Update invoice preview with basic info
+     */
+    function updateInvoicePreview() {
+      document.getElementById('previewInvoiceNo').textContent = appState.currentInvoiceNumber;
+      document.getElementById('previewDate').textContent = new Date().toLocaleDateString('en-IN');
+    }
 
-      const invNo = await fetchJSONP({ action:'getNextInvoiceNo' });
-      document.getElementById('previewInvoiceNo').textContent = invNo;
-      document.getElementById('previewDate').textContent      = new Date().toLocaleDateString('en-IN');
-
+    // =======================
+    // Event Handlers
+    // =======================
+    
+    /**
+     * Setup all event listeners
+     */
+    function setupEventListeners() {
+      // Customer selection
+      document.getElementById('customerSelect').addEventListener('change', handleCustomerSelection);
+      
+      // Action buttons
       document.getElementById('addItemBtn').addEventListener('click', addItemRow);
-      document.getElementById('saveInvoiceBtn').addEventListener('click', saveAndPDF);
-      document.getElementById('resetBtn').addEventListener('click',()=>location.reload());
+      document.getElementById('saveInvoiceBtn').addEventListener('click', saveInvoiceAndGeneratePDF);
+      document.getElementById('resetBtn').addEventListener('click', resetForm);
+      
+      // Debounced preview update
+      const debouncedPreviewUpdate = debounce(renderInvoicePreview, CONFIG.DEBOUNCE_DELAY);
+      document.addEventListener('input', debouncedPreviewUpdate);
+      document.addEventListener('change', debouncedPreviewUpdate);
     }
 
-    function onCustomer() {
-      const c = customers.find(x=>x['Customer Name']===this.value) || {};
-      document.getElementById('previewCustomer').textContent = c['Customer Name'] || '';
-      document.getElementById('previewAddress').textContent  = c['Address'] || '';
-      document.getElementById('previewContact').textContent  = c['contact'] || '';
-      document.getElementById('previewGSTIN').textContent    = c['Customer GSTIN'] || '';
+    /**
+     * Handle customer selection
+     */
+    function handleCustomerSelection(event) {
+      const selectedCustomer = appState.customers.find(c => c['Customer Name'] === event.target.value) || {};
+      
+      // Update preview with customer information
+      document.getElementById('previewCustomer').textContent = selectedCustomer['Customer Name'] || '';
+      document.getElementById('previewAddress').textContent = selectedCustomer['Address'] || '';
+      document.getElementById('previewContact').textContent = selectedCustomer['contact'] || '';
+      document.getElementById('previewGSTIN').textContent = selectedCustomer['Customer GSTIN'] || '';
     }
 
-    function updateAllModelSelects() {
-      document.querySelectorAll('.model-select').forEach(sel => {
-        const cur = sel.value;
-        sel.innerHTML = window.modelOptionsHTML;
-        sel.value = cur;
-      });
+    /**
+     * Reset form to initial state
+     */
+    function resetForm() {
+      if (confirm('Are you sure you want to reset the form? All unsaved data will be lost.')) {
+        location.reload();
+      }
     }
 
+    // =======================
+    // Item Management
+    // =======================
+    
+    /**
+     * Add new item row to the table
+     */
     function addItemRow() {
       const tbody = document.getElementById('itemsTable');
-      const idx   = tbody.children.length;
-      const tr    = document.createElement('tr');
-      tr.className = 'hover:bg-slate-700/30 transition-colors duration-200 animate-fade-in';
-      tr.innerHTML = `
-        <td class="p-4 text-center font-semibold text-primary border border-slate-600">${idx+1}</td>
-        <td class="border border-slate-600 p-3">
-          <select class="model-select w-full bg-slate-800/70 border-2 border-slate-600 hover:border-primary focus:border-secondary rounded-lg p-3 text-gray-100 focus-ring transition-all duration-300 font-medium">
+      const rowIndex = tbody.children.length;
+      const row = document.createElement('tr');
+      
+      row.className = 'item-row transition-all duration-300 hover:bg-secondary-dark-blue/60';
+      row.innerHTML = `
+        <td class="p-3 text-center font-mono text-light-blue">${rowIndex + 1}</td>
+        <td class="border border-accent-blue/20 p-3">
+          <select class="model-select form-control w-full bg-secondary-dark-blue border border-accent-blue/50 rounded-lg p-2 text-gray-100">
             ${window.modelOptionsHTML}
           </select>
         </td>
-        <td class="border border-slate-600 p-3">
-          <select class="product-selector w-full bg-slate-800/70 border-2 border-slate-600 hover:border-primary focus:border-secondary rounded-lg p-3 text-gray-100 focus-ring transition-all duration-300 font-medium">
+        <td class="border border-accent-blue/20 p-3">
+          <select class="product-selector form-control w-full bg-secondary-dark-blue border border-accent-blue/50 rounded-lg p-2 text-gray-100" disabled>
             <option value="">Select Product</option>
           </select>
         </td>
-        <td class="border border-slate-600 p-4 hsn-cell text-center font-mono font-semibold text-secondary">8413</td>
-        <td class="border border-slate-600 p-4 rate-cell text-center font-bold text-emerald-400"></td>
-        <td class="border border-slate-600 p-3">
-          <input type="number" class="qty-input w-20 bg-slate-800/70 border-2 border-slate-600 hover:border-primary focus:border-secondary rounded-lg p-3 text-gray-100 text-center font-semibold focus-ring transition-all duration-300" min="1" value="1">
+        <td class="border border-accent-blue/20 p-3 hsn-cell text-center font-mono">8413</td>
+        <td class="border border-accent-blue/20 p-3 rate-cell text-center font-mono">0.00</td>
+        <td class="border border-accent-blue/20 p-3">
+          <input type="number" class="qty-input form-control w-20 bg-secondary-dark-blue border border-accent-blue/50 rounded-lg p-2 text-gray-100 text-center" min="1" value="1">
         </td>
-        <td class="border border-slate-600 p-4 igst-cell text-center font-bold text-yellow-400">18</td>
-        <td class="border border-slate-600 p-4 amount-cell text-center font-bold text-primary">0.00</td>
+        <td class="border border-accent-blue/20 p-3 igst-cell text-center font-mono">18</td>
+        <td class="border border-accent-blue/20 p-3 amount-cell text-center font-mono text-green-400">0.00</td>
       `;
-      tbody.append(tr);
-
-      const modelSel = tr.querySelector('.model-select');
-      const prodSel  = tr.querySelector('.product-selector');
-
-      modelSel.addEventListener('change',()=>{
-        if (modelSel.value === '__add_new__') {
-          tr.classList.add('new-entry');
-          tr.innerHTML = `
-            <td class="p-4 text-center font-semibold text-primary border border-slate-600">${idx+1}</td>
-            <td class="border border-slate-600 p-3" colspan="2">
-              <input class="new-model w-full rounded-lg p-3 text-black bg-white font-medium border-2 border-gray-300 focus:border-blue-500 transition-all duration-300" placeholder="Model ModelNumber">
-            </td>
-            <td class="border border-slate-600 p-3" colspan="2">
-              <select class="new-device w-full rounded-lg p-3 text-black bg-white font-medium border-2 border-gray-300 focus:border-blue-500 transition-all duration-300">
-                <option value="Swing Device">Swing Device</option>
-                <option value="Travel Device">Travel Device</option>
-              </select>
-            </td>
-            <td class="border border-slate-600 p-3" colspan="2">
-              <input class="new-name w-full rounded-lg p-3 text-black bg-white font-medium border-2 border-gray-300 focus:border-blue-500 transition-all duration-300" placeholder="Size ItemName">
-            </td>
-            <td class="border border-slate-600 p-3">
-              <input type="number" class="new-rate w-28 rounded-lg p-3 text-black bg-white font-medium border-2 border-gray-300 focus:border-blue-500 transition-all duration-300" placeholder="Rate">
-            </td>
-            <td class="border border-slate-600 p-3 text-center">
-              <div class="flex gap-2 justify-center">
-                <button class="confirm-add-btn bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-lg px-4 py-2 font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">✓</button>
-                <button class="cancel-add-btn bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg px-4 py-2 font-bold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">✗</button>
-              </div>
-            </td>
-          `;
-          tr.querySelector('.cancel-add-btn').addEventListener('click', ()=>{
-            tr.remove();
-            updateAllModelSelects();
-            renderPreview();
-          });
-          tr.querySelector('.confirm-add-btn').addEventListener('click', async ()=>{
-            if (!confirm('Are you sure you want to add this product?')) return;
-            const mIn = tr.querySelector('.new-model').value.trim();
-            const [model, num] = mIn.split(/\s+(?=[^\s]+$)/);
-            const dev  = tr.querySelector('.new-device').value.trim();
-            const nm   = tr.querySelector('.new-name').value.trim();
-            const rate = tr.querySelector('.new-rate').value.trim();
-            const [size, ...item] = nm.split(' ');
-            const resp = await postInvoiceData({
-              action: 'addProduct',
-              MODEL: model,
-              'MODEL NUMBER': num || '',
-              DEVICE: dev,
-              SIZE: size || '',
-              'ITEM NAME': item.join('') || '',
-              PRICE: rate
-            });
-            if (!resp.success) { showToast('Add failed','red'); return; }
-            products.push({ MODEL: model, 'MODEL NUMBER': num||'', DEVICE: dev, SIZE: size||'', 'ITEM NAME': item.join('')||'', PRICE: rate });
-            modelsList.push(`${model} ${num||''}`);
-            showToast('Product added!');
-            replaceNewEntry(tr, `${model} ${num||''}`, `${dev} | ${nm}`, rate);
-          });
-        } else {
-          prodSel.disabled = false;
-          prodSel.innerHTML = `<option value="">Select Product</option>` +
-            products
-              .filter(p => `${p['MODEL']} ${p['MODEL NUMBER']}` === modelSel.value)
-              .map((p,i) => `<option value="${i}">${p['DEVICE']} | ${p['SIZE']} ${p['ITEM NAME']}</option>`)
-              .join('');
-        }
-        renderPreview();
-      });
-
-      prodSel.addEventListener('change', ()=>{
-        const idx = parseInt(prodSel.value);
-        const list = products.filter(p => `${p['MODEL']} ${p['MODEL NUMBER']}` === modelSel.value);
-        if (!isNaN(idx) && list[idx]) {
-          tr.querySelector('.rate-cell').textContent = list[idx]['PRICE'];
-          tr.querySelector('.hsn-cell').textContent  = '8413';
-        }
-        calculateRow(tr);
-      });
-
-      tr.querySelector('.qty-input').addEventListener('input', ()=>calculateRow(tr));
+      
+      tbody.appendChild(row);
+      setupItemRowEventListeners(row);
+      renderInvoicePreview();
+      
+      // Smooth scroll to new row
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    function replaceNewEntry(tr, model, product, rate) {
-      const idx = Array.from(tr.parentNode.children).indexOf(tr);
-      tr.classList.remove('new-entry');
-      tr.innerHTML = `
-        <td class="p-4 text-center font-semibold text-primary border border-slate-600">${idx+1}</td>
-        <td class="border border-slate-600 p-4 text-gray-200 font-medium">${model}</td>
-        <td class="border border-slate-600 p-4 text-gray-200 font-medium">${product}</td>
-        <td class="border border-slate-600 p-4 text-center font-mono font-semibold text-secondary">8413</td>
-        <td class="border border-slate-600 p-4 text-center font-bold text-emerald-400">${rate}</td>
-        <td class="border border-slate-600 p-3">
-          <input type="number" class="qty-input w-20 bg-slate-800/70 border-2 border-slate-600 hover:border-primary focus:border-secondary rounded-lg p-3 text-gray-100 text-center font-semibold focus-ring transition-all duration-300" min="1" value="1">
-        </td>
-        <td class="border border-slate-600 p-4 text-center font-bold text-yellow-400">18</td>
-        <td class="border border-slate-600 p-4 amount-cell text-center font-bold text-primary">0.00</td>
-      `;
-      tr.querySelector('.qty-input').addEventListener('input', ()=>calculateRow(tr));
-      calculateRow(tr);
-      updateAllModelSelects();
+    /**
+     * Setup event listeners for item row
+     */
+    function setupItemRowEventListeners(row) {
+      const modelSelect = row.querySelector('.model-select');
+      const productSelect = row.querySelector('.product-selector');
+      const qtyInput = row.querySelector('.qty-input');
+
+      modelSelect.addEventListener('change', () => handleModelSelection(row));
+      productSelect.addEventListener('change', () => handleProductSelection(row));
+      qtyInput.addEventListener('input', () => calculateRowTotal(row));
     }
 
-    function calculateRow(tr) {
-      const rate = parseFloat(tr.querySelector('.rate-cell').textContent) || 0;
-      const qty = parseInt(tr.querySelector('.qty-input').value) || 0;
-      const igst = parseFloat(tr.querySelector('.igst-cell').textContent) || 0;
+    /**
+     * Handle model selection
+     */
+    function handleModelSelection(row) {
+      const modelSelect = row.querySelector('.model-select');
+      const productSelect = row.querySelector('.product-selector');
+      
+      if (modelSelect.value === '__add_new__') {
+        showAddNewProductForm(row);
+      } else if (modelSelect.value) {
+        // Enable product selector and populate options
+        productSelect.disabled = false;
+        const filteredProducts = appState.products.filter(p => 
+          `${p['MODEL']} ${p['MODEL NUMBER']}` === modelSelect.value
+        );
+        
+        const options = filteredProducts
+          .map((product, index) => 
+            `<option value="${index}">${product['DEVICE']} | ${product['SIZE']} ${product['ITEM NAME']}</option>`
+          )
+          .join('');
+        
+        productSelect.innerHTML = `<option value="">Select Product</option>${options}`;
+      } else {
+        // Reset product selector
+        productSelect.disabled = true;
+        productSelect.innerHTML = '<option value="">Select Product</option>';
+        resetRowValues(row);
+      }
+      
+      renderInvoicePreview();
+    }
+
+    /**
+     * Handle product selection
+     */
+    function handleProductSelection(row) {
+      const modelSelect = row.querySelector('.model-select');
+      const productSelect = row.querySelector('.product-selector');
+      const productIndex = parseInt(productSelect.value);
+      
+      if (!isNaN(productIndex)) {
+        const filteredProducts = appState.products.filter(p => 
+          `${p['MODEL']} ${p['MODEL NUMBER']}` === modelSelect.value
+        );
+        
+        const selectedProduct = filteredProducts[productIndex];
+        if (selectedProduct) {
+          row.querySelector('.rate-cell').textContent = selectedProduct['PRICE'];
+          row.querySelector('.hsn-cell').textContent = '8413';
+          calculateRowTotal(row);
+        }
+      } else {
+        resetRowValues(row);
+      }
+    }
+
+    /**
+     * Calculate row total amount
+     */
+    function calculateRowTotal(row) {
+      const rate = parseFloat(row.querySelector('.rate-cell').textContent) || 0;
+      const qty = parseInt(row.querySelector('.qty-input').value) || 0;
+      const igstPercent = parseFloat(row.querySelector('.igst-cell').textContent) || 0;
+      
       const subtotal = rate * qty;
-      const gst = subtotal * (igst / 100);
-      const total = subtotal + gst;
-      tr.querySelector('.amount-cell').textContent = total.toFixed(2);
-      renderPreview();
+      const igstAmount = (subtotal * igstPercent) / 100;
+      const total = subtotal + igstAmount;
+      
+      row.querySelector('.amount-cell').textContent = total.toFixed(2);
+      
+      // Update preview with debounce
+      debounce(renderInvoicePreview, 100)();
     }
 
-    function renderPreview() {
-      const tbody = document.getElementById('previewItems');
-      const rows = [...document.getElementById('itemsTable').children].filter(r => !r.classList.contains('new-entry'));
-      tbody.innerHTML = rows.map((tr, i) => {
-        const model = tr.children[1].textContent || tr.children[1].querySelector('select')?.value || '';
-        const product = tr.children[2].textContent || tr.children[2].querySelector('select')?.options[tr.children[2].querySelector('select')?.selectedIndex]?.text || '';
-        const hsn = tr.querySelector('.hsn-cell').textContent;
-        const qty = tr.querySelector('.qty-input').value;
-        const rate = tr.querySelector('.rate-cell').textContent;
-        const igst = tr.querySelector('.igst-cell').textContent;
-        const amount = tr.querySelector('.amount-cell').textContent;
-        return `<tr class="hover:bg-slate-700/20 transition-colors duration-200"><td class="border border-slate-500 p-3 text-center font-semibold">${i+1}</td><td class="border border-slate-500 p-3 font-medium">${model}</td><td class="border border-slate-500 p-3 font-medium">${product}</td><td class="border border-slate-500 p-3 text-center font-mono">${hsn}</td><td class="border border-slate-500 p-3 text-center font-semibold">${qty}</td><td class="border border-slate-500 p-3 text-center font-bold text-emerald-400">₹${rate}</td><td class="border border-slate-500 p-3 text-center font-bold text-yellow-400">${igst}%</td><td class="border border-slate-500 p-3 text-center font-bold text-primary">₹${amount}</td></tr>`;
-      }).join('');
-      calculateTotals();
+    /**
+     * Reset row values
+     */
+    function resetRowValues(row) {
+      row.querySelector('.rate-cell').textContent = '0.00';
+      row.querySelector('.amount-cell').textContent = '0.00';
+      calculateRowTotal(row);
     }
 
-    function calculateTotals() {
-      const amounts = [...document.querySelectorAll('.amount-cell')].map(cell => parseFloat(cell.textContent) || 0);
-      const subtotal = amounts.reduce((sum, amt) => {
-        const rate = amt / 1.18;
-        return sum + rate;
-      }, 0);
-      const totalGST = amounts.reduce((sum, amt) => sum + amt, 0) - subtotal;
-      const beforeRound = subtotal + totalGST;
-      const rounded = Math.round(beforeRound);
-      const roundOff = rounded - beforeRound;
+    // =======================
+    // Add New Product Functionality
+    // =======================
+    
+    /**
+     * Show add new product form
+     */
+    function showAddNewProductForm(row) {
+      const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+      
+      row.classList.add('new-entry', 'bg-yellow-900/20');
+      row.innerHTML = `
+        <td class="p-3 text-center font-mono text-light-blue">${rowIndex + 1}</td>
+        <td class="border border-yellow-500/50 p-3" colspan="2">
+          <input class="new-model form-control w-full rounded-lg p-3 text-black bg-white" placeholder="Enter: Model ModelNumber" required>
+        </td>
+        <td class="border border-yellow-500/50 p-3" colspan="2">
+          <select class="new-device form-control w-full rounded-lg p-3 text-black bg-white">
+            <option value="Swing Device">Swing Device</option>
+            <option value="Travel Device">Travel Device</option>
+          </select>
+        </td>
+        <td class="border border-yellow-500/50 p-3" colspan="2">
+          <input class="new-name form-control w-full rounded-lg p-3 text-black bg-white" placeholder="Enter: Size ItemName" required>
+        </td>
+        <td class="border border-yellow-500/50 p-3">
+          <input type="number" class="new-rate form-control w-24 rounded-lg p-3 text-black bg-white" placeholder="Rate" min="0" step="0.01" required>
+        </td>
+        <td class="border border-yellow-500/50 p-3">
+          <div class="flex flex-col space-y-2">
+            <button class="confirm-add-btn btn bg-green-500 hover:bg-green-600 text-white rounded-lg px-3 py-2 text-sm font-semibold">
+              ✓ Add
+            </button>
+            <button class="cancel-add-btn btn bg-red-500 hover:bg-red-600 text-white rounded-lg px-3 py-2 text-sm font-semibold">
+              ✕ Cancel
+            </button>
+          </div>
+        </td>
+      `;
+      
+      // Setup new product form event listeners
+      row.querySelector('.cancel-add-btn').addEventListener('click', () => cancelAddNewProduct(row));
+      row.querySelector('.confirm-add-btn').addEventListener('click', () => confirmAddNewProduct(row));
+    }
+
+    /**
+     * Cancel adding new product
+     */
+    function cancelAddNewProduct(row) {
+      row.remove();
+      updateModelSelects();
+      renderInvoicePreview();
+    }
+
+    /**
+     * Confirm adding new product
+     */
+    async function confirmAddNewProduct(row) {
+      const modelInput = row.querySelector('.new-model').value.trim();
+      const deviceSelect = row.querySelector('.new-device').value.trim();
+      const nameInput = row.querySelector('.new-name').value.trim();
+      const rateInput = row.querySelector('.new-rate').value.trim();
+
+      // Validation
+      if (!modelInput || !deviceSelect || !nameInput || !rateInput) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+      }
+
+      if (!confirm('Are you sure you want to add this new product to the database?')) {
+        return;
+      }
+
+      try {
+        showLoading();
+        
+        // Parse model input
+        const modelParts = modelInput.split(/\s+(?=[^\s]+$)/);
+        const model = modelParts[0];
+        const modelNumber = modelParts[1] || '';
+        
+        // Parse name input
+        const nameParts = nameInput.split(' ');
+        const size = nameParts[0] || '';
+        const itemName = nameParts.slice(1).join(' ') || '';
+
+        // Send to API
+        const response = await postInvoiceData({
+          action: 'addProduct',
+          MODEL: model,
+          'MODEL NUMBER': modelNumber,
+          DEVICE: deviceSelect,
+          SIZE: size,
+          'ITEM NAME': itemName,
+          PRICE: rateInput
+        });
+
+        if (!response.success) {
+          throw new Error('Failed to add product');
+        }
+
+        // Update local state
+        const newProduct = {
+          MODEL: model,
+          'MODEL NUMBER': modelNumber,
+          DEVICE: deviceSelect,
+          SIZE: size,
+          'ITEM NAME': itemName,
+          PRICE: rateInput
+        };
+        
+        appState.products.push(newProduct);
+        appState.modelsList.push(`${model} ${modelNumber}`);
+        generateModelOptions();
+        
+        showToast('Product added successfully!', 'success');
+        
+        // Replace form with normal row
+        replaceNewProductRow(row, `${model} ${modelNumber}`, `${deviceSelect} | ${nameInput}`, rateInput);
+        
+      } catch (error) {
+        console.error('Add product error:', error);
+        showToast('Failed to add product. Please try again.', 'error');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    /**
+     * Replace new product row with normal item row
+     */
+    function replaceNewProductRow(row, modelValue, productDisplay, rate) {
+      const rowIndex = Array.from(row.parentNode.children).indexOf(row);
+      
+      row.classList.remove('new-entry', 'bg-yellow-900/20');
+      row.innerHTML = `
+        <td class="p-3 text-center font-mono text-light-blue">${rowIndex + 1}</td>
+        <td class="border border-accent-blue/20 p-3">
+          <select class="model-select form-control w-full bg-secondary-dark-blue border border-accent-blue/50 rounded-lg p-2 text-gray-100">
+            ${window.modelOptionsHTML}
+          </select>
+        </td>
+        <td class="border border-accent-blue/20 p-3">
+          <select class="product-selector form-control w-full bg-secondary-dark-blue border border-accent-blue/50 rounded-lg p-2 text-gray-100">
+            <option value="0" selected>${productDisplay}</option>
+          </select>
+        </td>
+        <td class="border border-accent-blue/20 p-3 hsn-cell text-center font-mono">8413</td>
+        <td class="border border-accent-blue/20 p-3 rate-cell text-center font-mono">${rate}</td>
+        <td class="border border-accent-blue/20 p-3">
+          <input type="number" class="qty-input form-control w-20 bg-secondary-dark-blue border border-accent-blue/50 rounded-lg p-2 text-gray-100 text-center" min="1" value="1">
+        </td>
+        <td class="border border-accent-blue/20 p-3 igst-cell text-center font-mono">18</td>
+        <td class="border border-accent-blue/20 p-3 amount-cell text-center font-mono text-green-400">0.00</td>
+      `;
+      
+      // Set the model value and calculate
+      row.querySelector('.model-select').value = modelValue;
+      setupItemRowEventListeners(row);
+      calculateRowTotal(row);
+      updateModelSelects();
+    }
+
+    /**
+     * Update all model selects with new options
+     */
+    function updateModelSelects() {
+      document.querySelectorAll('.model-select').forEach(select => {
+        const currentValue = select.value;
+        select.innerHTML = window.modelOptionsHTML;
+        select.value = currentValue;
+      });
+    }
+
+    // =======================
+    // Invoice Preview & Calculations
+    // =======================
+    
+    /**
+     * Render complete invoice preview
+     */
+    function renderInvoicePreview() {
+      const itemRows = Array.from(document.querySelectorAll('#itemsTable .item-row:not(.new-entry)'));
+      const previewItemsBody = document.getElementById('previewItems');
+      
+      // Clear preview
+      previewItemsBody.innerHTML = '';
+      
+      let subtotal = 0;
+      let totalGST = 0;
+      
+      itemRows.forEach((row, index) => {
+        const modelSelect = row.querySelector('.model-select');
+        const productSelect = row.querySelector('.product-selector');
+        const rate = parseFloat(row.querySelector('.rate-cell').textContent) || 0;
+        const qty = parseInt(row.querySelector('.qty-input').value) || 0;
+        const igstPercent = parseFloat(row.querySelector('.igst-cell').textContent) || 0;
+        const amount = parseFloat(row.querySelector('.amount-cell').textContent) || 0;
+        
+        if (modelSelect.value && productSelect.value && qty > 0) {
+          const previewRow = document.createElement('tr');
+          previewRow.className = 'hover:bg-secondary-dark-blue/30 transition-colors';
+          previewRow.innerHTML = `
+            <td class="border border-accent-blue/20 p-3 text-center font-mono">${index + 1}</td>
+            <td class="border border-accent-blue/20 p-3">${modelSelect.value}</td>
+            <td class="border border-accent-blue/20 p-3">${productSelect.options[productSelect.selectedIndex].text}</td>
+            <td class="border border-accent-blue/20 p-3 text-center font-mono">${row.querySelector('.hsn-cell').textContent}</td>
+            <td class="border border-accent-blue/20 p-3 text-center font-mono">${qty}</td>
+            <td class="border border-accent-blue/20 p-3 text-center font-mono">₹${rate.toFixed(2)}</td>
+            <td class="border border-accent-blue/20 p-3 text-center font-mono">${igstPercent}%</td>
+            <td class="border border-accent-blue/20 p-3 text-center font-mono text-green-400">₹${amount.toFixed(2)}</td>
+          `;
+          previewItemsBody.appendChild(previewRow);
+          
+          // Calculate totals
+          const itemSubtotal = rate * qty;
+          const itemGST = (itemSubtotal * igstPercent) / 100;
+          
+          subtotal += itemSubtotal;
+          totalGST += itemGST;
+        }
+      });
+      
+      // Update totals
+      const grandTotal = subtotal + totalGST;
+      const roundedTotal = Math.round(grandTotal);
+      const roundOff = roundedTotal - grandTotal;
       
       document.getElementById('previewSubtotal').textContent = subtotal.toFixed(2);
       document.getElementById('previewTotalGST').textContent = totalGST.toFixed(2);
       document.getElementById('previewRoundOff').textContent = roundOff.toFixed(2);
-      document.getElementById('previewGrandTotal').textContent = rounded.toFixed(2);
+      document.getElementById('previewGrandTotal').textContent = roundedTotal.toFixed(2);
     }
 
-    async function saveAndPDF() {
-      if (!document.getElementById('customerSelect').value) {
-        showToast('Please select a customer', 'red');
-        return;
-      }
-      const items = [...document.getElementById('itemsTable').children].filter(r => !r.classList.contains('new-entry'));
-      if (items.length === 0) {
-        showToast('Please add at least one item', 'red');
-        return;
-      }
-
-      showToast('Saving invoice...', 'blue');
-      
-      const customer = customers.find(c => c['Customer Name'] === document.getElementById('customerSelect').value);
-      const invoiceData = {
-        action: 'saveInvoice',
-        invoiceNo: document.getElementById('previewInvoiceNo').textContent,
-        date: document.getElementById('previewDate').textContent,
-        customer: customer,
-        items: items.map((tr, i) => {
-          const modelText = tr.children[1].textContent || tr.children[1].querySelector('select')?.value || '';
-          const productSelect = tr.children[2].querySelector('select');
-          const productIndex = parseInt(productSelect.value);
-          const matchingProducts = products.filter(p => `${p['MODEL']} ${p['MODEL NUMBER']}` === modelText);
-          const product = matchingProducts[productIndex];
-          
-          return {
-            srNo: i + 1,
-            model: modelText,
-            product: product ? `${product['DEVICE']} | ${product['SIZE']} ${product['ITEM NAME']}` : '',
-            hsn: tr.querySelector('.hsn-cell').textContent,
-            qty: parseInt(tr.querySelector('.qty-input').value),
-            rate: parseFloat(tr.querySelector('.rate-cell').textContent),
-            igst: parseFloat(tr.querySelector('.igst-cell').textContent),
-            amount: parseFloat(tr.querySelector('.amount-cell').textContent)
-          };
-        }),
-        totals: {
-          subtotal: parseFloat(document.getElementById('previewSubtotal').textContent),
-          totalGST: parseFloat(document.getElementById('previewTotalGST').textContent),
-          roundOff: parseFloat(document.getElementById('previewRoundOff').textContent),
-          grandTotal: parseFloat(document.getElementById('previewGrandTotal').textContent)
-        }
-      };
-
+    // =======================
+    // PDF Generation & Save
+    // =======================
+    
+    /**
+     * Save invoice and generate PDF
+     */
+    async function saveInvoiceAndGeneratePDF() {
       try {
-        const result = await postInvoiceData(invoiceData);
-        if (result.success) {
-          showToast('Invoice saved successfully!', 'green');
-          setTimeout(() => {
-            const element = document.getElementById('invoicePreview');
-            const opt = {
-              margin: 1,
-              filename: `Invoice_${invoiceData.invoiceNo}.pdf`,
-              image: { type: 'jpeg', quality: 0.98 },
-              html2canvas: { scale: 2 },
-              jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save();
-          }, 1000);
-        } else {
-          showToast('Failed to save invoice', 'red');
+        // Validation
+        const customerName = document.getElementById('customerSelect').value;
+        if (!customerName) {
+          showToast('Please select a customer', 'error');
+          return;
         }
+        
+        const itemRows = Array.from(document.querySelectorAll('#itemsTable .item-row:not(.new-entry)'));
+        const validItems = itemRows.filter(row => {
+          const modelSelect = row.querySelector('.model-select');
+          const productSelect = row.querySelector('.product-selector');
+          const qty = parseInt(row.querySelector('.qty-input').value) || 0;
+          return modelSelect.value && productSelect.value && qty > 0;
+        });
+        
+        if (validItems.length === 0) {
+          showToast('Please add at least one item to the invoice', 'error');
+          return;
+        }
+        
+        showLoading();
+        
+        // Prepare invoice data
+        const invoiceData = {
+          action: 'saveInvoice',
+          invoiceNumber: appState.currentInvoiceNumber,
+          customerName: customerName,
+          date: new Date().toISOString(),
+          items: validItems.map((row, index) => ({
+            srNo: index + 1,
+            model: row.querySelector('.model-select').value,
+            product: row.querySelector('.product-selector').options[row.querySelector('.product-selector').selectedIndex].text,
+            hsn: row.querySelector('.hsn-cell').textContent,
+            rate: parseFloat(row.querySelector('.rate-cell').textContent) || 0,
+            qty: parseInt(row.querySelector('.qty-input').value) || 0,
+            igst: parseFloat(row.querySelector('.igst-cell').textContent) || 0,
+            amount: parseFloat(row.querySelector('.amount-cell').textContent) || 0
+          })),
+          totals: {
+            subtotal: parseFloat(document.getElementById('previewSubtotal').textContent) || 0,
+            totalGST: parseFloat(document.getElementById('previewTotalGST').textContent) || 0,
+            roundOff: parseFloat(document.getElementById('previewRoundOff').textContent) || 0,
+            grandTotal: parseFloat(document.getElementById('previewGrandTotal').textContent) || 0
+          }
+        };
+        
+        // Save to database
+        const saveResponse = await postInvoiceData(invoiceData);
+        if (!saveResponse.success) {
+          throw new Error('Failed to save invoice');
+        }
+        
+        showToast('Invoice saved successfully!', 'success');
+        
+        // Generate PDF
+        await generatePDF();
+        
       } catch (error) {
-        showToast('Error saving invoice', 'red');
+        console.error('Save invoice error:', error);
+        showToast('Failed to save invoice. Please try again.', 'error');
+      } finally {
+        hideLoading();
       }
     }
 
-    window.onload = init;
+    /**
+     * Generate PDF from invoice preview
+     */
+    async function generatePDF() {
+      try {
+        const element = document.getElementById('invoicePreview');
+        const options = {
+          margin: [0.5, 0.5, 0.5, 0.5],
+          filename: `Invoice_${appState.currentInvoiceNumber}_${new Date().toISOString().split('T')[0]}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            letterRendering: true
+          },
+          jsPDF: { 
+            unit: 'in', 
+            format: 'a4', 
+            orientation: 'portrait' 
+          }
+        };
+        
+        await html2pdf().set(options).from(element).save();
+        showToast('PDF generated successfully!', 'success');
+        
+      } catch (error) {
+        console.error('PDF generation error:', error);
+        showToast('Failed to generate PDF. Please try again.', 'error');
+      }
+    }
+
+    // =======================
+    // Application Entry Point
+    // =======================
+    
+    /**
+     * Start the application when DOM is ready
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeApp().catch(error => {
+        console.error('App initialization failed:', error);
+        showToast('Failed to start application. Please refresh the page.', 'error');
+      });
+    });
+
+    // Fallback for older browsers
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
   </script>
 </body>
 </html>
