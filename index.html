@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -260,7 +261,7 @@
         </aside>
 
         <main class="main-content">
-            <div id="dashboard" class="page">
+             <div id="dashboard" class="page">
                 <div class="flex justify-between items-center mb-8 fade-in-up" style="animation-delay: 100ms;">
                     <div>
                         <h2 class="text-3xl font-bold">Invoice Generator Pro</h2>
@@ -404,7 +405,7 @@
                                     <option value="30-Goa">30-Goa</option>
                                     <option value="27-Maharashtra">27-Maharashtra</option>
                                     <option value="01-Jammu and Kashmir">01-Jammu and Kashmir</option>
-                                    </select>
+                                </select>
                             </div>
 
                             <div class="flex items-center space-x-3">
@@ -421,7 +422,7 @@
                                 </button>
                             </div>
                             <div id="invoice-items-container" class="space-y-4 max-h-96 overflow-y-auto p-1">
-                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -470,7 +471,7 @@
                                 </tr>
                             </thead>
                             <tbody id="invoice-history-table">
-                                </tbody>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -509,7 +510,7 @@
                     <div class="lg:col-span-2 glass-card p-8">
                         <h3 class="text-xl font-bold mb-6">Existing Customers</h3>
                         <div id="existing-customers-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-4">
-                           </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -570,7 +571,7 @@
                     <div class="lg:col-span-2 glass-card p-8">
                         <h3 class="text-xl font-bold mb-6">Existing Products</h3>
                         <div id="existing-products-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-4">
-                           </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -673,11 +674,12 @@
             setTheme(!isDark);
         };
         
-        // --- ALL APP SCRIPT FROM DUMMY.HTML ---
+        // --- APP LOGIC ---
         
-        // API configuration
+        // URLs for fetching and posting data
         const API_URL = 'https://script.google.com/macros/s/AKfycbz3hesA-60vel0WChlv5qxoHg_RZX63330drrefG_U5PKUOMSoCP3p0LYAnYcQLYw6C/exec';
-        const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
+        const CUSTOMERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=1988877295&single=true&output=csv';
+        const PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=0&single=true&output=csv';
 
         // Global state
         let customers = [];
@@ -689,7 +691,6 @@
         // Initialize app
         window.onload = () => {
             try {
-                // Load theme first
                 const savedTheme = localStorage.getItem('invoiceAppTheme');
                 setTheme(savedTheme === 'light' ? false : true);
 
@@ -702,67 +703,8 @@
             }
         };
 
-        // Utility functions
-        function setCache(key, data) {
-            try {
-                const cacheItem = { timestamp: new Date().getTime(), data: data };
-                localStorage.setItem(key, JSON.stringify(cacheItem));
-            } catch (e) { console.error("Could not write to localStorage:", e); }
-        }
-
-        function getCache(key) {
-            try {
-                const itemStr = localStorage.getItem(key);
-                if (!itemStr) return null;
-                const item = JSON.parse(itemStr);
-                const now = new Date().getTime();
-                if (now - item.timestamp > CACHE_EXPIRATION) {
-                    localStorage.removeItem(key);
-                    return null;
-                }
-                return item.data;
-            } catch (e) {
-                console.error("Could not read from localStorage:", e);
-                return null;
-            }
-        }
-        
-        // API functions
-        function fetchJSONP(params = {}) {
-            return new Promise((resolve, reject) => {
-                const cb = '__jsonp_cb_' + Date.now() + Math.random().toString(36).substring(2);
-                let script;
-                const timeout = setTimeout(() => {
-                    delete window[cb];
-                    if (script && document.body.contains(script)) script.remove();
-                    reject(new Error('JSONP request timed out'));
-                }, 30000);
-
-                window[cb] = data => {
-                    clearTimeout(timeout);
-                    resolve(data);
-                    delete window[cb];
-                    if (script && document.body.contains(script)) script.remove();
-                };
-
-                params.callback = cb;
-                const qs = new URLSearchParams(params).toString();
-                script = document.createElement('script');
-                script.src = `${API_URL}?${qs}`;
-                script.onerror = () => {
-                    clearTimeout(timeout);
-                    delete window[cb];
-                    if (script && document.body.contains(script)) script.remove();
-                    reject(new Error('JSONP script load error'));
-                };
-                document.body.appendChild(script);
-            });
-        }
-        
         function postData(payload) {
-            if (payload.action === 'addCustomer' || payload.action === 'addProduct' || payload.action === 'addInvoice') {
-                 localStorage.removeItem('cached_all_data');
-            }
+            // This function sends data TO your Google Sheet. It requires your Apps Script to handle POST requests.
             return fetch(API_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
@@ -773,17 +715,9 @@
         function showToast(title, icon = 'success') {
             const isDark = document.body.classList.contains('dark-theme');
             const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                background: isDark ? '#1e293b' : '#f1f5f9',
-                color: isDark ? '#f8fafc' : '#0f172a',
-                didOpen: (toast) => {
-                    toast.onmouseenter = Swal.stopTimer;
-                    toast.onmouseleave = Swal.resumeTimer;
-                }
+                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true,
+                background: isDark ? '#1e293b' : '#f1f5f9', color: isDark ? '#f8fafc' : '#0f172a',
+                didOpen: (toast) => { toast.onmouseenter = Swal.stopTimer; toast.onmouseleave = Swal.resumeTimer; }
             });
             Toast.fire({ icon, title });
         }
@@ -801,12 +735,10 @@
         // Navigation
         const navLinks = document.querySelectorAll('.nav-item, .nav-link-action');
         const pages = document.querySelectorAll('.page');
-
         function showPage(pageId) {
             pages.forEach(page => page.classList.add('hidden'));
             const activePage = document.getElementById(pageId);
             if (activePage) activePage.classList.remove('hidden');
-
             document.querySelectorAll('.nav-item').forEach(link => {
                 link.classList.remove('active');
                 if (link.getAttribute('href') === `#${pageId}`) {
@@ -814,7 +746,6 @@
                 }
             });
         }
-
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -830,13 +761,6 @@
             loadInvoiceSettings();
             loadCompanySettings();
             initializeInvoiceForm();
-
-            const cachedAllData = getCache('cached_all_data');
-            if (cachedAllData) {
-                console.log("Loading data from cache...");
-                processAllData(cachedAllData);
-            }
-            
             await syncData();
         }
         
@@ -844,9 +768,11 @@
              customers = data.customers || [];
              allProducts = data.products ? data.products.map((p, index) => ({...p, row_index: index})) : [];
              invoiceHistory = data.invoiceHistory || [];
+             
              const settings = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
-             const prefix = settings.prefix || 'INV-';
-             currentInvoiceNumber = `${prefix}${String(data.nextInvoiceNumber).padStart(3, '0')}`;
+             const prefix = settings.prefix || 'VI-';
+             const nextNum = data.nextInvoiceNumber || (invoiceHistory.length + 1);
+             currentInvoiceNumber = `${prefix}${String(nextNum).padStart(3, '0')}`;
              
              renderCustomerList();
              renderProductList();
@@ -867,63 +793,18 @@
             document.getElementById('invoice-form').addEventListener('input', updateInvoicePreview);
         }
 
-        // Invoice Logic
         function initializeInvoiceForm() {
-            const today = new Date().toISOString().split('T')[0];
-            const dueDate = new Date();
-            dueDate.setDate(dueDate.getDate() + 30);
-
-            document.getElementById('invoice-date').value = today;
+            const today = new Date();
+            document.getElementById('invoice-date').value = today.toISOString().split('T')[0];
+            const dueDate = new Date(today.setDate(today.getDate() + 30));
             document.getElementById('due-date').value = dueDate.toISOString().split('T')[0];
-            document.getElementById('challan-date').value = today;
-
-            if (invoiceItems.length === 0) {
-                addInvoiceItem();
-            }
+            if (invoiceItems.length === 0) addInvoiceItem();
         }
         
         function addInvoiceItem() {
             const container = document.getElementById('invoice-items-container');
             const itemIndex = invoiceItems.length;
-
-            const itemHtml = `
-                <div class="invoice-item bg-black/10 dark:bg-white/5 p-4 rounded-xl" data-index="${itemIndex}">
-                    <div class="flex justify-between items-start mb-4">
-                        <h4 class="font-semibold">Item ${itemIndex + 1}</h4>
-                        <button type="button" onclick="removeInvoiceItem(${itemIndex})" class="text-red-400 hover:text-red-300">
-                            <i data-lucide="x-circle" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-muted mb-2">Product</label>
-                            <select class="product-select futuristic-select" onchange="updateItemDetails(${itemIndex})"></select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-muted mb-2">Quantity</label>
-                            <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-muted mb-2">Rate (₹)</label>
-                            <input type="number" class="item-rate futuristic-input" value="0" min="0" step="0.01" oninput="calculateItemTotal(${itemIndex})">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-muted mb-2">Total (₹)</label>
-                            <input type="number" class="item-total futuristic-input" value="0" readonly>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-muted mb-2">HSN/SAC</label>
-                            <input type="text" class="item-hsn futuristic-input">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-muted mb-2">Tax Rate (%)</label>
-                            <select class="item-tax-rate futuristic-select" onchange="calculateItemTotal(${itemIndex})">
-                                <option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            `;
+            const itemHtml = `<div class="invoice-item bg-black/10 dark:bg-white/5 p-4 rounded-xl" data-index="${itemIndex}"><div class="flex justify-between items-start mb-4"><h4 class="font-semibold">Item ${itemIndex + 1}</h4><button type="button" onclick="removeInvoiceItem(${itemIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-muted mb-2">Product</label><select class="product-select futuristic-select" onchange="updateItemDetails(${itemIndex})"></select></div><div><label class="block text-sm font-medium text-muted mb-2">Quantity</label><input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})"></div><div><label class="block text-sm font-medium text-muted mb-2">Rate (₹)</label><input type="number" class="item-rate futuristic-input" value="0" min="0" step="0.01" oninput="calculateItemTotal(${itemIndex})"></div><div><label class="block text-sm font-medium text-muted mb-2">Total (₹)</label><input type="number" class="item-total futuristic-input" value="0" readonly></div><div><label class="block text-sm font-medium text-muted mb-2">HSN/SAC</label><input type="text" class="item-hsn futuristic-input"></div><div><label class="block text-sm font-medium text-muted mb-2">Tax Rate (%)</label><select class="item-tax-rate futuristic-select" onchange="calculateItemTotal(${itemIndex})"><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option></select></div></div></div>`;
             container.insertAdjacentHTML('beforeend', itemHtml);
             invoiceItems.push({ quantity: 1, rate: 0, taxRate: 18 });
             lucide.createIcons();
@@ -932,65 +813,56 @@
         }
 
         function removeInvoiceItem(index) {
-             invoiceItems.splice(index, 1);
-             document.getElementById('invoice-items-container').innerHTML = '';
-             const tempItems = [...invoiceItems];
-             invoiceItems = [];
-             tempItems.forEach(item => {
-                 addInvoiceItem();
-                 const newIndex = invoiceItems.length - 1;
-                 // Repopulate data if needed
-             })
-             if(invoiceItems.length === 0) addInvoiceItem();
-             updateInvoicePreview();
+            invoiceItems.splice(index, 1);
+            const container = document.getElementById('invoice-items-container');
+            container.innerHTML = ''; // Clear container
+            const tempItems = [...invoiceItems];
+            invoiceItems = []; // Reset global array
+            tempItems.forEach(item => addInvoiceItem()); // Re-add items to re-index them
+            if (invoiceItems.length === 0) addInvoiceItem();
+            updateInvoicePreview();
         }
 
         function updateItemDetails(index) {
             const itemElement = document.querySelector(`[data-index="${index}"]`);
             const select = itemElement.querySelector('.product-select');
             const selectedOption = select.selectedOptions[0];
+            if (!selectedOption || select.value === "") return;
 
-            if (selectedOption && selectedOption.value !== "") {
-                const rate = parseFloat(selectedOption.dataset.price || 0);
-                const hsn = selectedOption.dataset.hsn || '';
-                const itemName = selectedOption.dataset.name || '';
-
-                itemElement.querySelector('.item-rate').value = rate;
-                itemElement.querySelector('.item-hsn').value = hsn;
-
-                if (invoiceItems[index]) {
-                    invoiceItems[index].product = itemName;
-                    invoiceItems[index].rate = rate;
-                    invoiceItems[index].hsn = hsn;
-                }
-                calculateItemTotal(index);
+            const rate = parseFloat(selectedOption.dataset.price || 0);
+            const hsn = selectedOption.dataset.hsn || '';
+            const itemName = selectedOption.dataset.name || '';
+            itemElement.querySelector('.item-rate').value = rate;
+            itemElement.querySelector('.item-hsn').value = hsn;
+            if (invoiceItems[index]) {
+                invoiceItems[index].product = itemName;
+                invoiceItems[index].rate = rate;
+                invoiceItems[index].hsn = hsn;
             }
+            calculateItemTotal(index);
         }
 
         function calculateItemTotal(index) {
             const itemElement = document.querySelector(`[data-index="${index}"]`);
+            if (!itemElement) return;
+
             const quantity = parseFloat(itemElement.querySelector('.item-quantity').value || 0);
             const rate = parseFloat(itemElement.querySelector('.item-rate').value || 0);
             const taxRate = parseFloat(itemElement.querySelector('.item-tax-rate').value || 0);
-
             const total = quantity * rate;
             const taxAmount = (total * taxRate) / 100;
             const grandTotal = total + taxAmount;
-
             itemElement.querySelector('.item-total').value = total.toFixed(2);
             
             if (invoiceItems[index]) {
-                invoiceItems[index] = {
-                    ...invoiceItems[index],
-                    quantity, rate, total, taxRate, taxAmount, grandTotal,
-                    hsn: itemElement.querySelector('.item-hsn').value
-                };
+                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, total, taxRate, taxAmount, grandTotal, hsn: itemElement.querySelector('.item-hsn').value };
             }
             updateInvoicePreview();
         }
 
         function populateCustomerSelect() {
             const select = document.getElementById('customer-select');
+            const currentVal = select.value;
             select.innerHTML = '<option value="">Select a customer...</option>';
             customers.forEach(customer => {
                 const option = document.createElement('option');
@@ -998,6 +870,7 @@
                 option.textContent = customer['Customer Name'];
                 select.appendChild(option);
             });
+            select.value = currentVal;
         }
 
         function populateProductSelects() {
@@ -1027,10 +900,9 @@
             }
 
             const invoiceDate = document.getElementById('invoice-date').value;
-            const dueDate = document.getElementById('due-date').value;
-            const placeOfSupply = document.getElementById('place-of-supply').value;
             const selectedCustomer = customers.find(c => c['Customer Name'] === customerName);
             const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
+            if(!selectedCustomer) return; // Don't render if customer is not found
 
             let subtotal = 0, totalTax = 0, grandTotal = 0;
             const itemsHtml = invoiceItems.map((item, index) => {
@@ -1046,125 +918,55 @@
                     </tr>`;
             }).join('');
             
-            const companyStateCode = (companySettings.gstin || '').substring(0, 2);
-            const customerStateCode = (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
-            const isIntraState = companyStateCode && customerStateCode && companyStateCode === customerStateCode;
-
+            const isIntraState = (companySettings.gstin || '').substring(0, 2) === (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
             let taxRows = isIntraState
                 ? `<tr><td colspan="6" class="p-2 text-right font-semibold">CGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>
                    <tr><td colspan="6" class="p-2 text-right font-semibold">SGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>`
                 : `<tr><td colspan="6" class="p-2 text-right font-semibold">IGST:</td><td class="p-2 text-right font-semibold">₹${totalTax.toFixed(2)}</td></tr>`;
             
-            preview.innerHTML = `
-                <div class="p-8 bg-white text-black">
-                    <div class="pb-6 mb-6 border-b-2 border-blue-500">
-                        <div class="flex justify-between items-start">
-                             <div>
-                                <h1 class="text-3xl font-bold text-blue-600">${companySettings.name || 'Company Name'}</h1>
-                                <div class="mt-2 text-sm text-gray-600">
-                                    <p>${companySettings.address || 'Company Address'}</p>
-                                    <p>GSTIN: ${companySettings.gstin || 'N/A'}</p>
-                                    <p>Contact: ${companySettings.contact || 'N/A'}</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <h2 class="text-2xl font-bold text-gray-800">TAX INVOICE</h2>
-                                <p><strong>Invoice #:</strong> ${document.getElementById('invoice-number').value}</p>
-                                <p><strong>Date:</strong> ${new Date(invoiceDate).toLocaleDateString('en-IN')}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-6"><h3 class="text-lg font-bold mb-2">Bill To:</h3>
-                        <p class="font-semibold">${selectedCustomer['Customer Name']}</p>
-                        <p>${selectedCustomer.Address}</p><p>GSTIN: ${selectedCustomer['Customer GSTIN']}</p>
-                    </div>
-                    <table class="w-full text-sm mb-6">
-                        <thead><tr class="bg-gray-100"><th class="border p-2 text-left">#</th><th class="border p-2 text-left">Item</th><th class="border p-2 text-center">HSN</th><th class="border p-2 text-center">Qty</th><th class="border p-2 text-right">Rate</th><th class="border p-2 text-right">Amount</th><th class="border p-2 text-right">Total</th></tr></thead>
-                        <tbody>${itemsHtml}
-                            <tr><td colspan="6" class="p-2 text-right font-semibold border-t-2">Subtotal:</td><td class="p-2 text-right font-semibold border-t-2">₹${subtotal.toFixed(2)}</td></tr>
-                            ${taxRows}
-                            <tr class="bg-blue-50"><td colspan="6" class="p-3 text-right text-lg font-bold">Grand Total:</td><td class="p-3 text-right text-lg font-bold">₹${grandTotal.toFixed(2)}</td></tr>
-                        </tbody>
-                    </table>
-                </div>`;
+            preview.innerHTML = `<div class="p-8 bg-white text-black"><div class="pb-6 mb-6 border-b-2 border-blue-500"><div class="flex justify-between items-start"><div><h1 class="text-3xl font-bold text-blue-600">${companySettings.name || 'Company Name'}</h1><div class="mt-2 text-sm text-gray-600"><p>${companySettings.address || 'Company Address'}</p><p>GSTIN: ${companySettings.gstin || 'N/A'}</p><p>Contact: ${companySettings.contact || 'N/A'}</p></div></div><div class="text-right"><h2 class="text-2xl font-bold text-gray-800">TAX INVOICE</h2><p><strong>Invoice #:</strong> ${document.getElementById('invoice-number').value}</p><p><strong>Date:</strong> ${new Date(invoiceDate).toLocaleDateString('en-IN')}</p></div></div></div><div class="mb-6"><h3 class="text-lg font-bold mb-2">Bill To:</h3><p class="font-semibold">${selectedCustomer['Customer Name']}</p><p>${selectedCustomer.Address}</p><p>GSTIN: ${selectedCustomer['Customer GSTIN']}</p></div><table class="w-full text-sm mb-6"><thead><tr class="bg-gray-100"><th class="border p-2 text-left">#</th><th class="border p-2 text-left">Item</th><th class="border p-2 text-center">HSN</th><th class="border p-2 text-center">Qty</th><th class="border p-2 text-right">Rate</th><th class="border p-2 text-right">Amount</th><th class="border p-2 text-right">Total</th></tr></thead><tbody>${itemsHtml}<tr><td colspan="6" class="p-2 text-right font-semibold border-t-2">Subtotal:</td><td class="p-2 text-right font-semibold border-t-2">₹${subtotal.toFixed(2)}</td></tr>${taxRows}<tr class="bg-blue-50"><td colspan="6" class="p-3 text-right text-lg font-bold">Grand Total:</td><td class="p-3 text-right text-lg font-bold">₹${grandTotal.toFixed(2)}</td></tr></tbody></table></div>`;
         }
 
         function generatePDF() {
             if (invoiceItems.some(i => !i.product)) {
-                showToast('Please select a product for all items.', 'error');
-                return;
+                showToast('Please select a product for all items.', 'error'); return;
             }
             const element = document.getElementById('invoice-preview');
-            const opt = {
-                margin: 0.25, filename: `${document.getElementById('invoice-number').value}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, logging: false, useCORS: true },
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-
-            Swal.fire({
-                title: 'Generating PDF...', allowOutsideClick: false,
-                didOpen: () => { Swal.showLoading() }
-            });
-
+            const opt = { margin: 0.25, filename: `${document.getElementById('invoice-number').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
+            Swal.fire({ title: 'Generating PDF...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             html2pdf().set(opt).from(element).save().then(() => {
-                Swal.close();
-                showToast('Invoice PDF generated!');
-                saveInvoiceRecord();
+                Swal.close(); showToast('Invoice PDF generated!'); saveInvoiceRecord();
             }).catch(error => {
-                Swal.close();
-                showToast('Failed to generate PDF.', 'error');
+                Swal.close(); showToast('Failed to generate PDF.', 'error');
             });
         }
         
         async function saveInvoiceRecord() {
             let grandTotal = invoiceItems.reduce((sum, item) => sum + (item.grandTotal || 0), 0);
             const invoice = {
-                number: document.getElementById('invoice-number').value,
-                date: document.getElementById('invoice-date').value,
-                dueDate: document.getElementById('due-date').value,
-                customer: document.getElementById('customer-select').value,
-                amount: grandTotal,
-                status: 'unpaid',
-                items: JSON.parse(JSON.stringify(invoiceItems))
+                number: document.getElementById('invoice-number').value, date: document.getElementById('invoice-date').value,
+                dueDate: document.getElementById('due-date').value, customer: document.getElementById('customer-select').value,
+                amount: grandTotal, status: 'unpaid', items: JSON.parse(JSON.stringify(invoiceItems))
             };
-            
             try {
                 const response = await postData({ action: 'addInvoice', invoiceData: invoice });
-                if (response.success) {
-                    showToast('Invoice saved to Google Sheet!');
-                    await syncData(); // Refresh data to get the new invoice number
-                    resetInvoiceForm();
-                } else {
-                    showToast(`Save failed: ${response.message}`, 'error');
-                }
-            } catch (error) {
-                 showToast('Network error while saving.', 'error');
-            }
+                if (response.success) { showToast('Invoice saved to Google Sheet!'); await syncData(); resetInvoiceForm(); }
+                else { showToast(`Save failed: ${response.message}`, 'error'); }
+            } catch (error) { showToast('Network error while saving.', 'error'); }
         }
         
         function resetInvoiceForm() {
             document.getElementById('invoice-form').reset();
             document.getElementById('invoice-items-container').innerHTML = '';
-            invoiceItems = [];
-            initializeInvoiceForm();
-            updateInvoicePreview();
+            invoiceItems = []; initializeInvoiceForm(); updateInvoicePreview();
         }
 
         function previewInvoice() { updateInvoicePreview(); showToast('Preview updated!', 'info'); }
 
-        // Data Rendering
         function renderInvoiceHistory() {
             const tbody = document.getElementById('invoice-history-table');
             if (!tbody) return;
-            tbody.innerHTML = invoiceHistory.map(invoice => `
-                <tr class="table-row hover:bg-black/10 dark:hover:bg-white/5">
-                    <td class="p-4">${invoice.number}</td>
-                    <td class="p-4">${new Date(invoice.date).toLocaleDateString('en-IN')}</td>
-                    <td class="p-4">${invoice.customer}</td><td class="p-4">₹${(invoice.amount || 0).toFixed(2)}</td>
-                    <td class="p-4"><span class="px-2 py-1 rounded text-xs ${invoice.status === 'paid' ? 'text-green-400 bg-green-500/20' : 'text-yellow-400 bg-yellow-500/20'}">${invoice.status.toUpperCase()}</span></td>
-                    <td class="p-4"><button onclick="viewInvoice('${invoice.number}')" class="text-blue-400"><i data-lucide="eye"></i></button></td>
-                </tr>`).join('');
+            tbody.innerHTML = invoiceHistory.map(invoice => `<tr class="table-row hover:bg-black/10 dark:hover:bg-white/5"><td class="p-4">${invoice.number}</td><td class="p-4">${new Date(invoice.date).toLocaleDateString('en-IN')}</td><td class="p-4">${invoice.customer}</td><td class="p-4">₹${(invoice.amount || 0).toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs ${invoice.status === 'paid' ? 'text-green-400 bg-green-500/20' : 'text-yellow-400 bg-yellow-500/20'}">${invoice.status.toUpperCase()}</span></td><td class="p-4"><button class="text-blue-400"><i data-lucide="eye"></i></button></td></tr>`).join('');
             lucide.createIcons();
         }
 
@@ -1186,7 +988,6 @@
             document.getElementById('stats-products').textContent = allProducts.length;
         }
 
-        // Event Handlers
         async function handleAddCustomer(e) {
             e.preventDefault();
             const customerData = Object.fromEntries(new FormData(e.target).entries());
@@ -1209,7 +1010,6 @@
             }
         }
         
-        // Settings
         function handleSaveInvoiceSettings(e) {
             e.preventDefault();
             const config = { prefix: document.getElementById('invoice-prefix').value, nextNumber: parseInt(document.getElementById('invoice-next-number').value) };
@@ -1232,7 +1032,7 @@
 
         function loadInvoiceSettings() {
             const config = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
-            document.getElementById('invoice-prefix').value = config.prefix || 'INV-';
+            document.getElementById('invoice-prefix').value = config.prefix || 'VI-';
             document.getElementById('invoice-next-number').value = config.nextNumber || 1;
             updateInvoiceExample();
         }
@@ -1252,71 +1052,47 @@
             document.getElementById('invoice-example').textContent = `${prefix}${String(nextNumber).padStart(3, '0')}`;
         }
         
-        function getMockData() {
-            // --- SAMPLE DATA ---
-            // You can replace this with your own data or connect to a live API.
-            const mockCustomers = [
-                { "Customer Name": "Global Tech Inc.", "Address": "123 Tech Park, Silicon Valley", "contact": "555-0101", "Customer GSTIN": "29ABCDE1234F1Z5" },
-                { "Customer Name": "Innovate Solutions", "Address": "456 Innovation Dr, Boston", "contact": "555-0102", "Customer GSTIN": "07HIJKL5678M2Z9" },
-                { "Customer Name": "Sunrise Retail", "Address": "789 Market St, New York", "contact": "555-0103", "Customer GSTIN": "36NOPQR9101A3Z4" }
-            ];
-
-            const mockProducts = [
-                { "MODEL": "Pump", "MODEL NUMBER": "X-100", "DEVICE": "Water Motor", "SIZE": "1.5 HP", "HSN/SAC": "8413", "ITEM NAME": "Submersible Pump", "PRICE": 12500, "AVAILABILITY": "Yes" },
-                { "MODEL": "Filter", "MODEL NUMBER": "AQ-25", "DEVICE": "Purifier", "SIZE": "Medium", "HSN/SAC": "8421", "ITEM NAME": "Carbon Block Filter", "PRICE": 800, "AVAILABILITY": "Yes" },
-                { "MODEL": "Valve", "MODEL NUMBER": "BV-50", "DEVICE": "Flow Control", "SIZE": "2-inch", "HSN/SAC": "8481", "ITEM NAME": "Brass Ball Valve", "PRICE": 450, "AVAILABILITY": "No" },
-                { "MODEL": "Hose", "MODEL NUMBER": "FLX-10", "DEVICE": "Connector", "SIZE": "10m", "HSN/SAC": "3917", "ITEM NAME": "Flexible PVC Hose", "PRICE": 1200, "AVAILABILITY": "Yes" }
-            ];
-
-            const mockInvoiceHistory = [
-                { number: "INV-101", date: "2025-07-15", customer: "Global Tech Inc.", amount: 14750.00, status: 'paid' },
-                { number: "INV-102", date: "2025-07-20", customer: "Innovate Solutions", amount: 944.00, status: 'unpaid' },
-                { number: "INV-103", date: "2025-06-25", customer: "Sunrise Retail", amount: 531.00, status: 'unpaid' }
-            ];
-
-            return {
-                customers: mockCustomers,
-                products: mockProducts,
-                invoiceHistory: mockInvoiceHistory,
-                nextInvoiceNumber: 104
-            };
+        // --- DATA FETCHING ---
+        function fetchCsvData(url) {
+            return new Promise((resolve, reject) => {
+                Papa.parse(url, {
+                    download: true,
+                    header: true,
+                    complete: results => resolve(results.data),
+                    error: error => reject(error)
+                });
+            });
         }
 
         async function syncData() {
-            showToast('Syncing data...', 'info');
-            localStorage.removeItem('cached_all_data');
-            
-            // --- USING MOCK DATA (TEMPORARY FIX) ---
-            // This simulates a successful API call with local sample data.
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    console.log("Using mock data for demonstration.");
-                    const mockData = getMockData();
-                    const result = { success: true, data: mockData };
-                    
-                    setCache('cached_all_data', result.data);
-                    processAllData(result.data);
-                    showToast('Demo data loaded!', 'success');
-                    resolve(result);
-                }, 1000); // 1-second delay to simulate network.
-            });
-
-            /*
-            // --- ORIGINAL API CALL (Currently not working) ---
-            // You can restore this block once your Google Apps Script API is fixed.
+            showToast('Syncing from Google Sheets...', 'info');
             try {
-                const result = await fetchJSONP({ action: 'getAllData' });
-                if (result.success && result.data) {
-                    setCache('cached_all_data', result.data);
-                    processAllData(result.data);
-                    showToast('Data synced successfully!', 'success');
-                } else {
-                    showToast(`Sync failed: ${result.error || "Unknown error"}`, "error");
-                }
+                // Fetch live data from CSV URLs
+                const [customerData, productData] = await Promise.all([
+                    fetchCsvData(CUSTOMERS_CSV_URL),
+                    fetchCsvData(PRODUCTS_CSV_URL)
+                ]);
+
+                // NOTE: Invoice history and next invoice number cannot be fetched from public CSVs.
+                // Using sample data for demonstration.
+                const sampleInvoiceHistory = [
+                     { number: "INV-001", date: "2025-07-25", customer: customerData[0]?.['Customer Name'] || 'Sample Customer', amount: 14750.00, status: 'paid' },
+                     { number: "INV-002", date: "2025-07-26", customer: customerData[1]?.['Customer Name'] || 'Sample Customer 2', amount: 944.00, status: 'unpaid' }
+                ];
+
+                const combinedData = {
+                    customers: customerData,
+                    products: productData,
+                    invoiceHistory: sampleInvoiceHistory, // Using sample history
+                    nextInvoiceNumber: sampleInvoiceHistory.length + 1 // Calculating next number based on sample history
+                };
+
+                processAllData(combinedData);
+                showToast('Live data loaded!', 'success');
             } catch (error) {
-                showToast("Network error during sync.", "error");
+                console.error("Error fetching live data:", error);
+                showToast("Could not fetch live data. Check console.", "error");
             }
-            */
         }
     </script>
 </body>
