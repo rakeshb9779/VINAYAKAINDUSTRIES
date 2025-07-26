@@ -2,716 +2,1272 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>VINAYAKA INDUSTRIES | Invoice Generator Pro</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Tailwind -->
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- PapaParse for CSV -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <!-- html2pdf for PDF Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
-        html, body { height: 100%; }
-        body { font-family: 'Inter', sans-serif; background: #1e2636; color: #f1f5f9; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary-rgb: 56 189 248;       /* Blue from original file */
+            --primary-dark-rgb: 37 99 235;    /* Darker blue from original file */
+
+            /* Light Theme */
+            --bg-light: 241 245 249; /* slate-100 */
+            --text-light: 15 23 42; /* slate-900 */
+            --card-bg-light: rgba(255, 255, 255, 0.7);
+            --card-border-light: rgba(var(--primary-rgb), 0.3);
+            --input-bg-light: rgba(255, 255, 255, 0.8);
+            --input-border-light: rgba(var(--primary-rgb), 0.4);
+            --text-muted-light: 100 116 139; /* slate-500 */
+            --invoice-bg-light: white;
+
+            /* Dark Theme */
+            --bg-dark: #0f172a; /* slate-900 */
+            --text-dark: #f8fafc; /* slate-50 */
+            --card-bg-dark: rgba(30, 41, 59, 0.5); /* slate-800 with alpha */
+            --card-border-dark: rgba(var(--primary-rgb), 0.3);
+            --input-bg-dark: rgba(51, 65, 85, 0.5); /* slate-700 with alpha */
+            --input-border-dark: rgba(var(--primary-rgb), 0.4);
+            --text-muted-dark: #94a3b8; /* slate-400 */
+            --invoice-bg-dark: #1e293b; /* slate-800 */
+        }
+
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            transition: background-color 0.5s ease, color 0.5s ease; 
+            overflow: hidden;
+        }
+
+        body.light-theme { 
+            background-color: rgb(var(--bg-light)); 
+            color: rgb(var(--text-light)); 
+        }
+        body.dark-theme { 
+            background-color: var(--bg-dark); 
+            color: var(--text-dark); 
+        }
+
+        .main-layout { 
+            display: flex; 
+            height: 100vh; 
+        }
+
+        .sidebar {
+            width: 16rem; /* 256px */
+            height: 100vh;
+            flex-shrink: 0;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
+            transition: background-color 0.5s ease, border-color 0.5s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        body.light-theme .sidebar { 
+            background-color: var(--card-bg-light); 
+            border-right: 1px solid var(--card-border-light); 
+        }
+        body.dark-theme .sidebar { 
+            background-color: var(--card-bg-dark); 
+            border-right: 1px solid var(--card-border-dark); 
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        
+        .glass-card {
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid;
+            box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.1);
+            transition: background-color 0.5s ease, border-color 0.5s ease, transform 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+        body.light-theme .glass-card { 
+            background-color: var(--card-bg-light); 
+            border-color: var(--card-border-light); 
+        }
+        body.dark-theme .glass-card { 
+            background-color: var(--card-bg-dark); 
+            border-color: var(--card-border-dark); 
+        }
+
+        .futuristic-input, .futuristic-select, .futuristic-textarea {
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            width: 100%;
+            outline: none;
+        }
+        body.light-theme .futuristic-input, body.light-theme .futuristic-select, body.light-theme .futuristic-textarea { 
+            background-color: var(--input-bg-light); 
+            border-color: var(--input-border-light); 
+            color: var(--text-light); 
+        }
+        body.dark-theme .futuristic-input, body.dark-theme .futuristic-select, body.dark-theme .futuristic-textarea { 
+            background-color: var(--input-bg-dark); 
+            border-color: var(--input-border-dark); 
+            color: var(--text-dark); 
+        }
+        .futuristic-input:focus, .futuristic-select:focus, .futuristic-textarea:focus {
+            border-color: rgb(var(--primary-rgb));
+            box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2);
+        }
+        
+        .futuristic-btn {
+            background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .futuristic-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.25);
+        }
+        .futuristic-btn-secondary { background: linear-gradient(135deg, #34d399 0%, #059669 100%); }
+        .futuristic-btn-secondary:hover { box-shadow: 0 10px 20px rgba(52, 211, 153, 0.25); }
+        .futuristic-btn-tertiary { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .futuristic-btn-tertiary:hover { box-shadow: 0 10px 20px rgba(245, 158, 11, 0.25); }
+        .futuristic-btn-neutral { background: linear-gradient(135deg, #64748b 0%, #334155 100%); }
+        .futuristic-btn-neutral:hover { box-shadow: 0 10px 20px rgba(100, 116, 139, 0.25); }
+
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
+            color: white;
+            box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.3);
+            transform: translateY(-2px);
+        }
+        .nav-item:not(.active):hover {
+            background-color: rgba(var(--primary-rgb), 0.1);
+            transform: translateX(5px);
+        }
+        body.light-theme .nav-item:not(.active) { color: #334155; }
+        body.dark-theme .nav-item:not(.active) { color: var(--text-dark); }
+        
+        .text-muted { color: var(--text-muted-dark); }
+        body.light-theme .text-muted { color: var(--text-muted-light); }
+
+        .table-header { border-bottom: 2px solid; }
+        .table-row { border-bottom: 1px solid; }
+        body.light-theme .table-header, body.light-theme .table-row { border-color: var(--card-border-light); }
+        body.dark-theme .table-header, body.dark-theme .table-row { border-color: var(--card-border-dark); }
+        body.light-theme .table-header { background-color: rgba(var(--primary-rgb), 0.05); }
+        body.dark-theme .table-header { background-color: rgba(var(--primary-rgb), 0.1); }
+        
+        .invoice-preview {
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        body.light-theme .invoice-preview { background-color: var(--invoice-bg-light); color: var(--text-light); }
+        body.dark-theme .invoice-preview { background-color: var(--invoice-bg-dark); color: var(--text-dark); }
+        body.dark-theme .invoice-preview .text-black { color: var(--text-dark); }
+        body.dark-theme .invoice-preview .text-gray-600, body.dark-theme .invoice-preview .text-slate-400 { color: var(--text-muted-dark); }
+        body.dark-theme .invoice-preview .border-blue-500 { border-color: rgb(var(--primary-rgb)); }
+        body.dark-theme .invoice-preview .bg-gray-100 { background-color: rgba(var(--primary-rgb), 0.1); }
+        body.dark-theme .invoice-preview .bg-blue-50 { background-color: rgba(var(--primary-rgb), 0.15); }
+
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #38bdf8; border-radius: 6px; }
-        .nav-active { background: #272e3b; color: #38bdf8; }
-        .hide { display: none !important; }
-        .sidebar-main { transition: transform 0.2s; z-index: 40; }
-        .sidebar-main.closed { transform: translateX(-100%); }
-        .sidebar-main.open { transform: translateX(0); }
-        .sidebar-mini { width: 56px; transition: width 0.3s; }
-        .sidebar-mini.expanded { width: 240px; }
-        .nav-item .lucide { transition: color 0.15s; }
-        .nav-item:hover, .nav-item.active { background: #23293a; color: #38bdf8 !important; }
-        .nav-item.active .lucide, .nav-item:hover .lucide { color: #38bdf8 !important; }
-        .brand-logo { height: 38px; }
-        @media (max-width: 900px) {
-            .sidebar-main { position: fixed; left: 0; top: 0; bottom: 0; width: 210px; z-index: 50; }
-            .sidebar-mini { display: none !important; }
-            .main-content { margin-left: 0 !important; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgb(var(--primary-rgb)); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgb(var(--primary-dark-rgb)); }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @media (max-width: 600px) {
-            .sidebar-main { width: 100vw; }
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
         }
-        .transition { transition: all 0.3s; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .sidebar, .main-content > .flex.justify-between { display: none !important; }
+            .main-layout { display: block; }
+            .main-content { padding: 0; overflow: visible; }
+            .invoice-preview { box-shadow: none; margin: 0; padding: 0; }
+            body { background-color: white; color: black; }
+        }
     </style>
 </head>
-<body class="h-screen w-screen">
-
-<div id="app" class="flex h-screen w-screen overflow-hidden">
-
-    <!-- Main Navigation Sidebar -->
-    <nav id="mainSidebar"
-         class="sidebar-main open flex flex-col justify-between bg-[#192030] text-[#b3bed6] border-r border-[#283047] shadow-lg transition md:open w-56 fixed left-0 top-0 bottom-0 z-30"
-         onmouseenter="expandSidebar()" onmouseleave="collapseSidebar()" style="min-width:56px">
-        <div>
-            <div class="flex items-center h-16 justify-center border-b border-[#283047]">
-                <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="VINAYAKA INDUSTRIES LOGO" class="brand-logo mx-auto">
-            </div>
-            <ul id="navList" class="flex flex-col mt-2 gap-1">
-                <li class="nav-item px-4 py-3 flex items-center gap-3 cursor-pointer rounded-lg transition" data-page="dashboard">
-                    <i data-lucide="home" class="lucide w-5 h-5"></i>
-                    <span class="nav-label">Dashboard</span>
-                </li>
-                <li class="nav-item px-4 py-3 flex items-center gap-3 cursor-pointer rounded-lg transition" data-page="invoice">
-                    <i data-lucide="file-plus" class="lucide w-5 h-5"></i>
-                    <span class="nav-label">Create Invoice</span>
-                </li>
-                <li class="nav-item px-4 py-3 flex items-center gap-3 cursor-pointer rounded-lg transition" data-page="history">
-                    <i data-lucide="history" class="lucide w-5 h-5"></i>
-                    <span class="nav-label">Invoice History</span>
-                </li>
-                <li class="nav-item px-4 py-3 flex items-center gap-3 cursor-pointer rounded-lg transition" data-page="customers">
-                    <i data-lucide="users" class="lucide w-5 h-5"></i>
-                    <span class="nav-label">Customers</span>
-                </li>
-                <li class="nav-item px-4 py-3 flex items-center gap-3 cursor-pointer rounded-lg transition" data-page="products">
-                    <i data-lucide="package" class="lucide w-5 h-5"></i>
-                    <span class="nav-label">Products</span>
-                </li>
-                <li class="nav-item px-4 py-3 flex items-center gap-3 cursor-pointer rounded-lg transition" data-page="reports">
-                    <i data-lucide="bar-chart" class="lucide w-5 h-5"></i>
-                    <span class="nav-label">Reports</span>
-                </li>
-                <li class="nav-item px-4 py-3 flex items-center gap-3 cursor-pointer rounded-lg transition" data-page="settings">
-                    <i data-lucide="settings" class="lucide w-5 h-5"></i>
-                    <span class="nav-label">Settings</span>
-                </li>
-            </ul>
-        </div>
-        <div class="mb-4 flex flex-col items-center">
-            <button id="sidebarToggle" onclick="toggleSidebar()" class="p-2 bg-[#23293a] rounded-full shadow hover:bg-[#2d3547] transition"><i data-lucide="menu" class="lucide w-5 h-5"></i></button>
-        </div>
-    </nav>
-
-    <!-- Overlay for mobile when sidebar open -->
-    <div id="sidebarOverlay" onclick="closeSidebarMobile()" class="fixed z-20 inset-0 bg-black bg-opacity-40 hidden md:hidden"></div>
-
-    <!-- Main Content Area -->
-    <main id="mainContent" class="main-content flex-1 ml-56 h-screen overflow-auto transition bg-[#202a3b] scrollbar-hide">
-
-        <!-- DASHBOARD PAGE -->
-        <section id="dashboardPage" class="page-section py-6 px-8">
-            <h1 class="text-3xl font-extrabold mb-2 flex items-center gap-2"><i data-lucide="home" class="lucide w-7 h-7 text-[#38bdf8]"></i>Dashboard</h1>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-                <div class="rounded-xl p-6 bg-[#22304b] flex flex-col gap-1 shadow">
-                    <span class="text-sm text-[#60a5fa] font-semibold">Total Invoices</span>
-                    <span id="dashboardTotalInvoices" class="text-2xl font-bold">-</span>
-                </div>
-                <div class="rounded-xl p-6 bg-[#22304b] flex flex-col gap-1 shadow">
-                    <span class="text-sm text-[#60a5fa] font-semibold">Total Customers</span>
-                    <span id="dashboardTotalCustomers" class="text-2xl font-bold">-</span>
-                </div>
-                <div class="rounded-xl p-6 bg-[#22304b] flex flex-col gap-1 shadow">
-                    <span class="text-sm text-[#60a5fa] font-semibold">Total Products</span>
-                    <span id="dashboardTotalProducts" class="text-2xl font-bold">-</span>
-                </div>
-            </div>
-            <div class="rounded-xl p-8 mt-8 bg-[#233043] shadow flex flex-col gap-3">
-                <span class="text-lg font-semibold text-[#38bdf8]">Total Sales</span>
-                <span id="dashboardTotalSales" class="text-2xl font-bold">₹-</span>
-            </div>
-        </section>
-
-        <!-- CREATE INVOICE PAGE -->
-        <section id="invoicePage" class="page-section hide flex h-full">
-            <!-- Invoice Sidebar (existing glass UI, your layout) -->
-            <aside id="invoiceSidebar" class="w-[360px] min-w-[340px] bg-[#1c2635] border-r border-[#23293a] h-full px-7 py-8 flex flex-col gap-8">
-                <div class="flex items-center gap-2 mb-6">
-                    <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" class="brand-logo mr-2" alt="VINAYAKA Logo">
-                    <span class="uppercase tracking-widest font-bold text-[#a0aec0] text-xs">Vinayaka Industries LOGO</span>
-                </div>
-                <div>
-                    <h2 class="font-bold text-xl mb-4 text-[#38bdf8] flex items-center gap-2"><i data-lucide="user-round" class="lucide w-5 h-5"></i>Customer Details</h2>
-                    <input type="text" id="customer-name" class="w-full rounded-lg mb-2 px-4 py-3 bg-[#22304b] text-white outline-none" placeholder="Customer Name">
-                    <input type="text" id="customer-gstin" class="w-full rounded-lg mb-2 px-4 py-3 bg-[#22304b] text-white outline-none" placeholder="Customer GSTIN">
-                    <textarea id="customer-address" class="w-full rounded-lg px-4 py-3 bg-[#22304b] text-white outline-none mb-2" rows="2" placeholder="Place of Delivery"></textarea>
-                </div>
-                <div>
-                    <h2 class="font-bold text-xl mb-4 text-[#38bdf8] flex items-center gap-2"><i data-lucide="package-plus" class="lucide w-5 h-5"></i>Items</h2>
-                    <div id="items-container" class="space-y-4"></div>
-                    <div id="no-items-message" class="text-center italic p-4" style="display: none;">No items added.</div>
-                    <button type="button" onclick="addItem()" class="bg-[#38bdf8] hover:bg-[#2563eb] text-white px-4 py-2 rounded-lg font-bold mt-3 w-full flex items-center justify-center gap-2"><i data-lucide="plus" class="lucide w-5 h-5"></i>Add Item</button>
-                </div>
-            </aside>
-            <!-- Invoice Content -->
-            <div class="flex-1 h-full overflow-auto px-4 py-7 bg-[#202a3b]">
-                <div id="invoice-preview-container"></div>
-                <footer class="flex gap-4 justify-center fixed bottom-4 left-[360px] right-4 z-40">
-                    <button onclick="updateInvoice()" class="bg-[#38bdf8] hover:bg-[#2563eb] text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"><i data-lucide="eye" class="lucide w-5 h-5"></i>Preview Live</button>
-                    <button onclick="printInvoice()" class="bg-[#38bdf8] hover:bg-[#2563eb] text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"><i data-lucide="printer" class="lucide w-5 h-5"></i>Print</button>
-                    <button onclick="downloadPDF()" class="bg-[#38bdf8] hover:bg-[#2563eb] text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"><i data-lucide="file-down" class="lucide w-5 h-5"></i>Download</button>
-                    <button onclick="saveInvoice()" class="bg-[#22d3ee] hover:bg-[#0891b2] text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"><i data-lucide="save" class="lucide w-5 h-5"></i>Save</button>
-                    <button onclick="showSettings()" class="bg-[#64748b] hover:bg-[#334155] text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2"><i data-lucide="settings" class="lucide w-5 h-5"></i>Settings</button>
-                </footer>
-            </div>
-        </section>
-
-        <!-- INVOICE HISTORY PAGE -->
-        <section id="historyPage" class="page-section hide py-10 px-8">
-            <h1 class="text-2xl font-bold mb-5 flex items-center gap-2"><i data-lucide="history" class="lucide w-6 h-6 text-[#38bdf8]"></i>Invoice History</h1>
-            <div class="mb-4 flex gap-2">
-                <input type="text" id="history-search" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none w-72" placeholder="Search Invoice No or Customer Name">
-                <button onclick="loadInvoiceHistory()" class="bg-[#38bdf8] hover:bg-[#2563eb] text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2"><i data-lucide="refresh-cw" class="lucide w-4 h-4"></i>Refresh</button>
-            </div>
-            <div id="history-list" class="space-y-3 max-h-[60vh] overflow-y-auto"></div>
-        </section>
-
-        <!-- CUSTOMERS PAGE -->
-        <section id="customersPage" class="page-section hide py-10 px-8">
-            <h1 class="text-2xl font-bold mb-4 flex items-center gap-2"><i data-lucide="users" class="lucide w-6 h-6 text-[#38bdf8]"></i>Customers</h1>
-            <div class="mb-6 flex gap-4 items-end">
-                <input type="text" id="newCustomerName" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none" placeholder="Customer Name">
-                <input type="text" id="newCustomerGSTIN" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none" placeholder="GSTIN">
-                <input type="text" id="newCustomerAddress" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none" placeholder="Address">
-                <button onclick="addNewCustomer()" class="bg-[#38bdf8] hover:bg-[#2563eb] text-white px-5 py-2 rounded-lg font-semibold flex items-center gap-2"><i data-lucide="user-plus" class="lucide w-5 h-5"></i>Add</button>
-            </div>
-            <div id="customerList" class="space-y-2"></div>
-        </section>
-
-        <!-- PRODUCTS PAGE -->
-        <section id="productsPage" class="page-section hide py-10 px-8">
-            <h1 class="text-2xl font-bold mb-4 flex items-center gap-2"><i data-lucide="package" class="lucide w-6 h-6 text-[#38bdf8]"></i>Products</h1>
-            <div class="mb-6 flex gap-4 items-end">
-                <input type="text" id="newProductModel" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none" placeholder="Model + Model No.">
-                <input type="text" id="newProductDevice" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none" placeholder="Device">
-                <input type="text" id="newProductName" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none" placeholder="Item Name">
-                <input type="text" id="newProductHSN" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none" placeholder="HSN/SAC">
-                <input type="text" id="newProductRate" class="rounded-lg px-4 py-2 bg-[#22304b] text-white outline-none" placeholder="Rate">
-                <button onclick="addNewProduct()" class="bg-[#38bdf8] hover:bg-[#2563eb] text-white px-5 py-2 rounded-lg font-semibold flex items-center gap-2"><i data-lucide="plus" class="lucide w-5 h-5"></i>Add</button>
-            </div>
-            <div id="productList" class="space-y-2"></div>
-        </section>
-
-        <!-- REPORTS PAGE -->
-        <section id="reportsPage" class="page-section hide py-10 px-8">
-            <h1 class="text-2xl font-bold mb-4 flex items-center gap-2"><i data-lucide="bar-chart" class="lucide w-6 h-6 text-[#38bdf8]"></i>Reports</h1>
-            <div class="rounded-lg bg-[#22304b] p-6 text-white">
-                <h2 class="font-bold mb-3">Coming Soon: Sales/Tax Reports, Inventory, and More!</h2>
-                <div id="reports-content"></div>
-            </div>
-        </section>
-
-        <!-- SETTINGS PAGE -->
-        <section id="settingsPage" class="page-section hide py-10 px-8">
-            <h1 class="text-2xl font-bold mb-4 flex items-center gap-2"><i data-lucide="settings" class="lucide w-6 h-6 text-[#38bdf8]"></i>Settings</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div class="bg-[#22304b] p-6 rounded-xl">
-                    <h2 class="font-semibold text-[#38bdf8] mb-3">Invoice Prefix</h2>
-                    <input type="text" id="settings-invoice-prefix" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-48" placeholder="e.g. VI-001">
-                </div>
-                <div class="bg-[#22304b] p-6 rounded-xl">
-                    <h2 class="font-semibold text-[#38bdf8] mb-3">Company Details</h2>
-                    <input type="text" id="settings-gstin" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-80 mb-2" placeholder="GSTIN">
-                    <input type="text" id="settings-contact" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-80 mb-2" placeholder="Contact Numbers">
-                    <input type="text" id="settings-email" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-80 mb-2" placeholder="Email">
-                    <input type="text" id="settings-address" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-80 mb-2" placeholder="Company Address">
-                </div>
-                <div class="bg-[#22304b] p-6 rounded-xl">
-                    <h2 class="font-semibold text-[#38bdf8] mb-3">Bank & Payment</h2>
-                    <input type="text" id="settings-bank-name" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-72 mb-2" placeholder="Bank Name">
-                    <input type="text" id="settings-account-number" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-72 mb-2" placeholder="Account Number">
-                    <input type="text" id="settings-ifsc-code" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-72 mb-2" placeholder="IFSC Code">
-                    <input type="text" id="settings-payment-terms" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-72 mb-2" placeholder="Payment Terms">
-                </div>
-                <div class="bg-[#22304b] p-6 rounded-xl">
-                    <h2 class="font-semibold text-[#38bdf8] mb-3">Other Preferences</h2>
-                    <div class="flex items-center gap-3 mb-3">
-                        <input type="checkbox" id="settings-keep-draft" class="w-5 h-5">
-                        <label for="settings-keep-draft" class="text-white">Keep Invoice Draft after Save</label>
+<body class="dark-theme">
+    <div class="main-layout">
+        <aside class="sidebar no-print">
+            <div class="flex justify-between items-center mb-6">
+                 <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-2 rounded-lg shadow-lg">
+                        <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
                     </div>
-                    <textarea id="settings-notes" class="rounded-lg px-4 py-2 bg-[#1c2635] text-white outline-none w-full" rows="3" placeholder="Notes / Remarks"></textarea>
+                    <div>
+                        <h1 class="font-bold text-lg tracking-wider">VINAYAKA</h1>
+                        <p class="text-xs text-muted">INDUSTRIES</p>
+                    </div>
+                </div>
+                <button id="theme-toggle" class="p-2 rounded-full transition-colors duration-300 hover:bg-black/10 dark:hover:bg-white/10">
+                    <i id="theme-icon" data-lucide="sun" class="w-5 h-5 text-muted"></i>
+                </button>
+            </div>
+
+            <nav class="flex-grow">
+                <ul class="space-y-2">
+                    <li><a href="#dashboard" class="nav-item active"><i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>Dashboard</span></a></li>
+                    <li><a href="#create-invoice" class="nav-item"><i data-lucide="file-plus" class="w-5 h-5"></i><span>Create Invoice</span></a></li>
+                    <li><a href="#invoice-history" class="nav-item"><i data-lucide="history" class="w-5 h-5"></i><span>Invoice History</span></a></li>
+                    <li><a href="#customers" class="nav-item"><i data-lucide="users" class="w-5 h-5"></i><span>Customers</span></a></li>
+                    <li><a href="#products" class="nav-item"><i data-lucide="package" class="w-5 h-5"></i><span>Products</span></a></li>
+                    <li><a href="#reports" class="nav-item"><i data-lucide="bar-chart-3" class="w-5 h-5"></i><span>Reports</span></a></li>
+                </ul>
+            </nav>
+             <div>
+                <a href="#settings" class="nav-item"><i data-lucide="settings" class="w-5 h-5"></i><span>Settings</span></a>
+             </div>
+        </aside>
+
+        <main class="main-content">
+            <div id="dashboard" class="page">
+                <div class="flex justify-between items-center mb-8 fade-in-up" style="animation-delay: 100ms;">
+                    <div>
+                        <h2 class="text-3xl font-bold">Invoice Generator Pro</h2>
+                        <p class="text-muted">Create professional invoices with GST compliance</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="bg-green-500/20 text-green-400 text-xs font-semibold px-3 py-1 rounded-full flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>GST Ready
+                        </span>
+                        <button onclick="syncData()" class="futuristic-btn futuristic-btn-neutral">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Sync</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card p-6 fade-in-up" style="animation-delay: 200ms;">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-muted text-sm">TOTAL INVOICES</p>
+                                <p class="text-3xl font-bold" id="stats-total-invoices">0</p>
+                            </div>
+                            <div class="bg-blue-500/20 p-3 rounded-lg"><i data-lucide="file-text" class="text-blue-400"></i></div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-6 fade-in-up" style="animation-delay: 300ms;">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-muted text-sm">REVENUE</p>
+                                <p class="text-3xl font-bold" id="stats-revenue">₹0</p>
+                            </div>
+                            <div class="bg-green-500/20 p-3 rounded-lg"><i data-lucide="dollar-sign" class="text-green-400"></i></div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-6 fade-in-up" style="animation-delay: 400ms;">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-muted text-sm">ACTIVE CUSTOMERS</p>
+                                <p class="text-3xl font-bold" id="stats-active-customers">0</p>
+                            </div>
+                            <div class="bg-yellow-500/20 p-3 rounded-lg"><i data-lucide="users" class="text-yellow-400"></i></div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-6 fade-in-up" style="animation-delay: 500ms;">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-muted text-sm">PRODUCTS</p>
+                                <p class="text-3xl font-bold" id="stats-products">0</p>
+                            </div>
+                            <div class="bg-purple-500/20 p-3 rounded-lg"><i data-lucide="package" class="text-purple-400"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 fade-in-up" style="animation-delay: 600ms;">
+                    <h3 class="text-xl font-bold mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="#create-invoice" class="nav-link-action futuristic-btn p-6 rounded-lg flex flex-col items-start justify-between text-left h-40">
+                            <i data-lucide="file-plus" class="w-8 h-8 mb-4"></i>
+                            <div>
+                                <p class="font-bold text-lg">Create Invoice</p>
+                                <p class="text-sm font-normal text-white/70">Generate GST invoice</p>
+                            </div>
+                        </a>
+                        <a href="#customers" class="nav-link-action futuristic-btn futuristic-btn-secondary p-6 rounded-lg flex flex-col items-start justify-between text-left h-40">
+                            <i data-lucide="user-plus" class="w-8 h-8 mb-4"></i>
+                            <div>
+                                <p class="font-bold text-lg">Add Customer</p>
+                                <p class="text-sm font-normal text-white/70">Register new customer</p>
+                            </div>
+                        </a>
+                        <a href="#products" class="nav-link-action futuristic-btn futuristic-btn-tertiary p-6 rounded-lg flex flex-col items-start justify-between text-left h-40">
+                            <i data-lucide="package-plus" class="w-8 h-8 mb-4"></i>
+                            <div>
+                                <p class="font-bold text-lg">Add Product</p>
+                                <p class="text-sm font-normal text-white/70">Manage inventory</p>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
-            <button onclick="saveSettings()" class="bg-[#22d3ee] hover:bg-[#0891b2] text-white px-7 py-3 rounded-lg font-semibold mt-8 flex items-center gap-2"><i data-lucide="save" class="lucide w-5 h-5"></i>Save Settings</button>
-        </section>
-    </main>
-</div>
 
-<!-- SWEETALERT2 TOAST -->
-<script>
-    const Toast = Swal.mixin({ toast:true, position:'top-end', showConfirmButton:false, timer:2700, timerProgressBar:true, didOpen:t=>{t.onmouseenter=Swal.stopTimer;t.onmouseleave=Swal.resumeTimer} });
-    const showSuccess = m=>Toast.fire({icon:'success',title:m,background:'#1e293b',color:'#38bdf8'});
-    const showError = m=>Toast.fire({icon:'error',title:m,background:'#fee2e2',color:'#991b1b'});
-</script>
+            <div id="create-invoice" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Create Invoice</h2>
+                        <p class="text-muted">Generate GST compliant invoices</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-neutral">
+                            <i data-lucide="eye" class="w-4 h-4"></i><span>Preview</span>
+                        </button>
+                        <button onclick="generatePDF()" class="futuristic-btn">
+                            <i data-lucide="download" class="w-4 h-4"></i><span>Generate PDF</span>
+                        </button>
+                    </div>
+                </div>
 
-<!-- MAIN APP LOGIC -->
-<script>
-// ===============================
-// === CONFIGURATION
-// ===============================
-const GOOGLE_APPS_SCRIPT_URL = 'https://vinayakaindustries.netlify.app/.netlify/functions/proxy'; // your Netlify proxy URL!
-const COMPANY_LOGO_URL = "https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W";
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Invoice Details</h3>
+                        <form id="invoice-form" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Invoice Number</label>
+                                    <input id="invoice-number" type="text" class="futuristic-input" readonly>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Invoice Date</label>
+                                    <input id="invoice-date" type="date" class="futuristic-input" required>
+                                </div>
+                            </div>
 
-// ===============================
-// === STATE/STORE
-// ===============================
-let state = {
-    currentPage: "dashboard",
-    customers: [],
-    products: [],
-    history: [],
-    appSettings: {
-        invoicePrefix: "VI-001",
-        gstin: "29AQCPK0903A1ZI",
-        contact: "+91 9448355315, +91 9980561436",
-        email: "Vinayakaindustries.banglore@mail.com",
-        address: "No.34, Lakshmipura Main Road, Chikkabanavara post, Abbigere, Bangalore - 560090",
-        bankName: "",
-        accountNumber: "",
-        ifscCode: "",
-        paymentTerms: "",
-        notes: "",
-        keepDraft: false,
-    },
-    invoiceDraft: {
-        invoiceNumber: "VI-001",
-        customerName: "",
-        customerGSTIN: "",
-        customerAddress: "",
-        items: []
-    }
-};
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Due Date</label>
+                                    <input id="due-date" type="date" class="futuristic-input" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Challan Date</label>
+                                    <input id="challan-date" type="date" class="futuristic-input">
+                                </div>
+                            </div>
 
-// ===============================
-// === SIDEBAR + NAV
-// ===============================
-function expandSidebar() {
-    document.getElementById('mainSidebar').classList.remove('closed');
-}
-function collapseSidebar() {
-    if (state.currentPage === "invoice") {
-        document.getElementById('mainSidebar').classList.add('closed');
-    }
-}
-function toggleSidebar() {
-    let el = document.getElementById('mainSidebar');
-    el.classList.toggle('closed');
-}
-function closeSidebarMobile() {
-    document.getElementById('mainSidebar').classList.add('closed');
-    document.getElementById('sidebarOverlay').classList.add('hidden');
-}
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Select Customer</label>
+                                <select id="customer-select" class="futuristic-select" required>
+                                    <option value="">Select a customer...</option>
+                                </select>
+                            </div>
 
-// Navigation logic
-document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.onclick = () => {
-            let page = item.dataset.page;
-            setPage(page);
-            if (window.innerWidth < 900) closeSidebarMobile();
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Place of Supply</label>
+                                <select id="place-of-supply" class="futuristic-select" required>
+                                    <option value="">Select place of supply...</option>
+                                    <option value="29-Karnataka">29-Karnataka</option>
+                                    <option value="36-Telangana">36-Telangana</option>
+                                    <option value="37-Andhra Pradesh">37-Andhra Pradesh</option>
+                                    <option value="33-Tamil Nadu">33-Tamil Nadu</option>
+                                    <option value="32-Kerala">32-Kerala</option>
+                                    <option value="30-Goa">30-Goa</option>
+                                    <option value="27-Maharashtra">27-Maharashtra</option>
+                                    <option value="01-Jammu and Kashmir">01-Jammu and Kashmir</option>
+                                    </select>
+                            </div>
+
+                            <div class="flex items-center space-x-3">
+                                <input type="checkbox" id="reverse-charge" class="w-4 h-4 rounded">
+                                <label for="reverse-charge" class="text-sm text-muted">Reverse Charge Applicable</label>
+                            </div>
+                        </form>
+
+                        <div class="mt-8">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold">Invoice Items</h3>
+                                <button onclick="addInvoiceItem()" class="futuristic-btn futuristic-btn-secondary px-4 py-2">
+                                    <i data-lucide="plus" class="w-4 h-4"></i><span>Add Item</span>
+                                </button>
+                            </div>
+                            <div id="invoice-items-container" class="space-y-4 max-h-96 overflow-y-auto p-1">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="p-2 rounded-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">Live Preview</h3>
+                        </div>
+                        <div id="invoice-preview-container" class="border-2 border-dashed border-white/20 rounded-lg overflow-hidden">
+                            <div id="invoice-preview" class="invoice-preview p-6 min-h-[600px] scale-95 origin-top">
+                                <div class="flex flex-col justify-center items-center text-center text-muted h-full">
+                                    <i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 opacity-50"></i>
+                                    <p>Invoice preview will appear here</p>
+                                    <p class="text-sm">Fill in the invoice details to see the live preview</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="invoice-history" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Invoice History</h2>
+                        <p class="text-muted">View and manage all invoices</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <div class="relative">
+                            <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted"></i>
+                            <input type="text" id="invoice-search" placeholder="Search invoices..." class="futuristic-input pl-12 pr-4 py-3">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="table-header">
+                                    <th class="p-4">Invoice #</th>
+                                    <th class="p-4">Date</th>
+                                    <th class="p-4">Customer</th>
+                                    <th class="p-4">Amount</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoice-history-table">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="customers" class="page hidden">
+                 <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Customer Management</h2>
+                        <p class="text-muted">Add and manage your customers</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Add New Customer</h3>
+                        <form id="add-customer-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Company Name</label>
+                                <input name="Customer Name" type="text" class="futuristic-input" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Address</label>
+                                <textarea name="Address" rows="3" class="futuristic-textarea" required></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Contact Number</label>
+                                <input name="contact" type="text" class="futuristic-input" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">GSTIN</label>
+                                <input name="Customer GSTIN" type="text" class="futuristic-input" required>
+                            </div>
+                            <button type="submit" class="w-full futuristic-btn futuristic-btn-secondary font-bold py-3 mt-4">Add Customer</button>
+                        </form>
+                    </div>
+                    <div class="lg:col-span-2 glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Existing Customers</h3>
+                        <div id="existing-customers-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-4">
+                           </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="products" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Inventory Management</h2>
+                        <p class="text-muted">Add and manage your products</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Add New Product</h3>
+                        <form id="add-product-form" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Model</label>
+                                    <input name="MODEL" type="text" class="futuristic-input" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Model Number</label>
+                                    <input name="MODEL NUMBER" type="text" class="futuristic-input">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Device</label>
+                                <input name="DEVICE" type="text" class="futuristic-input" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Size</label>
+                                    <input name="SIZE" type="text" class="futuristic-input">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">HSN/SAC</label>
+                                    <input name="HSN/SAC" type="text" value="8413" class="futuristic-input" required>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Item Name</label>
+                                <input name="ITEM NAME" type="text" class="futuristic-input" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Price (₹)</label>
+                                <input name="PRICE" type="number" value="0" class="futuristic-input" required>
+                            </div>
+                             <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Availability</label>
+                                <select name="AVAILABILITY" class="futuristic-select">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full futuristic-btn futuristic-btn-secondary font-bold py-3 mt-4">Add Product</button>
+                        </form>
+                    </div>
+                    <div class="lg:col-span-2 glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Existing Products</h3>
+                        <div id="existing-products-list" class="space-y-4 max-h-[60vh] overflow-y-auto pr-4">
+                           </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="reports" class="page hidden">
+                 <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Reports & Analytics</h2>
+                        <p class="text-muted">GST returns and business insights</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="glass-card p-6">
+                        <h3 class="text-lg font-bold mb-4">GSTR-1 Summary</h3>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-muted">B2B Supplies</span>
+                                <span id="gstr1-b2b">₹0</span>
+                            </div>
+                             <div class="flex justify-between font-bold border-t pt-2 mt-2 border-white/10">
+                                <span>Total Output Tax</span>
+                                <span id="gstr1-total">₹0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="settings" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Settings</h2>
+                        <p class="text-muted">Manage application settings</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Invoice Settings</h3>
+                        <form id="invoice-settings-form" class="space-y-4">
+                            <div>
+                                <label for="invoice-prefix" class="block text-sm font-medium text-muted mb-2">Invoice Prefix</label>
+                                <input id="invoice-prefix" type="text" class="futuristic-input" placeholder="e.g., INV-">
+                            </div>
+                            <div>
+                                <label for="invoice-next-number" class="block text-sm font-medium text-muted mb-2">Next Invoice Number</label>
+                                <input id="invoice-next-number" type="number" class="futuristic-input" placeholder="e.g., 101" min="1">
+                            </div>
+                            <p class="text-sm text-muted">Example: <span id="invoice-example" class="font-mono p-1 bg-black/20 rounded"></span></p>
+                            <button type="submit" class="w-full futuristic-btn font-bold py-3 mt-4">Save Settings</button>
+                        </form>
+                    </div>
+
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Company Settings</h3>
+                        <form id="company-settings-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Company Name</label>
+                                <input id="company-name" type="text" value="Vinayaka Industries" class="futuristic-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Company Address</label>
+                                <textarea id="company-address" rows="3" class="futuristic-textarea"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Company GSTIN</label>
+                                <input id="company-gstin" type="text" class="futuristic-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Contact Number</label>
+                                <input id="company-contact" type="text" class="futuristic-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Email</label>
+                                <input id="company-email" type="email" class="futuristic-input">
+                            </div>
+                            <button type="submit" class="w-full futuristic-btn futuristic-btn-secondary font-bold py-3 mt-4">Save Company Info</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // --- THEME TOGGLE ---
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        
+        const setTheme = (isDark) => {
+            document.body.className = isDark ? 'dark-theme' : 'light-theme';
+            themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            lucide.createIcons();
+            localStorage.setItem('invoiceAppTheme', isDark ? 'dark' : 'light');
         };
-    });
-    document.getElementById('sidebarToggle').onclick = () => {
-        let sidebar = document.getElementById('mainSidebar');
-        sidebar.classList.toggle('closed');
-        document.getElementById('sidebarOverlay').classList.toggle('hidden');
-    };
-});
 
-function setPage(page) {
-    state.currentPage = page;
-    document.querySelectorAll('.page-section').forEach(sec => sec.classList.add('hide'));
-    document.getElementById(page + "Page").classList.remove('hide');
-    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-    document.querySelector('.nav-item[data-page="' + page + '"]').classList.add('active');
-    window.scrollTo(0,0); // Always scroll to top on SPA nav
-    if (page === "invoice") {
-        collapseSidebar();
-        document.getElementById('mainContent').classList.add('flex');
-    } else {
-        expandSidebar();
-        document.getElementById('mainContent').classList.remove('flex');
-    }
-    if (page === "dashboard") renderDashboard();
-    if (page === "history") loadInvoiceHistory();
-    if (page === "customers") renderCustomers();
-    if (page === "products") renderProducts();
-}
-window.setPage = setPage;
+        themeToggle.onclick = () => {
+            const isDark = document.body.classList.contains('dark-theme');
+            setTheme(!isDark);
+        };
+        
+        // --- ALL APP SCRIPT FROM DUMMY.HTML ---
+        
+        // API configuration
+        const API_URL = 'https://script.google.com/macros/s/AKfycbz3hesA-60vel0WChlv5qxoHg_RZX63330drrefG_U5PKUOMSoCP3p0LYAnYcQLYw6C/exec';
+        const CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
 
-// ===============================
-// === DASHBOARD
-// ===============================
-function renderDashboard() {
-    document.getElementById('dashboardTotalInvoices').innerText = state.history.length;
-    document.getElementById('dashboardTotalCustomers').innerText = state.customers.length;
-    document.getElementById('dashboardTotalProducts').innerText = state.products.length;
-    let totalSales = 0;
-    state.history.forEach(inv => {
-        let j = {};
-        try { j = JSON.parse(inv.fullInvoiceJSON); } catch {}
-        if (j && j.invoiceData && j.invoiceData.grandTotal) totalSales += parseFloat(j.invoiceData.grandTotal || 0);
-    });
-    document.getElementById('dashboardTotalSales').innerText = "₹" + totalSales.toLocaleString("en-IN");
-}
+        // Global state
+        let customers = [];
+        let allProducts = [];
+        let invoiceItems = [];
+        let invoiceHistory = [];
+        let currentInvoiceNumber = 'INV-001';
 
-// ===============================
-// === INVOICE ENGINE
-// ===============================
-function resetInvoiceDraft() {
-    state.invoiceDraft = {
-        invoiceNumber: state.appSettings.invoicePrefix || "VI-001",
-        customerName: "",
-        customerGSTIN: "",
-        customerAddress: "",
-        items: [{ model: "", device: "", itemName: "", description: "", hsnSac: "", quantity: 1, rate: 0, discount: 0 }]
-    };
-    updateInvoiceForm();
-}
-function updateInvoiceForm() {
-    // Inputs to state
-    document.getElementById('customer-name').value = state.invoiceDraft.customerName || "";
-    document.getElementById('customer-gstin').value = state.invoiceDraft.customerGSTIN || "";
-    document.getElementById('customer-address').value = state.invoiceDraft.customerAddress || "";
-    renderItems();
-    renderInvoicePreview();
-}
+        // Initialize app
+        window.onload = () => {
+            try {
+                // Load theme first
+                const savedTheme = localStorage.getItem('invoiceAppTheme');
+                setTheme(savedTheme === 'light' ? false : true);
 
-// ==================
-// ITEM RENDER/EDIT
-// ==================
-function renderItems() {
-    const container = document.getElementById('items-container');
-    if (!container) return;
-    container.innerHTML = "";
-    (state.invoiceDraft.items || []).forEach((item, idx) => {
-        let html = `
-        <div class="rounded-lg border border-[#23293a] bg-[#233043] p-3 relative flex flex-col gap-2">
-            <div class="grid grid-cols-2 gap-2">
-                <input type="text" placeholder="Model + Model No." value="${item.model || ""}" class="rounded px-2 py-1 bg-[#202a3b] text-white" oninput="updateItem(${idx}, 'model', this.value)">
-                <select class="rounded px-2 py-1 bg-[#202a3b] text-white" onchange="updateItem(${idx}, 'device', this.value)">
-                    <option value="">Select Device</option>
-                    <option value="SWING DEVICE" ${item.device === "SWING DEVICE" ? "selected" : ""}>SWING DEVICE</option>
-                    <option value="TRAVEL DEVICE" ${item.device === "TRAVEL DEVICE" ? "selected" : ""}>TRAVEL DEVICE</option>
-                    <option value="-" ${item.device === "-" ? "selected" : ""}>-</option>
-                </select>
-            </div>
-            <input type="text" placeholder="Item Name" value="${item.itemName || ""}" class="rounded px-2 py-1 bg-[#202a3b] text-white" oninput="updateItem(${idx}, 'itemName', this.value)">
-            <input type="text" placeholder="Full Description" value="${item.description || ""}" class="rounded px-2 py-1 bg-[#202a3b] text-white" oninput="updateItem(${idx}, 'description', this.value)">
-            <div class="grid grid-cols-4 gap-2">
-                <input type="text" placeholder="HSN" value="${item.hsnSac || ""}" class="rounded px-2 py-1 bg-[#202a3b] text-white" oninput="updateItem(${idx}, 'hsnSac', this.value)">
-                <input type="number" placeholder="Qty" value="${item.quantity || 1}" min="1" class="rounded px-2 py-1 bg-[#202a3b] text-white" oninput="updateItem(${idx}, 'quantity', this.value)">
-                <input type="number" placeholder="Rate" value="${item.rate || 0}" class="rounded px-2 py-1 bg-[#202a3b] text-white" oninput="updateItem(${idx}, 'rate', this.value)">
-                <input type="number" placeholder="Disc%" value="${item.discount || 0}" min="0" max="100" class="rounded px-2 py-1 bg-[#202a3b] text-white" oninput="updateItem(${idx}, 'discount', this.value)">
-            </div>
-            ${state.invoiceDraft.items.length > 1 ? `<button onclick="removeItem(${idx})" class="absolute right-2 top-2 text-red-400 hover:text-red-600"><i data-lucide='x' class='lucide w-4 h-4'></i></button>` : ""}
-        </div>
-        `;
-        container.insertAdjacentHTML('beforeend', html);
-    });
-    lucide.createIcons();
-}
-window.updateItem = (idx, field, val) => {
-    state.invoiceDraft.items[idx][field] = val;
-    renderInvoicePreview();
-};
-window.removeItem = idx => {
-    state.invoiceDraft.items.splice(idx, 1);
-    renderItems(); renderInvoicePreview();
-};
-window.addItem = () => {
-    state.invoiceDraft.items.push({ model: "", device: "", itemName: "", description: "", hsnSac: "", quantity: 1, rate: 0, discount: 0 });
-    renderItems(); renderInvoicePreview();
-};
+                const initialPage = window.location.hash.substring(1) || 'dashboard';
+                showPage(initialPage);
+                init();
+            } catch (e) {
+                console.error("Critical error on load:", e);
+                showToast("A critical error occurred. Please refresh.", "error");
+            }
+        };
 
-// ==================
-// INVOICE PREVIEW
-// ==================
-function renderInvoicePreview() {
-    // Calculate totals
-    let items = state.invoiceDraft.items || [];
-    let total = 0;
-    let rows = items.map((item, idx) => {
-        let qty = parseFloat(item.quantity) || 1;
-        let rate = parseFloat(item.rate) || 0;
-        let disc = parseFloat(item.discount) || 0;
-        let amt = qty * rate * (1 - disc / 100);
-        total += amt;
-        return `<tr class="border-b border-[#23293a]"><td class="p-2">${idx + 1}</td><td class="p-2">${(item.model || "") + (item.model && item.itemName ? " " : "") + (item.itemName || "")}</td><td class="p-2">${item.hsnSac || ""}</td><td class="p-2">${qty}</td><td class="p-2">₹${rate.toFixed(2)}</td><td class="p-2">${disc}%</td><td class="p-2">₹${amt.toFixed(2)}</td></tr>`;
-    }).join('');
-    let previewHTML = `
-    <div class="bg-white rounded-lg p-7 shadow text-black max-w-4xl mx-auto mt-2 mb-10 border border-[#d1d5db]">
-        <div class="flex justify-between items-start border-b pb-2">
-            <img src="${COMPANY_LOGO_URL}" class="h-14" alt="Vinayaka Logo">
-            <div class="text-xs text-right leading-4">
-                <div>${state.appSettings.address}</div>
-                <div>GSTIN: ${state.appSettings.gstin}</div>
-                <div>Phone: ${state.appSettings.contact}</div>
-                <div>Email: ${state.appSettings.email}</div>
-            </div>
-        </div>
-        <div class="text-center text-base font-bold my-3">TAX INVOICE</div>
-        <div class="flex gap-4 justify-between border-b pb-2 mb-2 text-xs">
-            <div>
-                <div><b>M/s.:</b> ${state.invoiceDraft.customerName || "-"}</div>
-                <div><b>Place of Supply:</b> ${state.invoiceDraft.customerAddress || "-"}</div>
-                <div><b>GSTIN No.:</b> ${state.invoiceDraft.customerGSTIN || "-"}</div>
-            </div>
-            <div>
-                <div><b>Invoice No.:</b> ${state.invoiceDraft.invoiceNumber || "-"}</div>
-                <div><b>Date:</b> ${new Date().toISOString().slice(0, 10)}</div>
-                <div><b>DELIVERY:</b> ${state.invoiceDraft.customerAddress || "-"}</div>
-            </div>
-        </div>
-        <table class="w-full text-xs border mb-3">
-            <thead class="bg-[#e2e8f0] text-[#23293a]">
-                <tr><th class="p-2">SrNo.</th><th>Product name</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Disc%</th><th>Amount</th></tr>
-            </thead>
-            <tbody>${rows}</tbody>
-        </table>
-        <div class="flex justify-between text-sm">
-            <div>
-                <b>GSTIN No.:</b> ${state.appSettings.gstin}<br>
-                <b>Bill Amount:</b> ₹${total.toFixed(2)}<br>
-            </div>
-            <div class="text-right">
-                <b>Grand Total:</b> ₹${total.toFixed(2)}<br>
-                <b>Bank:</b> ${state.appSettings.bankName}<br>
-                <b>IFSC:</b> ${state.appSettings.ifscCode}<br>
-            </div>
-        </div>
-        <div class="mt-2 text-xs">${state.appSettings.paymentTerms}</div>
-        <div class="mt-1 text-xs text-gray-500">${state.appSettings.notes}</div>
-    </div>`;
-    document.getElementById('invoice-preview-container').innerHTML = previewHTML;
-}
-window.updateInvoice = () => {
-    // update from form fields
-    state.invoiceDraft.customerName = document.getElementById('customer-name').value;
-    state.invoiceDraft.customerGSTIN = document.getElementById('customer-gstin').value;
-    state.invoiceDraft.customerAddress = document.getElementById('customer-address').value;
-    renderInvoicePreview();
-};
-
-// ==================
-// PDF, PRINT, SAVE
-// ==================
-window.printInvoice = () => window.print();
-
-window.downloadPDF = () => {
-    Swal.fire({title:'Generating PDF...'});
-    html2pdf().from(document.getElementById('invoice-preview-container')).set({
-        margin: 0.25,
-        filename: `${state.invoiceDraft.invoiceNumber || "invoice"}.pdf`,
-        jsPDF: {unit:'in',format:'a4',orientation:'portrait'}
-    }).save().then(()=>Swal.close());
-};
-
-window.saveInvoice = async () => {
-    // POST to your Netlify Proxy
-    Swal.fire({title:'Saving Invoice...',allowOutsideClick:false,showConfirmButton:false});
-    let total = 0;
-    (state.invoiceDraft.items || []).forEach((item) => {
-        let qty = parseFloat(item.quantity) || 1;
-        let rate = parseFloat(item.rate) || 0;
-        let disc = parseFloat(item.discount) || 0;
-        total += qty * rate * (1 - disc / 100);
-    });
-    let dataToSend = {
-        invoiceData: {
-            invoiceNumber: state.invoiceDraft.invoiceNumber,
-            customerName: state.invoiceDraft.customerName,
-            customerGSTIN: state.invoiceDraft.customerGSTIN,
-            customerAddress: state.invoiceDraft.customerAddress,
-            ...state.appSettings,
-            grandTotal: total.toFixed(2)
-        },
-        items: state.invoiceDraft.items
-    };
-    try {
-        let response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify(dataToSend)
-        });
-        if (!response.ok) throw new Error("Failed to save invoice!");
-        let result = await response.json();
-        Swal.close();
-        showSuccess("Invoice Saved!");
-        // After Save: Only reset invoice if toggle OFF, and increment prefix
-        if (!state.appSettings.keepDraft) {
-            state.appSettings.invoicePrefix = incrementInvoicePrefix(state.appSettings.invoicePrefix);
-            state.invoiceDraft.invoiceNumber = state.appSettings.invoicePrefix;
-            localStorage.setItem("vinayakaAppSettings", JSON.stringify(state.appSettings));
-            resetInvoiceDraft();
+        // Utility functions
+        function setCache(key, data) {
+            try {
+                const cacheItem = { timestamp: new Date().getTime(), data: data };
+                localStorage.setItem(key, JSON.stringify(cacheItem));
+            } catch (e) { console.error("Could not write to localStorage:", e); }
         }
-    } catch (e) {
-        Swal.close();
-        showError("Save failed: "+(e.message||e));
-    }
-};
 
-// ===============================
-// === HISTORY / CUSTOMERS / PRODUCTS
-// ===============================
-function loadInvoiceHistory() {
-    document.getElementById('history-list').innerHTML = "<div class='text-gray-400'>Loading...</div>";
-    fetch(GOOGLE_APPS_SCRIPT_URL+"?action=getInvoices").then(r=>r.json()).then(res=>{
-        state.history = res.data || [];
-        renderHistory();
-        renderDashboard();
-    });
-}
-function renderHistory() {
-    let q = (document.getElementById('history-search').value || "").toLowerCase();
-    let filtered = state.history.filter(h => (h.invoiceNumber || "").toLowerCase().includes(q) || (h.customerName || "").toLowerCase().includes(q));
-    if (!filtered.length) {
-        document.getElementById('history-list').innerHTML = "<div class='text-gray-400'>No invoices found.</div>";
-        return;
-    }
-    document.getElementById('history-list').innerHTML = filtered.map(inv => `
-        <div class="bg-[#23293a] p-4 rounded-lg flex justify-between items-center">
-            <div>
-                <div><b>${inv.invoiceNumber}</b> – ${inv.customerName || ""}</div>
-                <div class="text-xs text-gray-400">${inv.date || ""}</div>
-            </div>
-            <button onclick="showInvoiceDetail('${inv.invoiceNumber}')" class="bg-[#38bdf8] text-white px-4 py-1 rounded flex items-center gap-1"><i data-lucide="eye" class="lucide w-4 h-4"></i>View</button>
-        </div>
-    `).join('');
-    lucide.createIcons();
-}
-window.showInvoiceDetail = invoiceNumber => {
-    let inv = state.history.find(h => h.invoiceNumber === invoiceNumber);
-    if (!inv) return;
-    let j = {};
-    try { j = JSON.parse(inv.fullInvoiceJSON); } catch {}
-    Swal.fire({
-        title: 'Invoice ' + invoiceNumber,
-        html: `<pre style="text-align:left;max-height:60vh;overflow:auto">${JSON.stringify(j,null,2)}</pre>`,
-        width: 700
-    });
-};
-document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById('history-search').oninput = renderHistory;
-});
+        function getCache(key) {
+            try {
+                const itemStr = localStorage.getItem(key);
+                if (!itemStr) return null;
+                const item = JSON.parse(itemStr);
+                const now = new Date().getTime();
+                if (now - item.timestamp > CACHE_EXPIRATION) {
+                    localStorage.removeItem(key);
+                    return null;
+                }
+                return item.data;
+            } catch (e) {
+                console.error("Could not read from localStorage:", e);
+                return null;
+            }
+        }
+        
+        // API functions
+        function fetchJSONP(params = {}) {
+            return new Promise((resolve, reject) => {
+                const cb = '__jsonp_cb_' + Date.now() + Math.random().toString(36).substring(2);
+                let script;
+                const timeout = setTimeout(() => {
+                    delete window[cb];
+                    if (script && document.body.contains(script)) script.remove();
+                    reject(new Error('JSONP request timed out'));
+                }, 30000);
 
-function renderCustomers() {
-    let list = state.customers.map(c => `<div class="bg-[#233043] rounded p-3 flex justify-between items-center">
-        <div>
-            <b>${c.name}</b><br>
-            <span class="text-xs text-gray-400">${c.gstin || ""}</span>
-            <span class="text-xs text-gray-400">${c.address || ""}</span>
-        </div>
-        <button onclick="deleteCustomer('${c.name}')" class="bg-red-600 text-white px-3 py-1 rounded text-xs">Delete</button>
-    </div>`).join('');
-    document.getElementById('customerList').innerHTML = list || "<div class='text-gray-400'>No customers yet.</div>";
-}
-window.addNewCustomer = () => {
-    let name = document.getElementById('newCustomerName').value;
-    if (!name) return showError("Enter customer name!");
-    state.customers.push({
-        name,
-        gstin: document.getElementById('newCustomerGSTIN').value,
-        address: document.getElementById('newCustomerAddress').value
-    });
-    renderCustomers();
-    document.getElementById('newCustomerName').value = "";
-    document.getElementById('newCustomerGSTIN').value = "";
-    document.getElementById('newCustomerAddress').value = "";
-};
-window.deleteCustomer = name => {
-    state.customers = state.customers.filter(c => c.name !== name);
-    renderCustomers();
-};
+                window[cb] = data => {
+                    clearTimeout(timeout);
+                    resolve(data);
+                    delete window[cb];
+                    if (script && document.body.contains(script)) script.remove();
+                };
 
-function renderProducts() {
-    let list = state.products.map(p => `<div class="bg-[#233043] rounded p-3 flex justify-between items-center">
-        <div>
-            <b>${p.model || ""}</b> - ${p.device || ""} - ${p.name || ""}<br>
-            <span class="text-xs text-gray-400">HSN: ${p.hsn || ""}</span>
-            <span class="text-xs text-gray-400">Rate: ₹${p.rate || ""}</span>
-        </div>
-        <button onclick="deleteProduct('${p.model}','${p.name}')" class="bg-red-600 text-white px-3 py-1 rounded text-xs">Delete</button>
-    </div>`).join('');
-    document.getElementById('productList').innerHTML = list || "<div class='text-gray-400'>No products yet.</div>";
-}
-window.addNewProduct = () => {
-    let model = document.getElementById('newProductModel').value;
-    let name = document.getElementById('newProductName').value;
-    if (!model || !name) return showError("Model and Name required!");
-    state.products.push({
-        model,
-        device: document.getElementById('newProductDevice').value,
-        name,
-        hsn: document.getElementById('newProductHSN').value,
-        rate: document.getElementById('newProductRate').value
-    });
-    renderProducts();
-    document.getElementById('newProductModel').value = "";
-    document.getElementById('newProductDevice').value = "";
-    document.getElementById('newProductName').value = "";
-    document.getElementById('newProductHSN').value = "";
-    document.getElementById('newProductRate').value = "";
-};
-window.deleteProduct = (model, name) => {
-    state.products = state.products.filter(p => p.model !== model || p.name !== name);
-    renderProducts();
-};
+                params.callback = cb;
+                const qs = new URLSearchParams(params).toString();
+                script = document.createElement('script');
+                script.src = `${API_URL}?${qs}`;
+                script.onerror = () => {
+                    clearTimeout(timeout);
+                    delete window[cb];
+                    if (script && document.body.contains(script)) script.remove();
+                    reject(new Error('JSONP script load error'));
+                };
+                document.body.appendChild(script);
+            });
+        }
+        
+        function postData(payload) {
+            if (payload.action === 'addCustomer' || payload.action === 'addProduct' || payload.action === 'addInvoice') {
+                 localStorage.removeItem('cached_all_data');
+            }
+            return fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            }).then(r => r.json());
+        }
 
-// ===============================
-// === SETTINGS (INVOICE PREFIX, DRAFT TOGGLE, COMPANY INFO, ETC.)
-// ===============================
-function showSettings() { setPage("settings"); }
-window.saveSettings = () => {
-    state.appSettings.invoicePrefix = document.getElementById('settings-invoice-prefix').value;
-    state.appSettings.gstin = document.getElementById('settings-gstin').value;
-    state.appSettings.contact = document.getElementById('settings-contact').value;
-    state.appSettings.email = document.getElementById('settings-email').value;
-    state.appSettings.address = document.getElementById('settings-address').value;
-    state.appSettings.bankName = document.getElementById('settings-bank-name').value;
-    state.appSettings.accountNumber = document.getElementById('settings-account-number').value;
-    state.appSettings.ifscCode = document.getElementById('settings-ifsc-code').value;
-    state.appSettings.paymentTerms = document.getElementById('settings-payment-terms').value;
-    state.appSettings.notes = document.getElementById('settings-notes').value;
-    state.appSettings.keepDraft = document.getElementById('settings-keep-draft').checked;
-    showSuccess("Settings Saved!");
-    localStorage.setItem("vinayakaAppSettings", JSON.stringify(state.appSettings));
-    resetInvoiceDraft();
-};
-function loadSettings() {
-    let s = localStorage.getItem("vinayakaAppSettings");
-    if (s) state.appSettings = {...state.appSettings, ...JSON.parse(s)};
-    document.getElementById('settings-invoice-prefix').value = state.appSettings.invoicePrefix;
-    document.getElementById('settings-gstin').value = state.appSettings.gstin;
-    document.getElementById('settings-contact').value = state.appSettings.contact;
-    document.getElementById('settings-email').value = state.appSettings.email;
-    document.getElementById('settings-address').value = state.appSettings.address;
-    document.getElementById('settings-bank-name').value = state.appSettings.bankName;
-    document.getElementById('settings-account-number').value = state.appSettings.accountNumber;
-    document.getElementById('settings-ifsc-code').value = state.appSettings.ifscCode;
-    document.getElementById('settings-payment-terms').value = state.appSettings.paymentTerms;
-    document.getElementById('settings-notes').value = state.appSettings.notes;
-    document.getElementById('settings-keep-draft').checked = !!state.appSettings.keepDraft;
-}
+        // Toast notifications
+        function showToast(title, icon = 'success') {
+            const isDark = document.body.classList.contains('dark-theme');
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: isDark ? '#1e293b' : '#f1f5f9',
+                color: isDark ? '#f8fafc' : '#0f172a',
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+            Toast.fire({ icon, title });
+        }
+        
+        const swalConfirm = Swal.mixin({
+            customClass: {
+                confirmButton: 'futuristic-btn futuristic-btn-secondary mx-2',
+                cancelButton: 'futuristic-btn futuristic-btn-neutral mx-2'
+            },
+            buttonsStyling: false,
+            background: document.body.classList.contains('dark-theme') ? '#1e293b' : '#fff',
+            color: document.body.classList.contains('dark-theme') ? '#f8fafc' : '#0f172a'
+        });
 
-// ===============================
-// === INVOICE NUMBER AUTOINCREMENT
-// ===============================
-function incrementInvoicePrefix(prefix) {
-    let match = prefix.match(/(\d+)(?!.*\d)/);
-    if (!match) return prefix;
-    let num = match[1], nextNum = (parseInt(num) + 1).toString().padStart(num.length, '0');
-    return prefix.slice(0, match.index) + nextNum + prefix.slice(match.index + num.length);
-}
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-item, .nav-link-action');
+        const pages = document.querySelectorAll('.page');
 
-// ===============================
-// === INIT APP
-// ===============================
-window.onload = () => {
-    loadSettings();
-    resetInvoiceDraft();
-    setPage("dashboard");
-    lucide.createIcons();
-};
+        function showPage(pageId) {
+            pages.forEach(page => page.classList.add('hidden'));
+            const activePage = document.getElementById(pageId);
+            if (activePage) activePage.classList.remove('hidden');
 
-</script>
+            document.querySelectorAll('.nav-item').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${pageId}`) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('href').substring(1);
+                showPage(pageId);
+                window.location.hash = pageId;
+            });
+        });
+
+        // App Initialization
+        async function init() {
+            setupEventListeners();
+            loadInvoiceSettings();
+            loadCompanySettings();
+            initializeInvoiceForm();
+
+            const cachedAllData = getCache('cached_all_data');
+            if (cachedAllData) {
+                console.log("Loading data from cache...");
+                processAllData(cachedAllData);
+            }
+            
+            await syncData();
+        }
+        
+        function processAllData(data) {
+             customers = data.customers || [];
+             allProducts = data.products ? data.products.map((p, index) => ({...p, row_index: index})) : [];
+             invoiceHistory = data.invoiceHistory || [];
+             const settings = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
+             const prefix = settings.prefix || 'INV-';
+             currentInvoiceNumber = `${prefix}${String(data.nextInvoiceNumber).padStart(3, '0')}`;
+             
+             renderCustomerList();
+             renderProductList();
+             updateDashboardStats();
+             populateCustomerSelect();
+             populateProductSelects(); 
+             renderInvoiceHistory();
+             document.getElementById('invoice-number').value = currentInvoiceNumber;
+        }
+
+        function setupEventListeners() {
+            document.getElementById('add-customer-form').addEventListener('submit', handleAddCustomer);
+            document.getElementById('add-product-form').addEventListener('submit', handleAddProduct);
+            document.getElementById('invoice-settings-form').addEventListener('submit', handleSaveInvoiceSettings);
+            document.getElementById('company-settings-form').addEventListener('submit', handleSaveCompanySettings);
+            document.getElementById('invoice-prefix').addEventListener('input', updateInvoiceExample);
+            document.getElementById('invoice-next-number').addEventListener('input', updateInvoiceExample);
+            document.getElementById('invoice-form').addEventListener('input', updateInvoicePreview);
+        }
+
+        // Invoice Logic
+        function initializeInvoiceForm() {
+            const today = new Date().toISOString().split('T')[0];
+            const dueDate = new Date();
+            dueDate.setDate(dueDate.getDate() + 30);
+
+            document.getElementById('invoice-date').value = today;
+            document.getElementById('due-date').value = dueDate.toISOString().split('T')[0];
+            document.getElementById('challan-date').value = today;
+
+            if (invoiceItems.length === 0) {
+                addInvoiceItem();
+            }
+        }
+        
+        function addInvoiceItem() {
+            const container = document.getElementById('invoice-items-container');
+            const itemIndex = invoiceItems.length;
+
+            const itemHtml = `
+                <div class="invoice-item bg-black/10 dark:bg-white/5 p-4 rounded-xl" data-index="${itemIndex}">
+                    <div class="flex justify-between items-start mb-4">
+                        <h4 class="font-semibold">Item ${itemIndex + 1}</h4>
+                        <button type="button" onclick="removeInvoiceItem(${itemIndex})" class="text-red-400 hover:text-red-300">
+                            <i data-lucide="x-circle" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-muted mb-2">Product</label>
+                            <select class="product-select futuristic-select" onchange="updateItemDetails(${itemIndex})"></select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-muted mb-2">Quantity</label>
+                            <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-muted mb-2">Rate (₹)</label>
+                            <input type="number" class="item-rate futuristic-input" value="0" min="0" step="0.01" oninput="calculateItemTotal(${itemIndex})">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-muted mb-2">Total (₹)</label>
+                            <input type="number" class="item-total futuristic-input" value="0" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-muted mb-2">HSN/SAC</label>
+                            <input type="text" class="item-hsn futuristic-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-muted mb-2">Tax Rate (%)</label>
+                            <select class="item-tax-rate futuristic-select" onchange="calculateItemTotal(${itemIndex})">
+                                <option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', itemHtml);
+            invoiceItems.push({ quantity: 1, rate: 0, taxRate: 18 });
+            lucide.createIcons();
+            populateProductSelects();
+            calculateItemTotal(itemIndex);
+        }
+
+        function removeInvoiceItem(index) {
+             invoiceItems.splice(index, 1);
+             document.getElementById('invoice-items-container').innerHTML = '';
+             const tempItems = [...invoiceItems];
+             invoiceItems = [];
+             tempItems.forEach(item => {
+                 addInvoiceItem();
+                 const newIndex = invoiceItems.length - 1;
+                 // Repopulate data if needed
+             })
+             if(invoiceItems.length === 0) addInvoiceItem();
+             updateInvoicePreview();
+        }
+
+        function updateItemDetails(index) {
+            const itemElement = document.querySelector(`[data-index="${index}"]`);
+            const select = itemElement.querySelector('.product-select');
+            const selectedOption = select.selectedOptions[0];
+
+            if (selectedOption && selectedOption.value !== "") {
+                const rate = parseFloat(selectedOption.dataset.price || 0);
+                const hsn = selectedOption.dataset.hsn || '';
+                const itemName = selectedOption.dataset.name || '';
+
+                itemElement.querySelector('.item-rate').value = rate;
+                itemElement.querySelector('.item-hsn').value = hsn;
+
+                if (invoiceItems[index]) {
+                    invoiceItems[index].product = itemName;
+                    invoiceItems[index].rate = rate;
+                    invoiceItems[index].hsn = hsn;
+                }
+                calculateItemTotal(index);
+            }
+        }
+
+        function calculateItemTotal(index) {
+            const itemElement = document.querySelector(`[data-index="${index}"]`);
+            const quantity = parseFloat(itemElement.querySelector('.item-quantity').value || 0);
+            const rate = parseFloat(itemElement.querySelector('.item-rate').value || 0);
+            const taxRate = parseFloat(itemElement.querySelector('.item-tax-rate').value || 0);
+
+            const total = quantity * rate;
+            const taxAmount = (total * taxRate) / 100;
+            const grandTotal = total + taxAmount;
+
+            itemElement.querySelector('.item-total').value = total.toFixed(2);
+            
+            if (invoiceItems[index]) {
+                invoiceItems[index] = {
+                    ...invoiceItems[index],
+                    quantity, rate, total, taxRate, taxAmount, grandTotal,
+                    hsn: itemElement.querySelector('.item-hsn').value
+                };
+            }
+            updateInvoicePreview();
+        }
+
+        function populateCustomerSelect() {
+            const select = document.getElementById('customer-select');
+            select.innerHTML = '<option value="">Select a customer...</option>';
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer['Customer Name'];
+                option.textContent = customer['Customer Name'];
+                select.appendChild(option);
+            });
+        }
+
+        function populateProductSelects() {
+            document.querySelectorAll('.product-select').forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">Select product...</option>';
+                allProducts.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.row_index;
+                    option.dataset.price = p.PRICE || 0;
+                    option.dataset.hsn = p['HSN/SAC'] || '';
+                    option.dataset.name = p['ITEM NAME'] || p.DEVICE || '';
+                    option.textContent = `${p.MODEL || ''} ${p['MODEL NUMBER'] || ''} - ${p['ITEM NAME'] || ''}`;
+                    select.appendChild(option);
+                });
+                select.value = currentVal;
+            });
+        }
+        
+        function updateInvoicePreview() {
+            const preview = document.getElementById('invoice-preview');
+            const customerName = document.getElementById('customer-select').value;
+            if (!customerName || invoiceItems.length === 0) {
+                 preview.innerHTML = `<div class="flex flex-col justify-center items-center text-center text-muted h-full"><i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 opacity-50"></i><p>Invoice preview will appear here</p><p class="text-sm">Fill in the invoice details to see live preview</p></div>`;
+                 lucide.createIcons();
+                 return;
+            }
+
+            const invoiceDate = document.getElementById('invoice-date').value;
+            const dueDate = document.getElementById('due-date').value;
+            const placeOfSupply = document.getElementById('place-of-supply').value;
+            const selectedCustomer = customers.find(c => c['Customer Name'] === customerName);
+            const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
+
+            let subtotal = 0, totalTax = 0, grandTotal = 0;
+            const itemsHtml = invoiceItems.map((item, index) => {
+                subtotal += item.total || 0;
+                totalTax += item.taxAmount || 0;
+                grandTotal += item.grandTotal || 0;
+                return `
+                    <tr class="border-b border-black/10 dark:border-white/10">
+                        <td class="p-2 text-center">${index + 1}</td><td class="p-2">${item.product || 'N/A'}</td>
+                        <td class="p-2 text-center">${item.hsn || 'N/A'}</td><td class="p-2 text-center">${item.quantity}</td>
+                        <td class="p-2 text-right">₹${(item.rate || 0).toFixed(2)}</td><td class="p-2 text-right">₹${(item.total || 0).toFixed(2)}</td>
+                        <td class="p-2 text-right">₹${(item.grandTotal || 0).toFixed(2)}</td>
+                    </tr>`;
+            }).join('');
+            
+            const companyStateCode = (companySettings.gstin || '').substring(0, 2);
+            const customerStateCode = (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
+            const isIntraState = companyStateCode && customerStateCode && companyStateCode === customerStateCode;
+
+            let taxRows = isIntraState
+                ? `<tr><td colspan="6" class="p-2 text-right font-semibold">CGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>
+                   <tr><td colspan="6" class="p-2 text-right font-semibold">SGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>`
+                : `<tr><td colspan="6" class="p-2 text-right font-semibold">IGST:</td><td class="p-2 text-right font-semibold">₹${totalTax.toFixed(2)}</td></tr>`;
+            
+            preview.innerHTML = `
+                <div class="p-8 bg-white text-black">
+                    <div class="pb-6 mb-6 border-b-2 border-blue-500">
+                        <div class="flex justify-between items-start">
+                             <div>
+                                <h1 class="text-3xl font-bold text-blue-600">${companySettings.name || 'Company Name'}</h1>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <p>${companySettings.address || 'Company Address'}</p>
+                                    <p>GSTIN: ${companySettings.gstin || 'N/A'}</p>
+                                    <p>Contact: ${companySettings.contact || 'N/A'}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <h2 class="text-2xl font-bold text-gray-800">TAX INVOICE</h2>
+                                <p><strong>Invoice #:</strong> ${document.getElementById('invoice-number').value}</p>
+                                <p><strong>Date:</strong> ${new Date(invoiceDate).toLocaleDateString('en-IN')}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-6"><h3 class="text-lg font-bold mb-2">Bill To:</h3>
+                        <p class="font-semibold">${selectedCustomer['Customer Name']}</p>
+                        <p>${selectedCustomer.Address}</p><p>GSTIN: ${selectedCustomer['Customer GSTIN']}</p>
+                    </div>
+                    <table class="w-full text-sm mb-6">
+                        <thead><tr class="bg-gray-100"><th class="border p-2 text-left">#</th><th class="border p-2 text-left">Item</th><th class="border p-2 text-center">HSN</th><th class="border p-2 text-center">Qty</th><th class="border p-2 text-right">Rate</th><th class="border p-2 text-right">Amount</th><th class="border p-2 text-right">Total</th></tr></thead>
+                        <tbody>${itemsHtml}
+                            <tr><td colspan="6" class="p-2 text-right font-semibold border-t-2">Subtotal:</td><td class="p-2 text-right font-semibold border-t-2">₹${subtotal.toFixed(2)}</td></tr>
+                            ${taxRows}
+                            <tr class="bg-blue-50"><td colspan="6" class="p-3 text-right text-lg font-bold">Grand Total:</td><td class="p-3 text-right text-lg font-bold">₹${grandTotal.toFixed(2)}</td></tr>
+                        </tbody>
+                    </table>
+                </div>`;
+        }
+
+        function generatePDF() {
+            if (invoiceItems.some(i => !i.product)) {
+                showToast('Please select a product for all items.', 'error');
+                return;
+            }
+            const element = document.getElementById('invoice-preview');
+            const opt = {
+                margin: 0.25, filename: `${document.getElementById('invoice-number').value}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, logging: false, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            Swal.fire({
+                title: 'Generating PDF...', allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading() }
+            });
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                Swal.close();
+                showToast('Invoice PDF generated!');
+                saveInvoiceRecord();
+            }).catch(error => {
+                Swal.close();
+                showToast('Failed to generate PDF.', 'error');
+            });
+        }
+        
+        async function saveInvoiceRecord() {
+            let grandTotal = invoiceItems.reduce((sum, item) => sum + (item.grandTotal || 0), 0);
+            const invoice = {
+                number: document.getElementById('invoice-number').value,
+                date: document.getElementById('invoice-date').value,
+                dueDate: document.getElementById('due-date').value,
+                customer: document.getElementById('customer-select').value,
+                amount: grandTotal,
+                status: 'unpaid',
+                items: JSON.parse(JSON.stringify(invoiceItems))
+            };
+            
+            try {
+                const response = await postData({ action: 'addInvoice', invoiceData: invoice });
+                if (response.success) {
+                    showToast('Invoice saved to Google Sheet!');
+                    await syncData(); // Refresh data to get the new invoice number
+                    resetInvoiceForm();
+                } else {
+                    showToast(`Save failed: ${response.message}`, 'error');
+                }
+            } catch (error) {
+                 showToast('Network error while saving.', 'error');
+            }
+        }
+        
+        function resetInvoiceForm() {
+            document.getElementById('invoice-form').reset();
+            document.getElementById('invoice-items-container').innerHTML = '';
+            invoiceItems = [];
+            initializeInvoiceForm();
+            updateInvoicePreview();
+        }
+
+        function previewInvoice() { updateInvoicePreview(); showToast('Preview updated!', 'info'); }
+
+        // Data Rendering
+        function renderInvoiceHistory() {
+            const tbody = document.getElementById('invoice-history-table');
+            if (!tbody) return;
+            tbody.innerHTML = invoiceHistory.map(invoice => `
+                <tr class="table-row hover:bg-black/10 dark:hover:bg-white/5">
+                    <td class="p-4">${invoice.number}</td>
+                    <td class="p-4">${new Date(invoice.date).toLocaleDateString('en-IN')}</td>
+                    <td class="p-4">${invoice.customer}</td><td class="p-4">₹${(invoice.amount || 0).toFixed(2)}</td>
+                    <td class="p-4"><span class="px-2 py-1 rounded text-xs ${invoice.status === 'paid' ? 'text-green-400 bg-green-500/20' : 'text-yellow-400 bg-yellow-500/20'}">${invoice.status.toUpperCase()}</span></td>
+                    <td class="p-4"><button onclick="viewInvoice('${invoice.number}')" class="text-blue-400"><i data-lucide="eye"></i></button></td>
+                </tr>`).join('');
+            lucide.createIcons();
+        }
+
+        function renderCustomerList() {
+            const listEl = document.getElementById('existing-customers-list');
+            if(listEl) listEl.innerHTML = customers.map(c => `<div class="p-4 rounded-lg bg-black/10 dark:bg-white/5"><p class="font-bold">${c['Customer Name']}</p><p class="text-sm text-muted">${c.Address}</p><p class="text-sm text-muted">GSTIN: ${c['Customer GSTIN']}</p></div>`).join('');
+        }
+
+        function renderProductList() {
+             const listEl = document.getElementById('existing-products-list');
+             if(listEl) listEl.innerHTML = allProducts.map(p => `<div class="p-4 rounded-lg bg-black/10 dark:bg-white/5 flex justify-between items-center"><div><p class="font-bold">${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}</p><p class="text-sm text-muted">${p.DEVICE || ''} - ${p['ITEM NAME'] || ''}</p><p class="text-lg font-semibold text-amber-400">₹${(p.PRICE || 0).toFixed(2)}</p></div><p class="text-sm text-muted">HSN: ${p['HSN/SAC'] || 'N/A'}</p></div>`).join('');
+        }
+        
+        function updateDashboardStats() {
+            const totalRevenue = invoiceHistory.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+            document.getElementById('stats-total-invoices').textContent = invoiceHistory.length;
+            document.getElementById('stats-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+            document.getElementById('stats-active-customers').textContent = customers.length;
+            document.getElementById('stats-products').textContent = allProducts.length;
+        }
+
+        // Event Handlers
+        async function handleAddCustomer(e) {
+            e.preventDefault();
+            const customerData = Object.fromEntries(new FormData(e.target).entries());
+            const result = await swalConfirm.fire({ title: 'Add this customer?', icon: 'question', showCancelButton: true, confirmButtonText: 'Yes, add it!' });
+            if (result.isConfirmed) {
+                const response = await postData({ action: 'addCustomer', ...customerData });
+                if (response.success) { showToast('Customer added!'); e.target.reset(); syncData(); }
+                else { showToast(`Failed: ${response.message}`, 'error'); }
+            }
+        }
+
+        async function handleAddProduct(e) {
+            e.preventDefault();
+            const productData = Object.fromEntries(new FormData(e.target).entries());
+            const result = await swalConfirm.fire({ title: 'Add this product?', icon: 'question', showCancelButton: true, confirmButtonText: 'Yes, add it!' });
+            if (result.isConfirmed) {
+                const response = await postData({ action: 'addProduct', sheet: 'Sheet1', ...productData });
+                 if (response.success) { showToast('Product added!'); e.target.reset(); syncData(); }
+                 else { showToast(`Failed: ${response.message}`, 'error'); }
+            }
+        }
+        
+        // Settings
+        function handleSaveInvoiceSettings(e) {
+            e.preventDefault();
+            const config = { prefix: document.getElementById('invoice-prefix').value, nextNumber: parseInt(document.getElementById('invoice-next-number').value) };
+            localStorage.setItem('invoiceConfig', JSON.stringify(config));
+            showToast('Invoice settings saved!');
+            loadInvoiceSettings();
+        }
+
+        function handleSaveCompanySettings(e) {
+            e.preventDefault();
+            const companyData = {
+                name: document.getElementById('company-name').value, address: document.getElementById('company-address').value,
+                gstin: document.getElementById('company-gstin').value, contact: document.getElementById('company-contact').value,
+                email: document.getElementById('company-email').value
+            };
+            localStorage.setItem('companySettings', JSON.stringify(companyData));
+            showToast('Company settings saved!');
+            updateInvoicePreview();
+        }
+
+        function loadInvoiceSettings() {
+            const config = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
+            document.getElementById('invoice-prefix').value = config.prefix || 'INV-';
+            document.getElementById('invoice-next-number').value = config.nextNumber || 1;
+            updateInvoiceExample();
+        }
+
+        function loadCompanySettings() {
+            const settings = JSON.parse(localStorage.getItem('companySettings') || '{}');
+            document.getElementById('company-name').value = settings.name || 'Vinayaka Industries';
+            document.getElementById('company-address').value = settings.address || '';
+            document.getElementById('company-gstin').value = settings.gstin || '';
+            document.getElementById('company-contact').value = settings.contact || '';
+            document.getElementById('company-email').value = settings.email || '';
+        }
+
+        function updateInvoiceExample() {
+            const prefix = document.getElementById('invoice-prefix').value;
+            const nextNumber = document.getElementById('invoice-next-number').value;
+            document.getElementById('invoice-example').textContent = `${prefix}${String(nextNumber).padStart(3, '0')}`;
+        }
+        
+        async function syncData() {
+            showToast('Syncing data...', 'info');
+            localStorage.removeItem('cached_all_data');
+            try {
+                const result = await fetchJSONP({ action: 'getAllData' });
+                if (result.success && result.data) {
+                    setCache('cached_all_data', result.data);
+                    processAllData(result.data);
+                    showToast('Data synced successfully!', 'success');
+                } else {
+                    showToast(`Sync failed: ${result.error || "Unknown error"}`, "error");
+                }
+            } catch (error) {
+                showToast("Network error during sync.", "error");
+            }
+        }
+    </script>
 </body>
 </html>
