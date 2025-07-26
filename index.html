@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -449,7 +449,10 @@
                         <h2 class="text-3xl font-bold">Invoice History</h2>
                         <p class="text-muted">View and manage all invoices</p>
                     </div>
-                    <div class="flex space-x-4">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="syncData()" class="futuristic-btn futuristic-btn-neutral">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Load Data</span>
+                        </button>
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted"></i>
                             <input type="text" id="invoice-search" placeholder="Search invoices..." class="futuristic-input pl-12 pr-4 py-3">
@@ -658,18 +661,15 @@
     <script>
         lucide.createIcons();
 
-        // --- THEME TOGGLE ---
         const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
         const setTheme = (isDark) => {
             document.body.className = isDark ? 'dark-theme' : 'light-theme';
-            themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+            document.getElementById('theme-icon').setAttribute('data-lucide', isDark ? 'sun' : 'moon');
             lucide.createIcons();
             localStorage.setItem('invoiceAppTheme', isDark ? 'dark' : 'light');
         };
         themeToggle.onclick = () => setTheme(!document.body.classList.contains('dark-theme'));
         
-        // --- APP LOGIC ---
         const API_URL = '/.netlify/functions/proxy'; 
         const CUSTOMERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=1988877295&single=true&output=csv';
         const PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=0&single=true&output=csv';
@@ -790,11 +790,6 @@
 
         function removeInvoiceItem(index) {
             invoiceItems.splice(index, 1);
-            const container = document.getElementById('invoice-items-container');
-            container.innerHTML = '';
-            const tempItems = [...invoiceItems];
-            invoiceItems = [];
-            tempItems.forEach(addInvoiceItem);
             if (invoiceItems.length === 0) addInvoiceItem();
             updateInvoicePreview();
         }
@@ -933,7 +928,7 @@
                     customerAddress: customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value)?.Address || '',
                     customerGSTIN: customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value)?.['Customer GSTIN'] || '',
                     totalTaxableValue: totalTaxableValue.toFixed(2), totalCGST: totalCGST.toFixed(2), totalSGST: totalSGST.toFixed(2), totalIGST: totalIGST.toFixed(2),
-                    status: 'unpaid' // *** FIX: Added status field for saving
+                    status: 'unpaid'
                 },
                 items: JSON.parse(JSON.stringify(invoiceItems))
             };
@@ -963,26 +958,27 @@
 
         function previewInvoice() { updateInvoicePreview(); showToast('Preview updated!', 'info'); }
 
-        // *** FIX APPLIED HERE ***
         function renderInvoiceHistory() {
             const tbody = document.getElementById('invoice-history-table');
             if (!tbody) return;
+
+            if (!invoiceHistory || invoiceHistory.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-muted">No invoice history found.</td></tr>`;
+                return;
+            }
+
             tbody.innerHTML = invoiceHistory.map(invoice => {
                 let amount = 0;
                 let status = 'unpaid';
                 try {
-                    // Safely parse the JSON data from the sheet
                     if (invoice.fullInvoiceJSON && invoice.fullInvoiceJSON.trim() !== '') {
                         const fullData = JSON.parse(invoice.fullInvoiceJSON);
                         const invData = fullData.invoiceData;
-                        
-                        // Safely calculate the total amount
                         const taxable = parseFloat(invData.totalTaxableValue || 0);
                         const cgst = parseFloat(invData.totalCGST || 0);
                         const sgst = parseFloat(invData.totalSGST || 0);
                         const igst = parseFloat(invData.totalIGST || 0);
                         amount = taxable + cgst + sgst + igst;
-
                         status = invData.status || 'unpaid'; 
                     }
                 } catch (e) {
@@ -1011,7 +1007,6 @@
              if(listEl) listEl.innerHTML = allProducts.map(p => `<div class="p-4 rounded-lg bg-black/10 dark:bg-white/5 flex justify-between items-center"><div><p class="font-bold">${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}</p><p class="text-sm text-muted">${p.DEVICE || ''} - ${p['ITEM NAME'] || ''}</p><p class="text-lg font-semibold text-amber-400">₹${(p.PRICE || 0).toFixed(2)}</p></div><p class="text-sm text-muted">HSN: ${p['HSN/SAC'] || 'N/A'}</p></div>`).join('');
         }
         
-        // *** FIX APPLIED HERE ***
         function updateDashboardStats() {
             let totalRevenue = 0;
             invoiceHistory.forEach(inv => {
@@ -1093,7 +1088,10 @@
                 const [customerData, productDataRaw, invoiceHistoryResult] = await Promise.all([
                     fetchCsvData(CUSTOMERS_CSV_URL),
                     fetchCsvData(PRODUCTS_CSV_URL),
-                    fetch(`${API_URL}?action=getInvoices`).then(res => res.json())
+                    fetch(`${API_URL}?action=getInvoices`).then(res => {
+                        if (!res.ok) throw new Error(`Network response was not ok: ${res.statusText}`);
+                        return res.json();
+                    })
                 ]);
 
                 const productData = productDataRaw.map(p => ({
@@ -1116,7 +1114,7 @@
                 showToast('Live data loaded!', 'success');
             } catch (error) {
                 console.error("Error fetching live data:", error);
-                showToast("Could not fetch live data. Check console.", "error");
+                showToast(`Could not fetch live data: ${error.message}`, "error");
             }
         }
     </script>
