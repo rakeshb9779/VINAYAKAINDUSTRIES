@@ -677,7 +677,8 @@
         // --- APP LOGIC ---
         
         // URLs for fetching and posting data
-        const API_URL = 'https://script.google.com/macros/s/AKfycbz3hesA-60vel0WChlv5qxoHg_RZX63330drrefG_U5PKUOMSoCP3p0LYAnYcQLYw6C/exec';
+        // NOTE: The API_URL should be a relative path to your Netlify function if the HTML is deployed on the same site.
+        const API_URL = '/.netlify/functions/proxy'; 
         const CUSTOMERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=1988877295&single=true&output=csv';
         const PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=0&single=true&output=csv';
 
@@ -686,7 +687,7 @@
         let allProducts = [];
         let invoiceItems = [];
         let invoiceHistory = [];
-        let currentInvoiceNumber = 'INV-001';
+        let currentInvoiceNumber = 'VI-001';
 
         // Initialize app
         window.onload = () => {
@@ -704,14 +705,14 @@
         };
 
         function postData(payload) {
-            // This function sends data TO your Google Sheet. It requires your Apps Script to handle POST requests.
+            // This function sends data TO your Google Sheet via the Netlify proxy.
             return fetch(API_URL, {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             }).then(r => r.json());
         }
 
-        // Toast notifications
         function showToast(title, icon = 'success') {
             const isDark = document.body.classList.contains('dark-theme');
             const Toast = Swal.mixin({
@@ -732,7 +733,6 @@
             color: document.body.classList.contains('dark-theme') ? '#f8fafc' : '#0f172a'
         });
 
-        // Navigation
         const navLinks = document.querySelectorAll('.nav-item, .nav-link-action');
         const pages = document.querySelectorAll('.page');
         function showPage(pageId) {
@@ -755,7 +755,6 @@
             });
         });
 
-        // App Initialization
         async function init() {
             setupEventListeners();
             loadInvoiceSettings();
@@ -796,7 +795,7 @@
         function initializeInvoiceForm() {
             const today = new Date();
             document.getElementById('invoice-date').value = today.toISOString().split('T')[0];
-            const dueDate = new Date(today.setDate(today.getDate() + 30));
+            const dueDate = new Date(new Date().setDate(today.getDate() + 30));
             document.getElementById('due-date').value = dueDate.toISOString().split('T')[0];
             if (invoiceItems.length === 0) addInvoiceItem();
         }
@@ -814,13 +813,8 @@
 
         function removeInvoiceItem(index) {
             invoiceItems.splice(index, 1);
-            const container = document.getElementById('invoice-items-container');
-            container.innerHTML = ''; // Clear container
-            const tempItems = [...invoiceItems];
-            invoiceItems = []; // Reset global array
-            tempItems.forEach(item => addInvoiceItem()); // Re-add items to re-index them
             if (invoiceItems.length === 0) addInvoiceItem();
-            updateInvoicePreview();
+            updateInvoicePreview(); // Re-render preview which will rebuild items
         }
 
         function updateItemDetails(index) {
@@ -832,10 +826,13 @@
             const rate = parseFloat(selectedOption.dataset.price || 0);
             const hsn = selectedOption.dataset.hsn || '';
             const itemName = selectedOption.dataset.name || '';
+            const description = selectedOption.textContent;
+
             itemElement.querySelector('.item-rate').value = rate;
             itemElement.querySelector('.item-hsn').value = hsn;
             if (invoiceItems[index]) {
                 invoiceItems[index].product = itemName;
+                invoiceItems[index].description = description;
                 invoiceItems[index].rate = rate;
                 invoiceItems[index].hsn = hsn;
             }
@@ -902,63 +899,94 @@
             const invoiceDate = document.getElementById('invoice-date').value;
             const selectedCustomer = customers.find(c => c['Customer Name'] === customerName);
             const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
-            if(!selectedCustomer) return; // Don't render if customer is not found
+            if(!selectedCustomer) return; 
 
             let subtotal = 0, totalTax = 0, grandTotal = 0;
             const itemsHtml = invoiceItems.map((item, index) => {
                 subtotal += item.total || 0;
                 totalTax += item.taxAmount || 0;
                 grandTotal += item.grandTotal || 0;
-                return `
-                    <tr class="border-b border-black/10 dark:border-white/10">
-                        <td class="p-2 text-center">${index + 1}</td><td class="p-2">${item.product || 'N/A'}</td>
-                        <td class="p-2 text-center">${item.hsn || 'N/A'}</td><td class="p-2 text-center">${item.quantity}</td>
-                        <td class="p-2 text-right">₹${(item.rate || 0).toFixed(2)}</td><td class="p-2 text-right">₹${(item.total || 0).toFixed(2)}</td>
-                        <td class="p-2 text-right">₹${(item.grandTotal || 0).toFixed(2)}</td>
-                    </tr>`;
+                return `<tr class="border-b border-black/10 dark:border-white/10"><td class="p-2 text-center">${index + 1}</td><td class="p-2">${item.description || 'N/A'}</td><td class="p-2 text-center">${item.hsn || 'N/A'}</td><td class="p-2 text-center">${item.quantity}</td><td class="p-2 text-right">₹${(item.rate || 0).toFixed(2)}</td><td class="p-2 text-right">₹${(item.total || 0).toFixed(2)}</td><td class="p-2 text-right">₹${(item.grandTotal || 0).toFixed(2)}</td></tr>`;
             }).join('');
             
             const isIntraState = (companySettings.gstin || '').substring(0, 2) === (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
             let taxRows = isIntraState
-                ? `<tr><td colspan="6" class="p-2 text-right font-semibold">CGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>
-                   <tr><td colspan="6" class="p-2 text-right font-semibold">SGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>`
+                ? `<tr><td colspan="6" class="p-2 text-right font-semibold">CGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr><tr><td colspan="6" class="p-2 text-right font-semibold">SGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>`
                 : `<tr><td colspan="6" class="p-2 text-right font-semibold">IGST:</td><td class="p-2 text-right font-semibold">₹${totalTax.toFixed(2)}</td></tr>`;
             
             preview.innerHTML = `<div class="p-8 bg-white text-black"><div class="pb-6 mb-6 border-b-2 border-blue-500"><div class="flex justify-between items-start"><div><h1 class="text-3xl font-bold text-blue-600">${companySettings.name || 'Company Name'}</h1><div class="mt-2 text-sm text-gray-600"><p>${companySettings.address || 'Company Address'}</p><p>GSTIN: ${companySettings.gstin || 'N/A'}</p><p>Contact: ${companySettings.contact || 'N/A'}</p></div></div><div class="text-right"><h2 class="text-2xl font-bold text-gray-800">TAX INVOICE</h2><p><strong>Invoice #:</strong> ${document.getElementById('invoice-number').value}</p><p><strong>Date:</strong> ${new Date(invoiceDate).toLocaleDateString('en-IN')}</p></div></div></div><div class="mb-6"><h3 class="text-lg font-bold mb-2">Bill To:</h3><p class="font-semibold">${selectedCustomer['Customer Name']}</p><p>${selectedCustomer.Address}</p><p>GSTIN: ${selectedCustomer['Customer GSTIN']}</p></div><table class="w-full text-sm mb-6"><thead><tr class="bg-gray-100"><th class="border p-2 text-left">#</th><th class="border p-2 text-left">Item</th><th class="border p-2 text-center">HSN</th><th class="border p-2 text-center">Qty</th><th class="border p-2 text-right">Rate</th><th class="border p-2 text-right">Amount</th><th class="border p-2 text-right">Total</th></tr></thead><tbody>${itemsHtml}<tr><td colspan="6" class="p-2 text-right font-semibold border-t-2">Subtotal:</td><td class="p-2 text-right font-semibold border-t-2">₹${subtotal.toFixed(2)}</td></tr>${taxRows}<tr class="bg-blue-50"><td colspan="6" class="p-3 text-right text-lg font-bold">Grand Total:</td><td class="p-3 text-right text-lg font-bold">₹${grandTotal.toFixed(2)}</td></tr></tbody></table></div>`;
         }
 
-        function generatePDF() {
+        async function generatePDF() {
             if (invoiceItems.some(i => !i.product)) {
                 showToast('Please select a product for all items.', 'error'); return;
             }
+            const invoiceDataForPost = getInvoiceDataForPost();
+            if(!invoiceDataForPost) return;
+
             const element = document.getElementById('invoice-preview');
-            const opt = { margin: 0.25, filename: `${document.getElementById('invoice-number').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
+            const opt = { margin: 0.25, filename: `${invoiceDataForPost.invoiceData.invoiceNumber}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
+            
             Swal.fire({ title: 'Generating PDF...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            html2pdf().set(opt).from(element).save().then(() => {
-                Swal.close(); showToast('Invoice PDF generated!'); saveInvoiceRecord();
-            }).catch(error => {
-                Swal.close(); showToast('Failed to generate PDF.', 'error');
-            });
+
+            try {
+                await html2pdf().set(opt).from(element).save();
+                await saveInvoiceRecord(invoiceDataForPost);
+                Swal.close(); 
+                showToast('Invoice PDF Generated and Saved!');
+            } catch (error) {
+                Swal.close(); 
+                showToast('Operation failed.', 'error');
+                console.error("PDF generation or saving failed:", error);
+            }
         }
         
-        async function saveInvoiceRecord() {
-            let grandTotal = invoiceItems.reduce((sum, item) => sum + (item.grandTotal || 0), 0);
-            const invoice = {
-                number: document.getElementById('invoice-number').value, date: document.getElementById('invoice-date').value,
-                dueDate: document.getElementById('due-date').value, customer: document.getElementById('customer-select').value,
-                amount: grandTotal, status: 'unpaid', items: JSON.parse(JSON.stringify(invoiceItems))
+        function getInvoiceDataForPost() {
+            if (invoiceItems.some(i => !i.product)) {
+                showToast('Please select a product for all items.', 'error');
+                return null;
+            }
+
+            const totalTaxableValue = invoiceItems.reduce((sum, item) => sum + (item.total || 0), 0);
+            const totalCGST = invoiceItems.reduce((sum, item) => sum + ((item.isIGST ? 0 : item.taxAmount / 2) || 0), 0);
+            const totalSGST = invoiceItems.reduce((sum, item) => sum + ((item.isIGST ? 0 : item.taxAmount / 2) || 0), 0);
+            const totalIGST = invoiceItems.reduce((sum, item) => sum + ((item.isIGST ? item.taxAmount : 0) || 0), 0);
+            
+            return {
+                invoiceData: {
+                    invoiceNumber: document.getElementById('invoice-number').value, date: document.getElementById('invoice-date').value,
+                    dueDate: document.getElementById('due-date').value, customerName: document.getElementById('customer-select').value,
+                    customerAddress: customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value)?.Address || '',
+                    customerGSTIN: customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value)?.['Customer GSTIN'] || '',
+                    totalTaxableValue: totalTaxableValue.toFixed(2), totalCGST: totalCGST.toFixed(2), totalSGST: totalSGST.toFixed(2), totalIGST: totalIGST.toFixed(2),
+                },
+                items: JSON.parse(JSON.stringify(invoiceItems))
             };
+        }
+
+        async function saveInvoiceRecord(invoiceDataForPost) {
             try {
-                const response = await postData({ action: 'addInvoice', invoiceData: invoice });
-                if (response.success) { showToast('Invoice saved to Google Sheet!'); await syncData(); resetInvoiceForm(); }
-                else { showToast(`Save failed: ${response.message}`, 'error'); }
-            } catch (error) { showToast('Network error while saving.', 'error'); }
+                const response = await postData(invoiceDataForPost);
+                if (response.status === 'success') {
+                    await syncData();
+                    resetInvoiceForm();
+                } else {
+                    throw new Error(response.message || 'Failed to save on server.');
+                }
+            } catch (error) {
+                console.error("Error saving invoice:", error);
+                showToast(`Save failed: ${error.message}`, 'error');
+                throw error; // Re-throw to be caught by generatePDF
+            }
         }
         
         function resetInvoiceForm() {
             document.getElementById('invoice-form').reset();
-            document.getElementById('invoice-items-container').innerHTML = '';
-            invoiceItems = []; initializeInvoiceForm(); updateInvoicePreview();
+            const container = document.getElementById('invoice-items-container');
+            container.innerHTML = '';
+            invoiceItems = []; 
+            initializeInvoiceForm(); 
+            updateInvoicePreview();
         }
 
         function previewInvoice() { updateInvoicePreview(); showToast('Preview updated!', 'info'); }
@@ -966,7 +994,17 @@
         function renderInvoiceHistory() {
             const tbody = document.getElementById('invoice-history-table');
             if (!tbody) return;
-            tbody.innerHTML = invoiceHistory.map(invoice => `<tr class="table-row hover:bg-black/10 dark:hover:bg-white/5"><td class="p-4">${invoice.number}</td><td class="p-4">${new Date(invoice.date).toLocaleDateString('en-IN')}</td><td class="p-4">${invoice.customer}</td><td class="p-4">₹${(invoice.amount || 0).toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs ${invoice.status === 'paid' ? 'text-green-400 bg-green-500/20' : 'text-yellow-400 bg-yellow-500/20'}">${invoice.status.toUpperCase()}</span></td><td class="p-4"><button class="text-blue-400"><i data-lucide="eye"></i></button></td></tr>`).join('');
+            tbody.innerHTML = invoiceHistory.map(invoice => {
+                let amount = 0;
+                let status = 'unpaid';
+                try {
+                    const fullData = JSON.parse(invoice.fullInvoiceJSON);
+                    amount = parseFloat(fullData.invoiceData.totalTaxableValue) + parseFloat(fullData.invoiceData.totalCGST) + parseFloat(fullData.invoiceData.totalSGST) + parseFloat(fullData.invoiceData.totalIGST);
+                    status = fullData.invoiceData.status || 'unpaid';
+                } catch(e) { /* use default values */ }
+
+                return `<tr class="table-row hover:bg-black/10 dark:hover:bg-white/5"><td class="p-4">${invoice.invoiceNumber}</td><td class="p-4">${new Date(invoice.date).toLocaleDateString('en-IN')}</td><td class="p-4">${invoice.customerName}</td><td class="p-4">₹${amount.toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs ${status === 'paid' ? 'text-green-400 bg-green-500/20' : 'text-yellow-400 bg-yellow-500/20'}">${status.toUpperCase()}</span></td><td class="p-4"><button class="text-blue-400"><i data-lucide="eye"></i></button></td></tr>`
+            }).join('');
             lucide.createIcons();
         }
 
@@ -981,7 +1019,14 @@
         }
         
         function updateDashboardStats() {
-            const totalRevenue = invoiceHistory.reduce((sum, inv) => sum + (inv.amount || 0), 0);
+            let totalRevenue = 0;
+            invoiceHistory.forEach(inv => {
+                try {
+                    const fullData = JSON.parse(inv.fullInvoiceJSON);
+                    totalRevenue += parseFloat(fullData.invoiceData.totalTaxableValue || 0) + parseFloat(fullData.invoiceData.totalCGST || 0) + parseFloat(fullData.invoiceData.totalSGST || 0) + parseFloat(fullData.invoiceData.totalIGST || 0);
+                } catch(e){}
+            });
+
             document.getElementById('stats-total-invoices').textContent = invoiceHistory.length;
             document.getElementById('stats-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
             document.getElementById('stats-active-customers').textContent = customers.length;
@@ -990,24 +1035,17 @@
 
         async function handleAddCustomer(e) {
             e.preventDefault();
-            const customerData = Object.fromEntries(new FormData(e.target).entries());
-            const result = await swalConfirm.fire({ title: 'Add this customer?', icon: 'question', showCancelButton: true, confirmButtonText: 'Yes, add it!' });
-            if (result.isConfirmed) {
-                const response = await postData({ action: 'addCustomer', ...customerData });
-                if (response.success) { showToast('Customer added!'); e.target.reset(); syncData(); }
-                else { showToast(`Failed: ${response.message}`, 'error'); }
-            }
+            // This needs a dedicated POST action in your Apps Script, which is not present.
+            // For now, it will just show a success message and sync data to reflect any manual sheet changes.
+            showToast('Add customer via Google Sheet, then Sync!', 'info');
+            syncData();
         }
 
         async function handleAddProduct(e) {
             e.preventDefault();
-            const productData = Object.fromEntries(new FormData(e.target).entries());
-            const result = await swalConfirm.fire({ title: 'Add this product?', icon: 'question', showCancelButton: true, confirmButtonText: 'Yes, add it!' });
-            if (result.isConfirmed) {
-                const response = await postData({ action: 'addProduct', sheet: 'Sheet1', ...productData });
-                 if (response.success) { showToast('Product added!'); e.target.reset(); syncData(); }
-                 else { showToast(`Failed: ${response.message}`, 'error'); }
-            }
+            // This needs a dedicated POST action in your Apps Script, which is not present.
+            showToast('Add product via Google Sheet, then Sync!', 'info');
+            syncData();
         }
         
         function handleSaveInvoiceSettings(e) {
@@ -1056,9 +1094,8 @@
         function fetchCsvData(url) {
             return new Promise((resolve, reject) => {
                 Papa.parse(url, {
-                    download: true,
-                    header: true,
-                    complete: results => resolve(results.data),
+                    download: true, header: true,
+                    complete: results => resolve(results.data.filter(row => Object.values(row).some(val => val))), // Filter out empty rows
                     error: error => reject(error)
                 });
             });
@@ -1067,24 +1104,22 @@
         async function syncData() {
             showToast('Syncing from Google Sheets...', 'info');
             try {
-                // Fetch live data from CSV URLs
-                const [customerData, productData] = await Promise.all([
+                // Fetch live data from CSV URLs and Invoice History from API
+                const [customerData, productData, invoiceHistoryResult] = await Promise.all([
                     fetchCsvData(CUSTOMERS_CSV_URL),
-                    fetchCsvData(PRODUCTS_CSV_URL)
+                    fetchCsvData(PRODUCTS_CSV_URL),
+                    fetch(`${API_URL}?action=getInvoices`).then(res => res.json())
                 ]);
 
-                // NOTE: Invoice history and next invoice number cannot be fetched from public CSVs.
-                // Using sample data for demonstration.
-                const sampleInvoiceHistory = [
-                     { number: "INV-001", date: "2025-07-25", customer: customerData[0]?.['Customer Name'] || 'Sample Customer', amount: 14750.00, status: 'paid' },
-                     { number: "INV-002", date: "2025-07-26", customer: customerData[1]?.['Customer Name'] || 'Sample Customer 2', amount: 944.00, status: 'unpaid' }
-                ];
+                if (!invoiceHistoryResult.status === 'success') {
+                    throw new Error(invoiceHistoryResult.message || 'Failed to fetch invoice history');
+                }
 
                 const combinedData = {
                     customers: customerData,
                     products: productData,
-                    invoiceHistory: sampleInvoiceHistory, // Using sample history
-                    nextInvoiceNumber: sampleInvoiceHistory.length + 1 // Calculating next number based on sample history
+                    invoiceHistory: invoiceHistoryResult.data,
+                    nextInvoiceNumber: (invoiceHistoryResult.data?.length || 0) + 1
                 };
 
                 processAllData(combinedData);
