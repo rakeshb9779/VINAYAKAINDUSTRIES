@@ -1252,9 +1252,58 @@
             document.getElementById('invoice-example').textContent = `${prefix}${String(nextNumber).padStart(3, '0')}`;
         }
         
+        function getMockData() {
+            // --- SAMPLE DATA ---
+            // You can replace this with your own data or connect to a live API.
+            const mockCustomers = [
+                { "Customer Name": "Global Tech Inc.", "Address": "123 Tech Park, Silicon Valley", "contact": "555-0101", "Customer GSTIN": "29ABCDE1234F1Z5" },
+                { "Customer Name": "Innovate Solutions", "Address": "456 Innovation Dr, Boston", "contact": "555-0102", "Customer GSTIN": "07HIJKL5678M2Z9" },
+                { "Customer Name": "Sunrise Retail", "Address": "789 Market St, New York", "contact": "555-0103", "Customer GSTIN": "36NOPQR9101A3Z4" }
+            ];
+
+            const mockProducts = [
+                { "MODEL": "Pump", "MODEL NUMBER": "X-100", "DEVICE": "Water Motor", "SIZE": "1.5 HP", "HSN/SAC": "8413", "ITEM NAME": "Submersible Pump", "PRICE": 12500, "AVAILABILITY": "Yes" },
+                { "MODEL": "Filter", "MODEL NUMBER": "AQ-25", "DEVICE": "Purifier", "SIZE": "Medium", "HSN/SAC": "8421", "ITEM NAME": "Carbon Block Filter", "PRICE": 800, "AVAILABILITY": "Yes" },
+                { "MODEL": "Valve", "MODEL NUMBER": "BV-50", "DEVICE": "Flow Control", "SIZE": "2-inch", "HSN/SAC": "8481", "ITEM NAME": "Brass Ball Valve", "PRICE": 450, "AVAILABILITY": "No" },
+                { "MODEL": "Hose", "MODEL NUMBER": "FLX-10", "DEVICE": "Connector", "SIZE": "10m", "HSN/SAC": "3917", "ITEM NAME": "Flexible PVC Hose", "PRICE": 1200, "AVAILABILITY": "Yes" }
+            ];
+
+            const mockInvoiceHistory = [
+                { number: "INV-101", date: "2025-07-15", customer: "Global Tech Inc.", amount: 14750.00, status: 'paid' },
+                { number: "INV-102", date: "2025-07-20", customer: "Innovate Solutions", amount: 944.00, status: 'unpaid' },
+                { number: "INV-103", date: "2025-06-25", customer: "Sunrise Retail", amount: 531.00, status: 'unpaid' }
+            ];
+
+            return {
+                customers: mockCustomers,
+                products: mockProducts,
+                invoiceHistory: mockInvoiceHistory,
+                nextInvoiceNumber: 104
+            };
+        }
+
         async function syncData() {
             showToast('Syncing data...', 'info');
             localStorage.removeItem('cached_all_data');
+            
+            // --- USING MOCK DATA (TEMPORARY FIX) ---
+            // This simulates a successful API call with local sample data.
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    console.log("Using mock data for demonstration.");
+                    const mockData = getMockData();
+                    const result = { success: true, data: mockData };
+                    
+                    setCache('cached_all_data', result.data);
+                    processAllData(result.data);
+                    showToast('Demo data loaded!', 'success');
+                    resolve(result);
+                }, 1000); // 1-second delay to simulate network.
+            });
+
+            /*
+            // --- ORIGINAL API CALL (Currently not working) ---
+            // You can restore this block once your Google Apps Script API is fixed.
             try {
                 const result = await fetchJSONP({ action: 'getAllData' });
                 if (result.success && result.data) {
@@ -1267,6 +1316,7 @@
             } catch (error) {
                 showToast("Network error during sync.", "error");
             }
+            */
         }
     </script>
 </body>
