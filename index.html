@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>nvoice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -355,7 +355,7 @@
                             <i data-lucide="eye" class="w-4 h-4"></i><span>Preview</span>
                         </button>
                         <button onclick="generatePDF()" class="futuristic-btn">
-                            <i data-lucide="download" class="w-4 h-4"></i><span>Generate PDF</span>
+                            <i data-lucide="download" class="w-4 h-4"></i><span>Generate PDF & Save</span>
                         </button>
                     </div>
                 </div>
@@ -661,51 +661,33 @@
         // --- THEME TOGGLE ---
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
-        
         const setTheme = (isDark) => {
             document.body.className = isDark ? 'dark-theme' : 'light-theme';
             themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
             lucide.createIcons();
             localStorage.setItem('invoiceAppTheme', isDark ? 'dark' : 'light');
         };
-
-        themeToggle.onclick = () => {
-            const isDark = document.body.classList.contains('dark-theme');
-            setTheme(!isDark);
-        };
+        themeToggle.onclick = () => setTheme(!document.body.classList.contains('dark-theme'));
         
         // --- APP LOGIC ---
-        
-        // URLs for fetching and posting data
-        // NOTE: The API_URL should be a relative path to your Netlify function if the HTML is deployed on the same site.
         const API_URL = '/.netlify/functions/proxy'; 
         const CUSTOMERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=1988877295&single=true&output=csv';
         const PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=0&single=true&output=csv';
 
-        // Global state
-        let customers = [];
-        let allProducts = [];
-        let invoiceItems = [];
-        let invoiceHistory = [];
-        let currentInvoiceNumber = 'VI-001';
+        let customers = [], allProducts = [], invoiceItems = [], invoiceHistory = [], currentInvoiceNumber = 'VI-001';
 
-        // Initialize app
         window.onload = () => {
             try {
-                const savedTheme = localStorage.getItem('invoiceAppTheme');
-                setTheme(savedTheme === 'light' ? false : true);
-
-                const initialPage = window.location.hash.substring(1) || 'dashboard';
-                showPage(initialPage);
+                setTheme(localStorage.getItem('invoiceAppTheme') !== 'light');
+                showPage(window.location.hash.substring(1) || 'dashboard');
                 init();
             } catch (e) {
                 console.error("Critical error on load:", e);
-                showToast("A critical error occurred. Please refresh.", "error");
+                showToast("A critical error occurred.", "error");
             }
         };
 
         function postData(payload) {
-            // This function sends data TO your Google Sheet via the Netlify proxy.
             return fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -715,12 +697,11 @@
 
         function showToast(title, icon = 'success') {
             const isDark = document.body.classList.contains('dark-theme');
-            const Toast = Swal.mixin({
+            Swal.mixin({
                 toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true,
                 background: isDark ? '#1e293b' : '#f1f5f9', color: isDark ? '#f8fafc' : '#0f172a',
                 didOpen: (toast) => { toast.onmouseenter = Swal.stopTimer; toast.onmouseleave = Swal.resumeTimer; }
-            });
-            Toast.fire({ icon, title });
+            }).fire({ icon, title });
         }
         
         const swalConfirm = Swal.mixin({
@@ -729,8 +710,8 @@
                 cancelButton: 'futuristic-btn futuristic-btn-neutral mx-2'
             },
             buttonsStyling: false,
-            background: document.body.classList.contains('dark-theme') ? '#1e293b' : '#fff',
-            color: document.body.classList.contains('dark-theme') ? '#f8fafc' : '#0f172a'
+            background: () => document.body.classList.contains('dark-theme') ? '#1e293b' : '#fff',
+            color: () => document.body.classList.contains('dark-theme') ? '#f8fafc' : '#0f172a'
         });
 
         const navLinks = document.querySelectorAll('.nav-item, .nav-link-action');
@@ -741,19 +722,15 @@
             if (activePage) activePage.classList.remove('hidden');
             document.querySelectorAll('.nav-item').forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('href') === `#${pageId}`) {
-                    link.classList.add('active');
-                }
+                if (link.getAttribute('href') === `#${pageId}`) link.classList.add('active');
             });
         }
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const pageId = link.getAttribute('href').substring(1);
-                showPage(pageId);
-                window.location.hash = pageId;
-            });
-        });
+        navLinks.forEach(link => link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = link.getAttribute('href').substring(1);
+            showPage(pageId);
+            window.location.hash = pageId;
+        }));
 
         async function init() {
             setupEventListeners();
@@ -783,10 +760,9 @@
         }
 
         function setupEventListeners() {
-            document.getElementById('add-customer-form').addEventListener('submit', handleAddCustomer);
-            document.getElementById('add-product-form').addEventListener('submit', handleAddProduct);
-            document.getElementById('invoice-settings-form').addEventListener('submit', handleSaveInvoiceSettings);
-            document.getElementById('company-settings-form').addEventListener('submit', handleSaveCompanySettings);
+            ['add-customer-form', 'add-product-form', 'invoice-settings-form', 'company-settings-form'].forEach(id => 
+                document.getElementById(id).addEventListener('submit', window[`handle${id.split('-').map(s=>s.charAt(0).toUpperCase()+s.slice(1)).join('')}`])
+            );
             document.getElementById('invoice-prefix').addEventListener('input', updateInvoiceExample);
             document.getElementById('invoice-next-number').addEventListener('input', updateInvoiceExample);
             document.getElementById('invoice-form').addEventListener('input', updateInvoicePreview);
@@ -813,8 +789,13 @@
 
         function removeInvoiceItem(index) {
             invoiceItems.splice(index, 1);
+            const container = document.getElementById('invoice-items-container');
+            container.innerHTML = '';
+            const tempItems = [...invoiceItems];
+            invoiceItems = [];
+            tempItems.forEach(addInvoiceItem);
             if (invoiceItems.length === 0) addInvoiceItem();
-            updateInvoicePreview(); // Re-render preview which will rebuild items
+            updateInvoicePreview();
         }
 
         function updateItemDetails(index) {
@@ -831,10 +812,7 @@
             itemElement.querySelector('.item-rate').value = rate;
             itemElement.querySelector('.item-hsn').value = hsn;
             if (invoiceItems[index]) {
-                invoiceItems[index].product = itemName;
-                invoiceItems[index].description = description;
-                invoiceItems[index].rate = rate;
-                invoiceItems[index].hsn = hsn;
+                invoiceItems[index] = { ...invoiceItems[index], product: itemName, description, rate, hsn };
             }
             calculateItemTotal(index);
         }
@@ -918,16 +896,13 @@
         }
 
         async function generatePDF() {
-            if (invoiceItems.some(i => !i.product)) {
-                showToast('Please select a product for all items.', 'error'); return;
-            }
             const invoiceDataForPost = getInvoiceDataForPost();
             if(!invoiceDataForPost) return;
 
             const element = document.getElementById('invoice-preview');
             const opt = { margin: 0.25, filename: `${invoiceDataForPost.invoiceData.invoiceNumber}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
             
-            Swal.fire({ title: 'Generating PDF...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             try {
                 await html2pdf().set(opt).from(element).save();
@@ -936,15 +911,13 @@
                 showToast('Invoice PDF Generated and Saved!');
             } catch (error) {
                 Swal.close(); 
-                showToast('Operation failed.', 'error');
-                console.error("PDF generation or saving failed:", error);
+                showToast('Operation failed. Check console.', 'error');
             }
         }
         
         function getInvoiceDataForPost() {
             if (invoiceItems.some(i => !i.product)) {
-                showToast('Please select a product for all items.', 'error');
-                return null;
+                showToast('Please select a product for all items.', 'error'); return null;
             }
 
             const totalTaxableValue = invoiceItems.reduce((sum, item) => sum + (item.total || 0), 0);
@@ -970,13 +943,10 @@
                 if (response.status === 'success') {
                     await syncData();
                     resetInvoiceForm();
-                } else {
-                    throw new Error(response.message || 'Failed to save on server.');
-                }
+                } else { throw new Error(response.message || 'Failed to save on server.'); }
             } catch (error) {
-                console.error("Error saving invoice:", error);
                 showToast(`Save failed: ${error.message}`, 'error');
-                throw error; // Re-throw to be caught by generatePDF
+                throw error;
             }
         }
         
@@ -995,14 +965,13 @@
             const tbody = document.getElementById('invoice-history-table');
             if (!tbody) return;
             tbody.innerHTML = invoiceHistory.map(invoice => {
-                let amount = 0;
-                let status = 'unpaid';
+                let amount = 0; let status = 'unpaid';
                 try {
                     const fullData = JSON.parse(invoice.fullInvoiceJSON);
-                    amount = parseFloat(fullData.invoiceData.totalTaxableValue) + parseFloat(fullData.invoiceData.totalCGST) + parseFloat(fullData.invoiceData.totalSGST) + parseFloat(fullData.invoiceData.totalIGST);
-                    status = fullData.invoiceData.status || 'unpaid';
-                } catch(e) { /* use default values */ }
-
+                    const invData = fullData.invoiceData;
+                    amount = parseFloat(invData.totalTaxableValue) + parseFloat(invData.totalCGST) + parseFloat(invData.totalSGST) + parseFloat(invData.totalIGST);
+                    status = invData.status || 'unpaid';
+                } catch(e) {}
                 return `<tr class="table-row hover:bg-black/10 dark:hover:bg-white/5"><td class="p-4">${invoice.invoiceNumber}</td><td class="p-4">${new Date(invoice.date).toLocaleDateString('en-IN')}</td><td class="p-4">${invoice.customerName}</td><td class="p-4">₹${amount.toFixed(2)}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs ${status === 'paid' ? 'text-green-400 bg-green-500/20' : 'text-yellow-400 bg-yellow-500/20'}">${status.toUpperCase()}</span></td><td class="p-4"><button class="text-blue-400"><i data-lucide="eye"></i></button></td></tr>`
             }).join('');
             lucide.createIcons();
@@ -1023,32 +992,21 @@
             invoiceHistory.forEach(inv => {
                 try {
                     const fullData = JSON.parse(inv.fullInvoiceJSON);
-                    totalRevenue += parseFloat(fullData.invoiceData.totalTaxableValue || 0) + parseFloat(fullData.invoiceData.totalCGST || 0) + parseFloat(fullData.invoiceData.totalSGST || 0) + parseFloat(fullData.invoiceData.totalIGST || 0);
+                    const invData = fullData.invoiceData;
+                    totalRevenue += parseFloat(invData.totalTaxableValue || 0) + parseFloat(invData.totalCGST || 0) + parseFloat(invData.totalSGST || 0) + parseFloat(invData.totalIGST || 0);
                 } catch(e){}
             });
 
             document.getElementById('stats-total-invoices').textContent = invoiceHistory.length;
-            document.getElementById('stats-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+            document.getElementById('stats-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             document.getElementById('stats-active-customers').textContent = customers.length;
             document.getElementById('stats-products').textContent = allProducts.length;
         }
 
-        async function handleAddCustomer(e) {
-            e.preventDefault();
-            // This needs a dedicated POST action in your Apps Script, which is not present.
-            // For now, it will just show a success message and sync data to reflect any manual sheet changes.
-            showToast('Add customer via Google Sheet, then Sync!', 'info');
-            syncData();
-        }
-
-        async function handleAddProduct(e) {
-            e.preventDefault();
-            // This needs a dedicated POST action in your Apps Script, which is not present.
-            showToast('Add product via Google Sheet, then Sync!', 'info');
-            syncData();
-        }
+        function handleAddCustomerFormSubmit(e) { e.preventDefault(); showToast('Add customer via Google Sheet, then Sync!', 'info'); }
+        function handleAddProductFormSubmit(e) { e.preventDefault(); showToast('Add product via Google Sheet, then Sync!', 'info'); }
         
-        function handleSaveInvoiceSettings(e) {
+        function handleInvoiceSettingsFormSubmit(e) {
             e.preventDefault();
             const config = { prefix: document.getElementById('invoice-prefix').value, nextNumber: parseInt(document.getElementById('invoice-next-number').value) };
             localStorage.setItem('invoiceConfig', JSON.stringify(config));
@@ -1056,7 +1014,7 @@
             loadInvoiceSettings();
         }
 
-        function handleSaveCompanySettings(e) {
+        function handleCompanySettingsFormSubmit(e) {
             e.preventDefault();
             const companyData = {
                 name: document.getElementById('company-name').value, address: document.getElementById('company-address').value,
@@ -1095,7 +1053,7 @@
             return new Promise((resolve, reject) => {
                 Papa.parse(url, {
                     download: true, header: true,
-                    complete: results => resolve(results.data.filter(row => Object.values(row).some(val => val))), // Filter out empty rows
+                    complete: results => resolve(results.data.filter(row => Object.values(row).some(val => val))),
                     error: error => reject(error)
                 });
             });
@@ -1104,14 +1062,20 @@
         async function syncData() {
             showToast('Syncing from Google Sheets...', 'info');
             try {
-                // Fetch live data from CSV URLs and Invoice History from API
-                const [customerData, productData, invoiceHistoryResult] = await Promise.all([
+                const [customerData, productDataRaw, invoiceHistoryResult] = await Promise.all([
                     fetchCsvData(CUSTOMERS_CSV_URL),
                     fetchCsvData(PRODUCTS_CSV_URL),
                     fetch(`${API_URL}?action=getInvoices`).then(res => res.json())
                 ]);
 
-                if (!invoiceHistoryResult.status === 'success') {
+                // *** FIX APPLIED HERE ***
+                // Clean and convert the PRICE field to a number for each product.
+                const productData = productDataRaw.map(p => ({
+                    ...p,
+                    PRICE: parseFloat(String(p.PRICE || '0').replace(/[^0-9.]/g, '')) || 0
+                }));
+
+                if (invoiceHistoryResult.status !== 'success') {
                     throw new Error(invoiceHistoryResult.message || 'Failed to fetch invoice history');
                 }
 
