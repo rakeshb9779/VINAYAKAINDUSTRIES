@@ -1,2810 +1,686 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vinayaka Industries - Premium Parts Catalog</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-    
-    :root {
-      --primary-dark-blue: #0f172a;
-      --secondary-dark-blue: #1e293b;
-      --accent-blue: #1d4ed8;
-      --light-blue: #3b82f6;
-      --cyan-accent: #06b6d4;
-      --gold-accent: #f59e0b;
-      --success-green: #10b981;
-      --warning-orange: #f97316;
-      --error-red: #ef4444;
-      --text-light: #f8fafc;
-      --text-gray: #cbd5e1;
-      --text-dark: #475569;
-      --glass-bg: rgba(30, 41, 59, 0.8);
-      --glass-border: rgba(59, 130, 246, 0.2);
-    }
-    
-    * {
-      font-family: 'Inter', sans-serif;
-    }
-    
-    body {
-      background: linear-gradient(135deg, var(--primary-dark-blue) 0%, var(--secondary-dark-blue) 50%, #0c1426 100%);
-      min-height: 100vh;
-      color: var(--text-light);
-    }
-    
-    .glass-effect {
-      backdrop-filter: blur(20px);
-      background: var(--glass-bg);
-      border: 1px solid var(--glass-border);
-    }
-    
-    .premium-gradient {
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 50%, var(--cyan-accent) 100%);
-    }
-    
-    .dark-gradient {
-      background: linear-gradient(180deg, var(--primary-dark-blue) 0%, var(--secondary-dark-blue) 100%);
-    }
-    
-    .hover-scale {
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .hover-scale:hover {
-      transform: scale(1.05) translateY(-8px);
-      box-shadow: 0 25px 50px rgba(29, 78, 216, 0.3);
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.8s ease-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .slide-in {
-      animation: slideIn 1s ease-out;
-    }
-    
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-50px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    
-    .modal-backdrop {
-      backdrop-filter: blur(12px);
-      background: rgba(15, 23, 42, 0.8);
-    }
-    
-    .loading-spinner {
-      border: 4px solid rgba(59, 130, 246, 0.2);
-      border-top: 4px solid var(--light-blue);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .premium-search-container {
-      position: relative;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(59, 130, 246, 0.3);
-      border-radius: 20px;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 8px 32px rgba(29, 78, 216, 0.2);
-    }
-    
-    .premium-search-container:focus-within {
-      border-color: var(--light-blue);
-      box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2), 0 12px 40px rgba(29, 78, 216, 0.3);
-      transform: translateY(-2px);
-    }
-    
-    .premium-search-input {
-      background: transparent;
-      border: none;
-      outline: none;
-      width: 100%;
-      padding: 16px 60px 16px 60px;
-      font-size: 16px;
-      color: var(--text-light);
-      font-weight: 500;
-    }
-    
-    .premium-search-input::placeholder {
-      color: var(--text-gray);
-      font-weight: 400;
-    }
-    
-    .premium-search-icon {
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-gray);
-      transition: all 0.3s ease;
-    }
-    
-    .premium-search-container:focus-within .premium-search-icon {
-      color: var(--light-blue);
-      transform: translateY(-50%) scale(1.1);
-    }
-    
-    .premium-search-btn {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 10px 20px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 16px rgba(29, 78, 216, 0.4);
-    }
-    
-    .premium-search-btn:hover {
-      background: linear-gradient(135deg, var(--light-blue) 0%, var(--cyan-accent) 100%);
-      transform: translateY(-50%) translateY(-1px);
-      box-shadow: 0 6px 20px rgba(29, 78, 216, 0.5);
-    }
-    
-    .premium-filter-container {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 24px;
-      padding: 32px;
-      margin-bottom: 32px;
-      box-shadow: 0 8px 32px rgba(15, 23, 42, 0.3);
-    }
-    
-    .premium-filter-select {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
-      border: 2px solid rgba(59, 130, 246, 0.3);
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-light);
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-    
-    .premium-filter-select:focus {
-      outline: none;
-      border-color: var(--light-blue);
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-      transform: translateY(-1px);
-    }
-    
-    .premium-filter-select option {
-      background: var(--secondary-dark-blue);
-      color: var(--text-light);
-    }
-    
-    .premium-filter-chips {
-      display: flex;
-      gap: 12px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-    
-    .premium-filter-chip {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.2) 100%);
-      border: 2px solid rgba(59, 130, 246, 0.3);
-      border-radius: 25px;
-      padding: 10px 20px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-light);
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    
-    .premium-filter-chip:hover,
-    .premium-filter-chip.active {
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(29, 78, 216, 0.4);
-    }
-    
-    .premium-products-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 24px;
-      margin-top: 32px;
-    }
-    
-    .premium-product-card {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(59, 130, 246, 0.2);
-      border-radius: 24px;
-      padding: 20px;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(15, 23, 42, 0.3);
-    }
-    
-    .premium-product-card:hover {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 20px 60px rgba(29, 78, 216, 0.3);
-      border-color: var(--light-blue);
-    }
-    
-    .premium-product-image-container {
-      position: relative;
-      width: 100%;
-      height: 280px;
-      border-radius: 16px;
-      overflow: hidden;
-      margin-bottom: 16px;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
-      border: 2px solid rgba(59, 130, 246, 0.2);
-      transition: all 0.3s ease;
-    }
-    
-    .premium-product-card:hover .premium-product-image-container {
-      border-color: var(--light-blue);
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
-    }
-    
-    .premium-product-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 14px;
-      transition: all 0.3s ease;
-    }
-    
-    .premium-product-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-light);
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-    
-    .premium-product-specs {
-      font-size: 13px;
-      color: var(--text-gray);
-      margin-bottom: 12px;
-      line-height: 1.5;
-    }
-    
-    .premium-product-price {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--cyan-accent);
-      margin-bottom: 16px;
-    }
-    
-    .premium-view-btn {
-      width: 100%;
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 20px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 16px rgba(29, 78, 216, 0.4);
-    }
-    
-    .premium-view-btn:hover {
-      background: linear-gradient(135deg, var(--light-blue) 0%, var(--cyan-accent) 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(29, 78, 216, 0.5);
-    }
-    
-    .sidebar-nav {
-      background: linear-gradient(180deg, var(--primary-dark-blue) 0%, var(--secondary-dark-blue) 100%);
-      width: 80px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 24px 0;
-      box-shadow: 4px 0 20px rgba(15, 23, 42, 0.5);
-      position: fixed;
-      left: 0;
-      top: 0;
-      z-index: 30;
-    }
-    
-    .nav-button {
-      padding: 16px;
-      border-radius: 16px;
-      transition: all 0.3s ease;
-      margin-bottom: 16px;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      color: var(--text-gray);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .nav-button:hover {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.2) 100%);
-      color: var(--text-light);
-      transform: scale(1.1);
-    }
-    
-    .nav-button.active {
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
-      color: white;
-      box-shadow: 0 8px 25px rgba(29, 78, 216, 0.4);
-    }
-    
-    .nav-button svg {
-      width: 24px;
-      height: 24px;
-      transition: all 0.3s ease;
-    }
-    
-    .nav-button:hover svg {
-      transform: scale(1.1);
-    }
-    
-    .section-title {
-      font-size: 28px;
-      font-weight: 800;
-      color: var(--text-light);
-      margin-bottom: 8px;
-      text-shadow: 0 2px 4px rgba(15, 23, 42, 0.3);
-    }
-    
-    .section-subtitle {
-      font-size: 16px;
-      color: var(--text-gray);
-      margin-bottom: 32px;
-    }
-    
-    .filter-label {
-      display: block;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-light);
-      margin-bottom: 8px;
-    }
-    
-    .product-count {
-      color: var(--text-gray);
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    /* Main content area with sidebar offset */
-    .main-content-area {
-      margin-left: 80px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    /* Catalog View Styles */
-    .catalog-header {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-      padding: 16px 32px;
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
-    }
-    
-    .search-container {
-      position: relative;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
-      border: 2px solid rgba(59, 130, 246, 0.3);
-      border-radius: 16px;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-    
-    .search-container:focus-within {
-      border-color: var(--light-blue);
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-      transform: translateY(-1px);
-    }
-    
-    .search-input-enhanced {
-      background: transparent;
-      border: none;
-      outline: none;
-      width: 100%;
-      padding: 14px 50px 14px 50px;
-      font-size: 16px;
-      color: var(--text-light);
-      font-weight: 500;
-    }
-    
-    .search-input-enhanced::placeholder {
-      color: var(--text-gray);
-      font-weight: 400;
-    }
-    
-    .search-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-gray);
-      transition: all 0.3s ease;
-    }
-    
-    .search-container:focus-within .search-icon {
-      color: var(--light-blue);
-      transform: translateY(-50%) scale(1.1);
-    }
-    
-    .search-btn {
-      position: absolute;
-      right: 8px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 8px 16px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
-    }
-    
-    .search-btn:hover {
-      background: linear-gradient(135deg, var(--light-blue) 0%, var(--cyan-accent) 100%);
-      transform: translateY(-50%) translateY(-1px);
-      box-shadow: 0 6px 16px rgba(29, 78, 216, 0.4);
-    }
-    
-    .table-row:hover {
-      background: linear-gradient(90deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
-    }
-    
-    .search-results-count {
-      background: linear-gradient(135deg, var(--success-green) 0%, var(--cyan-accent) 100%);
-      color: white;
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-    
-    /* Enhanced Export Styles */
-    .export-hero {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .export-hero::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-      animation: float 20s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
-    }
-    
-    .export-title {
-      font-size: 6rem;
-      font-weight: 900;
-      letter-spacing: -0.05em;
-      background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 40px rgba(255, 255, 255, 0.3);
-      position: relative;
-      z-index: 10;
-    }
-    
-    .export-subtitle {
-      font-size: 1.5rem;
-      color: rgba(255, 255, 255, 0.8);
-      font-weight: 300;
-      letter-spacing: 0.1em;
-      margin-top: 1rem;
-      position: relative;
-      z-index: 10;
-    }
-    
-    .export-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      border-radius: 24px;
-      padding: 3rem;
-      color: white;
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .export-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-    
-    .export-card:hover::before {
-      left: 100%;
-    }
-    
-    .export-card:hover {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
-      border-color: rgba(255, 255, 255, 0.4);
-    }
-    
-    .export-option {
-      font-size: 2.5rem;
-      font-weight: 800;
-      text-align: center;
-      letter-spacing: -0.02em;
-      position: relative;
-      z-index: 10;
-    }
-    
-    .export-icon {
-      width: 4rem;
-      height: 4rem;
-      margin: 0 auto 2rem;
-      opacity: 0.8;
-      transition: all 0.3s ease;
-    }
-    
-    .export-card:hover .export-icon {
-      opacity: 1;
-      transform: scale(1.1);
-    }
-    
-    .export-description {
-      font-size: 1rem;
-      opacity: 0.8;
-      margin-top: 1rem;
-      line-height: 1.6;
-    }
-    
-    .export-preview-section {
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 24px;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .export-preview-title {
-      font-size: 4rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-    
-    .export-preview-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 400px;
-      color: var(--text-gray);
-    }
-    
-    .export-preview-icon {
-      width: 6rem;
-      height: 6rem;
-      margin-bottom: 2rem;
-      opacity: 0.6;
-      animation: bounce 2s infinite;
-    }
-    
-    @keyframes bounce {
-      0%, 20%, 53%, 80%, 100% {
-        transform: translate3d(0,0,0);
-      }
-      40%, 43% {
-        transform: translate3d(0,-30px,0);
-      }
-      70% {
-        transform: translate3d(0,-15px,0);
-      }
-      90% {
-        transform: translate3d(0,-4px,0);
-      }
-    }
-    
-    .product-grid-item {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.3);
-      transition: all 0.3s ease;
-      cursor: pointer;
-      border: 3px solid transparent;
-      backdrop-filter: blur(10px);
-    }
-    
-    .product-grid-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(29, 78, 216, 0.3);
-    }
-    
-    .product-grid-item.selected {
-      border-color: var(--light-blue);
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(29, 78, 216, 0.2) 100%);
-    }
-    
-    .product-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 12px;
-      background: rgba(59, 130, 246, 0.1);
-    }
-    
-    .cart-badge {
-      background: linear-gradient(135deg, var(--error-red) 0%, #dc2626 100%);
-      color: white;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 600;
-      position: absolute;
-      top: -8px;
-      right: -8px;
-    }
-    
-    .nav-button-style {
-      background: linear-gradient(135deg, var(--accent-blue) 0%, var(--light-blue) 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 24px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
-    }
-    
-    .nav-button-style:hover {
-      background: linear-gradient(135deg, var(--light-blue) 0%, var(--cyan-accent) 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(29, 78, 216, 0.4);
-    }
-    
-    .secondary-button {
-      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 24px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
-    }
-    
-    .secondary-button:hover {
-      background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
-    }
-    
-    /* Modal Styles */
-    .modal-content {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      border-radius: 24px;
-      color: var(--text-light);
-      box-shadow: 0 25px 50px rgba(15, 23, 42, 0.5);
-    }
-    
-    .modal-header {
-      border-bottom: 1px solid rgba(59, 130, 246, 0.2);
-      padding: 24px;
-    }
-    
-    .modal-body {
-      padding: 24px;
-    }
-    
-    .spec-card {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
-    
-    .spec-label {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-gray);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-    
-    .spec-value {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-light);
-    }
-    
-    .error-message {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
-      border: 2px solid rgba(239, 68, 68, 0.3);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      color: var(--text-light);
-    }
-    
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 50vh;
-      color: var(--text-light);
-    }
-    
-    .no-products-message {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(59, 130, 246, 0.2);
-      border-radius: 24px;
-      padding: 48px;
-      text-align: center;
-      color: var(--text-light);
-    }
-    
-    .image-not-found {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--text-gray);
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(29, 78, 216, 0.05) 100%);
-    }
-    
-    .image-not-found svg {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 12px;
-      opacity: 0.6;
-    }
-    
-    .image-not-found-text {
-      font-size: 14px;
-      font-weight: 500;
-      opacity: 0.8;
-    }
-    
-    /* Catalog Preview Styles */
-    .catalog-page {
-      width: 210mm;
-      min-height: 297mm;
-      background: white;
-      margin: 0 auto;
-      padding: 20mm;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    .catalog-header-page {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-    
-    .catalog-logo {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 20px;
-    }
-    
-    .catalog-model-title {
-      font-size: 4rem;
-      font-weight: 900;
-      color: #1e293b;
-      letter-spacing: -0.02em;
-      margin-bottom: 30px;
-    }
-    
-    .catalog-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      margin-bottom: 40px;
-    }
-    
-    .catalog-item {
-      text-align: center;
-      position: relative;
-    }
-    
-    .catalog-item-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      background: #f8fafc;
-    }
-    
-    .catalog-item-name {
-      font-size: 14px;
-      font-weight: 700;
-      color: #2563eb;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .remove-item-btn {
-      position: absolute;
-      top: -8px;
-      right: -8px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0;
-      transition: all 0.3s ease;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    
-    .catalog-item:hover .remove-item-btn {
-      opacity: 1;
-    }
-    
-    .remove-item-btn:hover {
-      background: #dc2626;
-      transform: scale(1.1);
-    }
-    
-    /* PDF Processing Styles */
-    .pdf-processing {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.5);
-      z-index: 1000;
-      text-align: center;
-      color: var(--text-light);
-    }
-    
-    .pdf-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(59, 130, 246, 0.2);
-      border-top: 4px solid var(--light-blue);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    /* Responsive Design */
-    @media (max-width: 1024px) {
-      .premium-products-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-      
-      .sidebar-nav {
-        width: 60px;
-      }
-      
-      .main-content-area {
-        margin-left: 60px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .premium-products-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      
-      .sidebar-nav {
-        width: 50px;
-        padding: 16px 0;
-      }
-      
-      .main-content-area {
-        margin-left: 50px;
-      }
-      
-      .nav-button {
-        padding: 12px;
-        margin-bottom: 12px;
-      }
-      
-      .nav-button svg {
-        width: 20px;
-        height: 20px;
-      }
-      
-      .catalog-header {
-        padding: 12px 16px;
-      }
-      
-      .premium-search-container {
-        width: 100%;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .premium-products-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .export-title {
-        font-size: 3rem;
-      }
-      
-      .export-preview-title {
-        font-size: 2rem;
-      }
-    }
-    
-    /* Print Styles */
-    @media print {
-      .no-print {
-        display: none !important;
-      }
-      
-      .catalog-page {
-        box-shadow: none;
-        margin: 0;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Loading Screen -->
-  <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center" style="background: linear-gradient(135deg, var(--primary-dark-blue) 0%, var(--secondary-dark-blue) 100%);">
-    <div class="loading-container">
-      <div class="loading-spinner mb-6"></div>
-      <h3 class="text-xl font-semibold mb-2">VINAYAKA INDUSTRIES CATALOG</h3>
-      <p class="text-gray-400">Loading.....</p>
-    </div>
-  </div>
-
-  <!-- Error Message -->
-  <div id="errorMessage" class="hidden fixed inset-0 z-50 flex items-center justify-center" style="background: linear-gradient(135deg, var(--primary-dark-blue) 0%, var(--secondary-dark-blue) 100%);">
-    <div class="error-message max-w-md">
-      <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-        </svg>
-      </div>
-      <h3 class="text-lg font-semibold text-red-400 mb-2">Error Loading Data</h3>
-      <p class="text-red-300" id="errorText">Failed to load product catalog</p>
-    </div>
-  </div>
-
-  <!-- PDF Processing Overlay -->
-  <div id="pdfProcessing" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-    <div class="pdf-processing">
-      <div class="pdf-spinner"></div>
-      <h3 class="text-lg font-semibold mb-2">Generating PDF...</h3>
-      <p class="text-gray-400">Please wait while we prepare your catalog</p>
-    </div>
-  </div>
-
-  <!-- Main Application Container -->
-  <div id="mainApp" class="flex min-h-screen">
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar-nav">
-      <nav class="flex flex-col gap-4">
-        <button id="dashboardBtn" class="nav-button active" title="Dashboard" onclick="showDashboardView()">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-          </svg>
-        </button>
-        <button id="catalogBtn" class="nav-button" title="Catalog" onclick="showCatalogView()">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-          </svg>
-        </button>
-        <button id="exportBtn" class="nav-button" title="Export" onclick="showExportView()">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-        </button>
-        <button class="nav-button" title="Analytics">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-          </svg>
-        </button>
-        <button class="nav-button" title="Settings">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-        </button>
-      </nav>
-    </aside>
-    
-    <!-- Main Content Area -->
-    <div class="main-content-area">
-      <!-- Premium Dashboard View -->
-      <div id="dashboardView" class="min-h-screen">
-        <!-- Dashboard Header -->
-        <header class="catalog-header">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <img
-                src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
-                alt="Vinayaka Industries"
-                class="w-32 h-32 object-contain bg-slate-700/30 rounded-2xl p-2 border border-slate-600/50"
-              />
-            <div>
-                <h1 class="text-3xl font-bold text-white mb-2">
-                  Welcome to VINAYAKA INDUSTRIES
-                </h1>
-              </div>
-            </div> 
-            
-            <!-- Premium Search Bar -->
-            <div class="premium-search-container w-96">
-              <svg class="premium-search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-              <input
-                type="text"
-                id="dashboardSearchInput"
-                placeholder="Search premium parts, models, devices..."
-                class="premium-search-input"
-              />
-              <button class="premium-search-btn" onclick="performDashboardSearch()">
-                Search
-              </button>
-            </div>
-          </div>
-        </header>
-
-        <!-- Dashboard Content -->
-        <main class="p-8">
-          <!-- Premium Filters -->
-          <div class="premium-filter-container slide-in">
-            <div class="flex items-center gap-4 mb-8">
-              <div class="p-3 premium-gradient rounded-xl">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
-                </svg>
-              </div>
-              <h2 class="section-title">Filter Premium Products</h2>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-              <div class="space-y-3">
-                <label class="filter-label">Model</label>
-                <select id="dashboardModelFilter" class="premium-filter-select w-full">
-                  <option value="">All Models</option>
-                </select>
-              </div>
-              
-              <div class="space-y-3">
-                <label class="filter-label">Model Number</label>
-                <select id="dashboardModelNumberFilter" class="premium-filter-select w-full">
-                  <option value="">All Model Numbers</option>
-                </select>
-              </div>
-              
-              <div class="space-y-3">
-                <label class="filter-label">Device</label>
-                <select id="dashboardDeviceFilter" class="premium-filter-select w-full">
-                  <option value="">All Devices</option>
-                </select>
-              </div>
-              
-              <div class="space-y-3">
-                <label class="filter-label">Item Name</label>
-                <select id="dashboardItemNameFilter" class="premium-filter-select w-full">
-                  <option value="">All Item Names</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Quick Filter Chips -->
-            <div class="premium-filter-chips">
-              <div class="premium-filter-chip active" onclick="setQuickFilter('all')">All Models</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('carrier-assembly')">Carrier Assembly</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('sun-gears')">Sun Gears</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('planetary-gears')">Planetary Gears</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('pinion')">Pinion</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('bearings')">Bearings</div>
-              <div class="premium-filter-chip" onclick="setQuickFilter('motors')">Motors</div>
-            </div>
-          </div>
-
-          <!-- Premium Products Grid -->
-          <div class="fade-in">
-            <div class="flex items-center justify-between mb-8">
-              <h2 class="section-title">Premium Products</h2>
-              <div class="product-count" id="dashboardProductCount">0 products</div>
-            </div>
-            
-            <div id="dashboardProductsGrid" class="premium-products-grid">
-              <!-- Products will be populated here -->
-            </div>
-            
-            <!-- No Products Message -->
-            <div id="noProductsMessage" class="hidden no-products-message">
-              <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-              </div>
-              <h3 class="text-2xl font-semibold mb-4">No products found</h3>
-              <p class="text-gray-400">Try adjusting your search or filter criteria</p>
-            </div>
-          </div>
-        </main>
-      </div>
-
-      <!-- Catalog View -->
-      <div id="catalogView" class="hidden min-h-screen flex flex-col">
-        <!-- Header -->
-        <header class="catalog-header">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <div class="flex items-center gap-3">
-                <img
-                  src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800"
-                  alt="Vinayaka Industries"
-                  class="w-24 h-24 object-contain bg-slate-700/30 rounded-2xl p-2 border border-slate-600/50"
-                />
-                <div>
-                  <h1 class="text-xl font-bold text-slate-100">Parts Catalog</h1>              
-                </div>
-              </div>
-            </div>
-            
-            <div class="flex items-center gap-4">
-              <!-- Enhanced Search Bar -->
-              <div class="search-container w-96">
-                <svg class="search-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                <input
-                  type="text"
-                  id="searchInput"
-                  placeholder="Search parts, models, devices... (e.g., '60', 'bearing', 'motor')"
-                  class="search-input-enhanced"
-                />
-                <button class="search-btn" onclick="performSearch()">
-                  Search
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InvoiceForge Pro - Advanced GST Invoice Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
-        <!-- Main Content -->
-        <main class="flex-1 p-6 space-y-6" id="mainContent">
-          <!-- Filters -->
-          <div class="premium-filter-container fade-in">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="p-2 premium-gradient rounded-lg">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
-                </svg>
-              </div>
-              <h2 class="text-xl font-semibold text-slate-100">Filter Parts</h2>
-            </div>
+        :root {
+            --primary-rgb: 14 185 166; /* Teal-500 */
+            --primary-dark-rgb: 15 118 110; /* Teal-700 */
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div class="space-y-2">
-                <label class="filter-label">Model</label>
-                <select
-                  id="modelFilter"
-                  class="premium-filter-select w-full"
-                >
-                  <option value="">All Models</option>
-                </select>
-              </div>
-              
-              <div class="space-y-2">
-                <label class="filter-label">Model Number</label>
-                <select
-                  id="modelNumberFilter"
-                  class="premium-filter-select w-full"
-                >
-                  <option value="">All Model Numbers</option>
-                </select>
-              </div>
-              
-              <div class="space-y-2">
-                <label class="filter-label">Device</label>
-                <select
-                  id="deviceFilter"
-                  class="premium-filter-select w-full"
-                >
-                  <option value="">All Devices</option>
-                </select>
-              </div>
-              
-              <div class="space-y-2">
-                <label class="filter-label">Item Name</label>
-                <select
-                  id="itemNameFilter"
-                  class="premium-filter-select w-full"
-                >
-                  <option value="">All Item Names</option>
-                </select>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Product Count and Table -->
-          <div class="space-y-4 fade-in">
-            <div class="flex items-center justify-between">
-              <h2 class="text-2xl font-bold text-slate-100">Product Catalog</h2>
-              <div class="flex items-center gap-3">
-                <div class="text-sm text-slate-300" id="productCount">
-                  0 products
-                </div>
-                <div id="searchResultsBadge" class="search-results-count hidden">
-                  Search Results
-                </div>
-              </div>
-            </div>
-            
-            <!-- Product Table -->
-            <div class="premium-filter-container overflow-hidden" id="productTableContainer">
-              <div class="overflow-x-auto">
-                <table class="min-w-full">
-                  <thead class="bg-slate-700/50 border-b border-slate-600">
-                    <tr>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Model</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Model Number</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Device</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Size</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Item Name</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Price</th>
-                      <th class="px-6 py-4 text-left text-xs font-semibold text-slate-200 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody id="productTable" class="divide-y divide-slate-600">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            
-            <!-- No Products Message -->
-            <div id="noProductsMessageCatalog" class="hidden no-products-message">
-              <div class="w-16 h-16 bg-slate-100/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-              </div>
-              <h3 class="text-lg font-medium text-slate-300 mb-2">No products found</h3>
-              <p class="text-slate-500">Try adjusting your search or filter criteria</p>
-            </div>
-          </div>
-        </main>
-      </div>
+            /* Light Theme */
+            --bg-light: 240 253 250;
+            --text-light: 30 41 59;
+            --card-bg-light: rgba(255, 255, 255, 0.6);
+            --card-border-light: rgba(14, 185, 166, 0.2);
+            --input-bg-light: rgba(255, 255, 255, 0.7);
+            --input-border-light: rgba(14, 185, 166, 0.3);
+            --invoice-bg-light: white;
+            --table-header-bg-light: #f8fafc;
+            --text-muted-light: #64748b;
+            --border-light: #94a3b8;
 
-      <!-- Export View -->
-      <div id="exportView" class="hidden min-h-screen flex flex-col">
-        <!-- Export Header -->
-        <header class="catalog-header">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-4">
-              <button onclick="showCatalogView()" class="p-2 text-slate-300 hover:text-slate-100 hover:bg-slate-700/50 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-              </button>
-              <div>
-                <h1 class="text-xl font-bold text-slate-100">Export Catalog</h1>              
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <!-- Export Main Page -->
-        <div id="exportMainPage" class="flex-1 flex">
-          <!-- Left Side - Export Hero Section -->
-          <div class="w-1/2 export-hero flex flex-col justify-center items-center p-12 relative">
-            <div class="text-center relative z-10">
-              <h1 class="export-title mb-4">EXPORT</h1>
-              <p class="export-subtitle">Transform your catalog into powerful formats</p>
-            </div>
-            
-            <div class="grid grid-cols-1 gap-8 w-full max-w-lg mt-12 relative z-10">
-              <div class="export-card" onclick="exportFullCatalog()">
-                <svg class="export-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <div class="export-option">FULL CATALOG</div>
-                <div class="export-description">Export complete product database with all specifications and details</div>
-              </div>
-              
-              <div class="export-card" onclick="showCustomExport()">
-                <svg class="export-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
-                </svg>
-                <div class="export-option">CUSTOM SELECTION</div>
-                <div class="export-description">Handpick specific products and create personalized catalogs</div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Right Side - Preview Section -->
-          <div class="w-1/2 export-preview-section flex flex-col justify-center items-center p-12">
-            <h2 class="export-preview-title">PREVIEW</h2>
-            <div class="export-preview-content">
-              <svg class="export-preview-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
-              <p class="text-xl font-medium">Select an export option to preview</p>
-              <p class="text-sm opacity-60 mt-2">Your catalog will be beautifully formatted and ready for download</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Custom Export Page -->
-        <div id="customExportPage" class="hidden flex-1 p-6 space-y-6">
-          <!-- Back Button and Title -->
-          <div class="flex items-center gap-4 mb-6">
-            <button onclick="showExportMainPage()" class="nav-button-style">
-              <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-              </svg>
-              Back
-            </button>
-            <h2 class="text-3xl font-bold text-slate-100">Custom Export</h2>
-            <div class="ml-auto flex items-center gap-4">
-              <div class="relative">
-                <button id="cartButton" onclick="showCatalogPreview()" class="nav-button-style flex items-center gap-2">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"></path>
-                  </svg>
-                  View Cart
-                  <span id="cartCount" class="cart-badge">0</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Custom Export Filters -->
-          <div class="premium-filter-container">
-            <div class="flex items-center gap-3 mb-6">
-              <div class="p-2 premium-gradient rounded-lg">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.207A1 1 0 013 6.5V4z"></path>
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold text-slate-100">Filter Products</h3>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div class="space-y-2">
-                <label class="filter-label">Model</label>
-                <select id="exportModelFilter" class="premium-filter-select w-full">
-                  <option value="">All Models</option>
-                </select>
-              </div>
-              
-              <div class="space-y-2">
-                <label class="filter-label">Model Number</label>
-                <select id="exportModelNumberFilter" class="premium-filter-select w-full">
-                  <option value="">All Model Numbers</option>
-                </select>
-              </div>
-              
-              <div class="space-y-2">
-                <label class="filter-label">Device</label>
-                <select id="exportDeviceFilter" class="premium-filter-select w-full">
-                  <option value="">All Devices</option>
-                </select>
-              </div>
-              
-              <div class="space-y-2">
-                <label class="filter-label">Item Name</label>
-                <select id="exportItemNameFilter" class="premium-filter-select w-full">
-                  <option value="">All Item Names</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Product Grid -->
-          <div class="premium-filter-container">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-xl font-semibold text-slate-100">Select Products</h3>
-              <div class="text-sm text-slate-300" id="exportProductCount">0 products available</div>
-            </div>
-            
-            <div id="exportProductGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <!-- Products will be populated here -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Catalog Preview Page -->
-        <div id="catalogPreviewPage" class="hidden flex-1 p-6 space-y-6">
-          <!-- Preview Header -->
-          <div class="flex items-center justify-between mb-6 no-print">
-            <div class="flex items-center gap-4">
-              <button onclick="showCustomExport()" class="nav-button-style">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-                Back to Selection
-              </button>
-              <h2 class="text-3xl font-bold text-slate-100">Catalog Preview</h2>
-            </div>
-            
-            <div class="flex items-center gap-4">
-              <button onclick="generateFastPDF()" class="nav-button-style">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                Fast PDF Download
-              </button>
-              <button onclick="window.print()" class="secondary-button">
-                <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                </svg>
-                Print
-              </button>
-            </div>
-          </div>
-
-          <!-- Catalog Pages -->
-          <div id="catalogPages" class="space-y-8">
-            <!-- Pages will be generated here -->
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Product Modal -->
-  <div id="productModal" class="fixed inset-0 modal-backdrop hidden items-center justify-center z-50 p-4">
-    <div class="modal-content max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="modal-header flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="p-2 premium-gradient rounded-lg">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-            </svg>
-          </div>
-          <h2 class="text-xl font-semibold">Product Details</h2>
-        </div>
-        <button
-          onclick="closeModal()"
-          class="p-2 text-gray-400 hover:text-white hover:bg-blue-500/20 rounded-lg transition-colors"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
-      
-      <div class="modal-body" id="modalContent">
-        <!-- Content will be populated by JavaScript -->
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?output=csv';
-    let allProducts = [];
-    let filteredProducts = [];
-    let dashboardProducts = [];
-    let currentSearchTerm = '';
-    let currentDashboardSearchTerm = '';
-    let selectedProducts = [];
-    let currentView = 'dashboard';
-    let currentQuickFilter = 'all';
-
-    // Show loading screen
-    function showLoading() {
-      document.getElementById('loadingScreen').classList.remove('hidden');
-      document.getElementById('mainApp').style.display = 'none';
-    }
-
-    // Hide loading screen
-    function hideLoading() {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      document.getElementById('mainApp').style.display = 'flex';
-    }
-
-    // Show error message
-    function showError(message) {
-      document.getElementById('loadingScreen').classList.add('hidden');
-      document.getElementById('errorMessage').classList.remove('hidden');
-      document.getElementById('errorText').textContent = message;
-    }
-
-    // View Management
-    function showDashboardView() {
-      currentView = 'dashboard';
-      document.getElementById('dashboardView').classList.remove('hidden');
-      document.getElementById('catalogView').classList.add('hidden');
-      document.getElementById('exportView').classList.add('hidden');
-      
-      // Update sidebar buttons
-      document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('dashboardBtn').classList.add('active');
-    }
-
-    function showCatalogView() {
-      currentView = 'catalog';
-      document.getElementById('catalogView').classList.remove('hidden');
-      document.getElementById('dashboardView').classList.add('hidden');
-      document.getElementById('exportView').classList.add('hidden');
-      
-      // Update sidebar buttons
-      document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('catalogBtn').classList.add('active');
-    }
-
-    function showExportView() {
-      currentView = 'export';
-      document.getElementById('catalogView').classList.add('hidden');
-      document.getElementById('dashboardView').classList.add('hidden');
-      document.getElementById('exportView').classList.remove('hidden');
-      document.getElementById('exportMainPage').classList.remove('hidden');
-      document.getElementById('customExportPage').classList.add('hidden');
-      document.getElementById('catalogPreviewPage').classList.add('hidden');
-      
-      // Update sidebar buttons
-      document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('exportBtn').classList.add('active');
-    }
-
-    function showExportMainPage() {
-      document.getElementById('exportMainPage').classList.remove('hidden');
-      document.getElementById('customExportPage').classList.add('hidden');
-      document.getElementById('catalogPreviewPage').classList.add('hidden');
-    }
-
-    function showCustomExport() {
-      document.getElementById('exportMainPage').classList.add('hidden');
-      document.getElementById('customExportPage').classList.remove('hidden');
-      document.getElementById('catalogPreviewPage').classList.add('hidden');
-      
-      // Populate export filters
-      populateExportDropdowns();
-      renderExportProductGrid();
-    }
-
-    function showCatalogPreview() {
-      if (selectedProducts.length === 0) {
-        alert('Please select at least one product to preview the catalog.');
-        return;
-      }
-      
-      document.getElementById('exportMainPage').classList.add('hidden');
-      document.getElementById('customExportPage').classList.add('hidden');
-      document.getElementById('catalogPreviewPage').classList.remove('hidden');
-      
-      generateCatalogPreview();
-    }
-
-    // Dashboard Functions
-    function performDashboardSearch() {
-      const searchTerm = document.getElementById('dashboardSearchInput').value.toLowerCase().trim();
-      currentDashboardSearchTerm = searchTerm;
-      applyDashboardFilters();
-    }
-
-    function applyDashboardFilters() {
-      const model = document.getElementById('dashboardModelFilter').value;
-      const modelNumber = document.getElementById('dashboardModelNumberFilter').value;
-      const device = document.getElementById('dashboardDeviceFilter').value;
-      const itemName = document.getElementById('dashboardItemNameFilter').value;
-
-      let filtered = allProducts;
-
-      // Apply search filter
-      if (currentDashboardSearchTerm) {
-        filtered = filtered.filter(product => {
-          return Object.values(product).some(value => 
-            value && value.toString().toLowerCase().includes(currentDashboardSearchTerm)
-          );
-        });
-      }
-
-      // Apply dropdown filters
-      filtered = filtered.filter(product => {
-        const matchesModel = !model || product['MODEL'] === model;
-        const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
-        const matchesDevice = !device || product['DEVICE'] === device;
-        const matchesItemName = !itemName || product['ITEM NAME'] === itemName;
-        
-        return matchesModel && matchesModelNumber && matchesDevice && matchesItemName;
-      });
-
-      // Apply quick filter
-      if (currentQuickFilter !== 'all') {
-        filtered = filtered.filter(product => {
-          switch (currentQuickFilter) {
-            case 'carrier-assembly':
-              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('carrier') ||
-                     product['DEVICE'] && product['DEVICE'].toLowerCase().includes('carrier');
-            case 'sun-gears':
-              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('sun') ||
-                     product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('gear');
-            case 'planetary-gears':
-              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('planetary') ||
-                     product['DEVICE'] && product['DEVICE'].toLowerCase().includes('planetary');
-            case 'pinion':
-              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('pinion') ||
-                     product['DEVICE'] && product['DEVICE'].toLowerCase().includes('pinion');
-            case 'bearings':
-              return product['ITEM NAME'] && product['ITEM NAME'].toLowerCase().includes('bearing');
-            case 'motors':
-              return product['DEVICE'] && product['DEVICE'].toLowerCase().includes('motor');
-            default:
-              return true;
-          }
-        });
-      }
-
-      dashboardProducts = filtered;
-      renderDashboardProducts();
-    }
-
-    function setQuickFilter(filter) {
-      currentQuickFilter = filter;
-      
-      // Update chip styles
-      document.querySelectorAll('.premium-filter-chip').forEach(chip => {
-        chip.classList.remove('active');
-      });
-      event.target.classList.add('active');
-      
-      applyDashboardFilters();
-    }
-
-    function renderDashboardProducts() {
-      const grid = document.getElementById('dashboardProductsGrid');
-      const count = document.getElementById('dashboardProductCount');
-      const noProductsMessage = document.getElementById('noProductsMessage');
-      
-      count.textContent = `${dashboardProducts.length} products`;
-      
-      if (dashboardProducts.length === 0) {
-        grid.style.display = 'none';
-        noProductsMessage.classList.remove('hidden');
-        return;
-      }
-      
-      grid.style.display = 'grid';
-      noProductsMessage.classList.add('hidden');
-      grid.innerHTML = '';
-      
-      dashboardProducts.forEach((product, index) => {
-        const imageId = product['ID'] || product['IMAGE LINK'];
-        const imageUrl = imageId && imageId.trim() !== '' ? 
-          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s1080` : '';
-        
-        // Create full product description
-        const fullDescription = [
-          product['MODEL'] || '',
-          product['MODEL NUMBER'] || '',
-          product['DEVICE'] || '',
-          product['SIZE'] || ''
-        ].filter(part => part.trim() !== '').join(' • ');
-        
-        const productCard = document.createElement('div');
-        productCard.className = 'premium-product-card hover-scale';
-        productCard.onclick = () => showProductDetails(product);
-        
-        productCard.innerHTML = `
-          <div class="premium-product-image-container">
-            ${imageUrl ? `
-              <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="premium-product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-              <div class="image-not-found" style="display: none;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <div class="image-not-found-text">Image not found</div>
-              </div>
-            ` : `
-              <div class="image-not-found">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <div class="image-not-found-text">Image not found</div>
-              </div>
-            `}
-          </div>
-          <div class="premium-product-title">${product['ITEM NAME'] || 'Unknown Item'}</div>
-          <div class="premium-product-specs">${fullDescription}</div>
-          <div class="premium-product-price">₹${product['PRICE'] || 'Contact for Price'}</div>
-          <button class="premium-view-btn" onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])">
-            View Details
-          </button>
-        `;
-        
-        grid.appendChild(productCard);
-      });
-    }
-
-    function populateDashboardDropdowns() {
-      const modelFilter = document.getElementById('dashboardModelFilter');
-      const modelNumberFilter = document.getElementById('dashboardModelNumberFilter');
-      const deviceFilter = document.getElementById('dashboardDeviceFilter');
-      const itemNameFilter = document.getElementById('dashboardItemNameFilter');
-
-      const models = [...new Set(allProducts.map(p => p['MODEL']).filter(Boolean))].sort();
-      const modelNumbers = [...new Set(allProducts.map(p => p['MODEL NUMBER']).filter(Boolean))].sort();
-      const devices = [...new Set(allProducts.map(p => p['DEVICE']).filter(Boolean))].sort();
-      const itemNames = [...new Set(allProducts.map(p => p['ITEM NAME']).filter(Boolean))].sort();
-
-      // Clear existing options
-      modelFilter.innerHTML = '<option value="">All Models</option>';
-      modelNumberFilter.innerHTML = '<option value="">All Model Numbers</option>';
-      deviceFilter.innerHTML = '<option value="">All Devices</option>';
-      itemNameFilter.innerHTML = '<option value="">All Item Names</option>';
-
-      models.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        modelFilter.appendChild(option);
-      });
-
-      modelNumbers.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        modelNumberFilter.appendChild(option);
-      });
-
-      devices.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        deviceFilter.appendChild(option);
-      });
-
-      itemNames.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        itemNameFilter.appendChild(option);
-      });
-    }
-
-    // Enhanced search function
-    function performSearch() {
-      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
-      currentSearchTerm = searchTerm;
-      
-      if (searchTerm === '') {
-        applyFilters();
-        document.getElementById('searchResultsBadge').classList.add('hidden');
-        return;
-      }
-
-      const searchResults = allProducts.filter(product => {
-        return Object.values(product).some(value => 
-          value && value.toString().toLowerCase().includes(searchTerm)
-        );
-      });
-
-      const model = document.getElementById('modelFilter').value;
-      const modelNumber = document.getElementById('modelNumberFilter').value;
-      const device = document.getElementById('deviceFilter').value;
-      const itemName = document.getElementById('itemNameFilter').value;
-
-      filteredProducts = searchResults.filter(product => {
-        const matchesModel = !model || product['MODEL'] === model;
-        const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
-        const matchesDevice = !device || product['DEVICE'] === device;
-        const matchesItemName = !itemName || product['ITEM NAME'] === itemName;
-        
-        return matchesModel && matchesModelNumber && matchesDevice && matchesItemName;
-      });
-
-      renderProductTable(filteredProducts);
-      
-      const badge = document.getElementById('searchResultsBadge');
-      badge.classList.remove('hidden');
-      badge.textContent = `${filteredProducts.length} Search Results`;
-    }
-
-    // Render product table
-    function renderProductTable(products) {
-      const tbody = document.getElementById('productTable');
-      const noProductsMessage = document.getElementById('noProductsMessageCatalog');
-      const productTableContainer = document.getElementById('productTableContainer');
-      const productCount = document.getElementById('productCount');
-      
-      if (currentSearchTerm) {
-        productCount.textContent = `${products.length} of ${allProducts.length} products (filtered)`;
-      } else {
-        productCount.textContent = `${products.length} of ${allProducts.length} products`;
-      }
-      
-      if (products.length === 0) {
-        productTableContainer.classList.add('hidden');
-        noProductsMessage.classList.remove('hidden');
-        return;
-      }
-      
-      productTableContainer.classList.remove('hidden');
-      noProductsMessage.classList.add('hidden');
-      
-      tbody.innerHTML = '';
-      products.forEach((product, index) => {
-        const row = document.createElement('tr');
-        row.className = 'table-row hover:bg-slate-700/30 transition-colors duration-200 cursor-pointer';
-        row.onclick = () => showProductDetails(product);
-        
-        row.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">${product['MODEL'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">${product['MODEL NUMBER'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">${product['DEVICE'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">${product['SIZE'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-400">${product['ITEM NAME'] || ''}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">
-            <div class="flex items-center gap-1">
-              <span>₹</span>
-              ${product['PRICE'] || ''}
-            </div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-200">
-            <button
-              onclick="event.stopPropagation(); showProductDetails(allProducts[${allProducts.indexOf(product)}])"
-              class="p-2 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded-lg transition-colors"
-              title="View Details"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
-            </button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    // Show product details in modal
-    function showProductDetails(product) {
-      const modal = document.getElementById('productModal');
-      const content = document.getElementById('modalContent');
-
-      const imageId = product['ID'] || product['IMAGE LINK'];
-      const iframeURL = imageId && imageId.trim() !== '' ? `https://drive.google.com/file/d/${imageId.trim()}/preview` : '';
-      const fullImageURL = imageId && imageId.trim() !== '' ? `https://drive.google.com/file/d/${imageId.trim()}/view?usp=sharing` : '';
-      const folderURL = product['FOLDER'] && product['FOLDER'].trim() !== '' ? product['FOLDER'].trim() : '';
-
-      const productFields = [
-        { label: 'Item Name', key: 'ITEM NAME' },
-        { label: 'Model', key: 'MODEL' },
-        { label: 'Model Number', key: 'MODEL NUMBER' },
-        { label: 'Device', key: 'DEVICE' },
-        { label: 'Size', key: 'SIZE' },
-        { label: 'Price', key: 'PRICE' },
-        { label: 'Availability', key: 'AVAILABILITY' },
-        { label: 'Inner Diameter', key: 'INNER DIAMETER' },
-        { label: 'Outer Diameter', key: 'OUTER DIAMETER' },
-        { label: 'Length', key: 'LENGHT' },
-        { label: 'Outside Teeth', key: 'OUTSIDE TEETH' },
-        { label: 'Inside Teeth', key: 'INSIDE TEETH' },
-        { label: 'Side Teeth', key: 'SIDE TEETH' },
-        { label: 'Other', key: 'OTHER' },
-        { label: 'Others', key: 'OTHERS' },
-      ];
-
-      let modalHTML = `
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div class="space-y-4">
-            <h3 class="text-lg font-semibold">Product Image</h3>
-            
-            <div class="relative w-full h-96 rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.1) 100%); border: 2px solid rgba(59, 130, 246, 0.2);">
-              ${imageId && imageId.trim() !== '' ? `
-                <iframe 
-                  src="${iframeURL}" 
-                  class="w-full h-full border-0 rounded-2xl"
-                  allow="autoplay"
-                  loading="lazy"
-                ></iframe>
-              ` : `
-                <div class="image-not-found">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                  </svg>
-                  <div class="image-not-found-text">Image not found</div>
-                </div>
-              `}
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="flex gap-4">
-              <button
-                onclick="shareImage('${imageId}')"
-                class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-green-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg hover:shadow-green-500/30 transition-all duration-300"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
-                </svg>
-                Share Image
-              </button>
-              <button
-                onclick="openFolder('${folderURL}')"
-                class="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 text-white py-3 px-6 rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-300"
-              >
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
-                </svg>
-                Open Folder
-              </button>
-            </div>
-            
-            ${imageId && imageId.trim() !== '' ? `
-              <div class="spec-card">
-                <a
-                  href="${fullImageURL}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="flex items-center gap-2 text-blue-400 hover:text-blue-300 font-medium transition-colors"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                  </svg>
-                  Open Full Image in Google Drive
-                </a>
-              </div>
-            ` : ''}
-          </div>
-          
-          <div class="space-y-4">
-            <h3 class="text-lg font-semibold">Product Specifications</h3>
-            <div class="space-y-3">
-      `;
-      
-      productFields.forEach(({ label, key }) => {
-        const value = product[key];
-        if (value && value.trim() !== '') {
-          modalHTML += `
-            <div class="spec-card">
-              <div class="spec-label">${label}</div>
-              <div class="spec-value">
-                ${key === 'PRICE' && value ? `₹${value}` : value}
-              </div>
-            </div>
-          `;
+            /* Dark Theme */
+            --bg-dark: #0d1a1e;
+            --text-dark: #cbd5e1;
+            --card-bg-dark: rgba(15, 23, 42, 0.5);
+            --card-border-dark: rgba(14, 185, 166, 0.3);
+            --input-bg-dark: rgba(30, 41, 59, 0.5);
+            --input-border-dark: rgba(14, 185, 166, 0.4);
+            --invoice-bg-dark: #1e293b;
+            --table-header-bg-dark: #334155;
+            --text-muted-dark: #94a3b8;
+            --border-dark: #64748b;
         }
-      });
-      
-      modalHTML += `
-            </div>
-          </div>
-        </div>
-      `;
 
-      content.innerHTML = modalHTML;
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    // Share image function
-    function shareImage(imageId) {
-      if (!imageId || imageId.trim() === '') {
-        alert('No image available for this product');
-        return;
-      }
-
-      const imageUrl = `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s1080`;
-      
-      if (navigator.share) {
-        navigator.share({
-          title: 'Product Image',
-          text: 'Check out this product image',
-          url: imageUrl
-        }).catch(err => {
-          console.error('Error sharing:', err);
-          copyToClipboard(imageUrl);
-        });
-      } else {
-        copyToClipboard(imageUrl);
-      }
-    }
-
-    // Open folder function
-    function openFolder(folderUrl) {
-      if (!folderUrl || folderUrl.trim() === '') {
-        alert('No folder available for this product');
-        return;
-      }
-      
-      window.open(folderUrl, '_blank');
-    }
-
-    // Copy to clipboard helper
-    function copyToClipboard(text) {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text).then(() => {
-          alert('Image URL copied to clipboard!');
-        }).catch(err => {
-          console.error('Failed to copy:', err);
-          alert('Unable to copy URL');
-        });
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-          document.execCommand('copy');
-          alert('Image URL copied to clipboard!');
-        } catch (err) {
-          alert('Unable to copy URL');
+        * { box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s ease, color 0.5s ease;
+            overflow-x: hidden;
         }
-        document.body.removeChild(textArea);
-      }
-    }
 
-    // Close modal
-    function closeModal() {
-      const modal = document.getElementById('productModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
+        body.light-theme { background-color: rgb(var(--bg-light)); color: rgb(var(--text-light)); }
+        body.dark-theme { background-color: var(--bg-dark); color: var(--text-dark); }
 
-    // Populate filter dropdowns
-    function populateDropdowns(products) {
-      const modelFilter = document.getElementById('modelFilter');
-      const modelNumberFilter = document.getElementById('modelNumberFilter');
-      const deviceFilter = document.getElementById('deviceFilter');
-      const itemNameFilter = document.getElementById('itemNameFilter');
+        .main-layout { display: flex; height: 100vh; }
 
-      const models = [...new Set(products.map(p => p['MODEL']).filter(Boolean))].sort();
-      const modelNumbers = [...new Set(products.map(p => p['MODEL NUMBER']).filter(Boolean))].sort();
-      const devices = [...new Set(products.map(p => p['DEVICE']).filter(Boolean))].sort();
-      const itemNames = [...new Set(products.map(p => p['ITEM NAME']).filter(Boolean))].sort();
-
-      // Clear existing options
-      modelFilter.innerHTML = '<option value="">All Models</option>';
-      modelNumberFilter.innerHTML = '<option value="">All Model Numbers</option>';
-      deviceFilter.innerHTML = '<option value="">All Devices</option>';
-      itemNameFilter.innerHTML = '<option value="">All Item Names</option>';
-
-      models.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        modelFilter.appendChild(option);
-      });
-
-      modelNumbers.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        modelNumberFilter.appendChild(option);
-      });
-
-      devices.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        deviceFilter.appendChild(option);
-      });
-
-      itemNames.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        itemNameFilter.appendChild(option);
-      });
-    }
-
-    // Populate export filter dropdowns
-    function populateExportDropdowns() {
-      const modelFilter = document.getElementById('exportModelFilter');
-      const modelNumberFilter = document.getElementById('exportModelNumberFilter');
-      const deviceFilter = document.getElementById('exportDeviceFilter');
-      const itemNameFilter = document.getElementById('exportItemNameFilter');
-
-      const models = [...new Set(allProducts.map(p => p['MODEL']).filter(Boolean))].sort();
-      const modelNumbers = [...new Set(allProducts.map(p => p['MODEL NUMBER']).filter(Boolean))].sort();
-      const devices = [...new Set(allProducts.map(p => p['DEVICE']).filter(Boolean))].sort();
-      const itemNames = [...new Set(allProducts.map(p => p['ITEM NAME']).filter(Boolean))].sort();
-
-      // Clear existing options
-      modelFilter.innerHTML = '<option value="">All Models</option>';
-      modelNumberFilter.innerHTML = '<option value="">All Model Numbers</option>';
-      deviceFilter.innerHTML = '<option value="">All Devices</option>';
-      itemNameFilter.innerHTML = '<option value="">All Item Names</option>';
-
-      models.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        modelFilter.appendChild(option);
-      });
-
-      modelNumbers.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        modelNumberFilter.appendChild(option);
-      });
-
-      devices.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        deviceFilter.appendChild(option);
-      });
-
-      itemNames.forEach(value => {
-        const option = document.createElement('option');
-        option.value = value;
-        option.textContent = value;
-        itemNameFilter.appendChild(option);
-      });
-    }
-
-    // Apply filters
-    function applyFilters() {
-      const model = document.getElementById('modelFilter').value;
-      const modelNumber = document.getElementById('modelNumberFilter').value;
-      const device = document.getElementById('deviceFilter').value;
-      const itemName = document.getElementById('itemNameFilter').value;
-
-      if (currentSearchTerm) {
-        performSearch();
-      } else {
-        filteredProducts = allProducts.filter(product => {
-          const matchesModel = !model || product['MODEL'] === model;
-          const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
-          const matchesDevice = !device || product['DEVICE'] === device;
-          const matchesItemName = !itemName || product['ITEM NAME'] === itemName;
-          
-          return matchesModel && matchesModelNumber && matchesDevice && matchesItemName;
-        });
-
-        renderProductTable(filteredProducts);
-        document.getElementById('searchResultsBadge').classList.add('hidden');
-      }
-    }
-
-    // Export Functions
-    function exportFullCatalog() {
-      const csvContent = convertToCSV(allProducts);
-      downloadCSV(csvContent, 'full-catalog.csv');
-    }
-
-    function convertToCSV(products) {
-      if (products.length === 0) return '';
-      
-      const headers = Object.keys(products[0]);
-      const csvRows = [headers.join(',')];
-      
-      products.forEach(product => {
-        const values = headers.map(header => {
-          const value = product[header] || '';
-          return `"${value.toString().replace(/"/g, '""')}"`;
-        });
-        csvRows.push(values.join(','));
-      });
-      
-      return csvRows.join('\n');
-    }
-
-    function downloadCSV(csvContent, filename) {
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // Export Product Grid Functions
-    function renderExportProductGrid() {
-      const model = document.getElementById('exportModelFilter').value;
-      const modelNumber = document.getElementById('exportModelNumberFilter').value;
-      const device = document.getElementById('exportDeviceFilter').value;
-      const itemName = document.getElementById('exportItemNameFilter').value;
-
-      const filtered = allProducts.filter(product => {
-        const matchesModel = !model || product['MODEL'] === model;
-        const matchesModelNumber = !modelNumber || product['MODEL NUMBER'] === modelNumber;
-        const matchesDevice = !device || product['DEVICE'] === device;
-        const matchesItemName = !itemName || product['ITEM NAME'] === itemName;
-        
-        return matchesModel && matchesModelNumber && matchesDevice && matchesItemName;
-      });
-
-      const grid = document.getElementById('exportProductGrid');
-      const count = document.getElementById('exportProductCount');
-      
-      count.textContent = `${filtered.length} products available`;
-      
-      grid.innerHTML = '';
-      
-      filtered.forEach((product, index) => {
-        const isSelected = selectedProducts.some(p => p['ITEM NAME'] === product['ITEM NAME'] && p['MODEL'] === product['MODEL']);
-        const imageId = product['ID'] || product['IMAGE LINK'];
-        const imageUrl = imageId && imageId.trim() !== '' ? 
-          `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : '';
-        
-        const gridItem = document.createElement('div');
-        gridItem.className = `product-grid-item ${isSelected ? 'selected' : ''}`;
-        gridItem.onclick = () => toggleProductSelection(product);
-        
-        gridItem.innerHTML = `
-          <div class="relative">
-            ${imageUrl ? `
-              <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="product-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-              <div class="image-not-found" style="display: none;">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <div class="image-not-found-text">Image not found</div>
-              </div>
-            ` : `
-              <div class="image-not-found">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <div class="image-not-found-text">Image not found</div>
-              </div>
-            `}
-            ${isSelected ? `
-              <div class="absolute top-2 right-2 bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-            ` : ''}
-          </div>
-          <div class="mt-3">
-            <h4 class="font-semibold text-slate-100 text-sm">${product['ITEM NAME'] || 'Unknown Item'}</h4>
-            <p class="text-xs text-slate-300 mt-1">${product['MODEL'] || ''} ${product['MODEL NUMBER'] || ''}</p>
-            <p class="text-xs text-slate-400">${product['DEVICE'] || ''}</p>
-          </div>
-        `;
-        
-        grid.appendChild(gridItem);
-      });
-    }
-
-    function toggleProductSelection(product) {
-      const existingIndex = selectedProducts.findIndex(p => 
-        p['ITEM NAME'] === product['ITEM NAME'] && p['MODEL'] === product['MODEL']
-      );
-      
-      if (existingIndex > -1) {
-        selectedProducts.splice(existingIndex, 1);
-      } else {
-        selectedProducts.push(product);
-      }
-      
-      updateCartCount();
-      renderExportProductGrid();
-    }
-
-    function updateCartCount() {
-      const cartCount = document.getElementById('cartCount');
-      cartCount.textContent = selectedProducts.length;
-      
-      if (selectedProducts.length > 0) {
-        cartCount.classList.remove('hidden');
-      } else {
-        cartCount.classList.add('hidden');
-      }
-    }
-
-    // Catalog Preview Functions
-    function generateCatalogPreview() {
-      const catalogPages = document.getElementById('catalogPages');
-      catalogPages.innerHTML = '';
-      
-      // Group products by model for better organization
-      const productsByModel = {};
-      selectedProducts.forEach(product => {
-        const model = product['MODEL'] || 'Unknown Model';
-        if (!productsByModel[model]) {
-          productsByModel[model] = [];
+        .sidebar {
+            width: 35%; height: 100vh; position: fixed; top: 0; left: 0;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 2rem; overflow-y: auto; transition: background-color 0.5s ease, border-color 0.5s ease;
         }
-        productsByModel[model].push(product);
-      });
-      
-      // Generate pages for each model
-      Object.keys(productsByModel).forEach(model => {
-        const products = productsByModel[model];
-        const pages = Math.ceil(products.length / 9); // 9 products per page (3x3 grid)
-        
-        for (let page = 0; page < pages; page++) {
-          const startIndex = page * 9;
-          const endIndex = Math.min(startIndex + 9, products.length);
-          const pageProducts = products.slice(startIndex, endIndex);
-          
-          const catalogPage = createCatalogPage(model, pageProducts, page + 1, pages);
-          catalogPages.appendChild(catalogPage);
+        body.light-theme .sidebar { background-color: var(--card-bg-light); border-right: 1px solid var(--card-border-light); }
+        body.dark-theme .sidebar { background-color: var(--card-bg-dark); border-right: 1px solid var(--card-border-dark); }
+
+        .main-content { width: 65%; margin-left: 35%; padding: 2rem; padding-bottom: 100px; overflow-y: auto; }
+
+        .glass-card {
+            border-radius: 20px; padding: 1.25rem; border: 1px solid;
+            box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.1);
+            margin-bottom: 1.5rem; transition: background-color 0.5s ease, border-color 0.5s ease;
         }
-      });
-    }
+        body.light-theme .glass-card { background-color: var(--card-bg-light); border-color: var(--card-border-light); }
+        body.dark-theme .glass-card { background-color: var(--card-bg-dark); border-color: var(--card-border-dark); }
 
-    function createCatalogPage(model, products, pageNumber, totalPages) {
-      const page = document.createElement('div');
-      page.className = 'catalog-page';
-      
-      page.innerHTML = `
-        <div class="catalog-header-page">
-          <div class="flex items-center justify-center gap-8 mb-8">
-            <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="w-24 h-24 object-contain">
-            <h1 class="text-6xl font-black text-slate-800">${model}</h1>
-          </div>
-        </div>
-        
-        <div class="catalog-grid" id="catalogGrid-${model}-${pageNumber}">
-          <!-- Products will be added here -->
-        </div>
-        
-        <div class="text-center text-sm text-slate-500 mt-8">
-          <p>Vinayaka Industries - Quality Parts & Components</p>
-          ${totalPages > 1 ? `<p>Page ${pageNumber} of ${totalPages}</p>` : ''}
-        </div>
-      `;
-      
-      const grid = page.querySelector(`#catalogGrid-${model}-${pageNumber}`);
-      
-      products.forEach((product, index) => {
-        const catalogItem = createCatalogItem(product, `${model}-${pageNumber}-${index}`);
-        grid.appendChild(catalogItem);
-      });
-      
-      return page;
-    }
-
-    function createCatalogItem(product, uniqueId) {
-      const item = document.createElement('div');
-      item.className = 'catalog-item';
-      
-      const imageId = product['ID'] || product['IMAGE LINK'];
-      const imageUrl = imageId && imageId.trim() !== '' ? 
-        `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
-        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
-      
-      // Create full product description
-      const fullDescription = [
-        product['MODEL'] || '',
-        product['MODEL NUMBER'] || '',
-        product['DEVICE'] || '',
-        product['SIZE'] || '',
-        product['ITEM NAME'] || ''
-      ].filter(part => part.trim() !== '').join(' ');
-      
-      item.innerHTML = `
-        <div class="relative">
-          <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="catalog-item-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K'">
-          <button class="remove-item-btn no-print" onclick="removeFromCatalog('${uniqueId}', '${product['ITEM NAME']}', '${product['MODEL']}')">
-            ×
-          </button>
-        </div>
-        <div class="catalog-item-name">${fullDescription}</div>
-      `;
-      
-      item.setAttribute('data-unique-id', uniqueId);
-      return item;
-    }
-
-    function removeFromCatalog(uniqueId, itemName, model) {
-      // Remove from selected products
-      const index = selectedProducts.findIndex(p => 
-        p['ITEM NAME'] === itemName && p['MODEL'] === model
-      );
-      
-      if (index > -1) {
-        selectedProducts.splice(index, 1);
-        updateCartCount();
-        
-        // Regenerate the catalog preview
-        generateCatalogPreview();
-      }
-    }
-
-    // Ultra-Fast PDF Generation
-    function generateFastPDF() {
-      if (selectedProducts.length === 0) {
-        alert('Please select products to generate PDF');
-        return;
-      }
-
-      // Show processing overlay
-      document.getElementById('pdfProcessing').classList.remove('hidden');
-
-      // Use setTimeout to allow UI to update
-      setTimeout(() => {
-        try {
-          // Create PDF content
-          const pdfContent = generatePDFContent();
-          
-          // Create new window with PDF content
-          const pdfWindow = window.open('', '_blank');
-          pdfWindow.document.write(pdfContent);
-          pdfWindow.document.close();
-          
-          // Auto-trigger print dialog
-          setTimeout(() => {
-            pdfWindow.print();
-            document.getElementById('pdfProcessing').classList.add('hidden');
-          }, 500);
-          
-        } catch (error) {
-          console.error('PDF generation error:', error);
-          alert('Error generating PDF. Please try again.');
-          document.getElementById('pdfProcessing').classList.add('hidden');
+        .futuristic-input {
+            border: 2px solid; border-radius: 12px; padding: 12px 16px;
+            transition: all 0.3s ease; font-weight: 500; width: 100%;
         }
-      }, 100);
-    }
-
-    function generatePDFContent() {
-      // Group products by model
-      const productsByModel = {};
-      selectedProducts.forEach(product => {
-        const model = product['MODEL'] || 'Unknown Model';
-        if (!productsByModel[model]) {
-          productsByModel[model] = [];
+        body.light-theme .futuristic-input { background-color: var(--input-bg-light); border-color: var(--input-border-light); color: var(--text-light); }
+        body.dark-theme .futuristic-input { background-color: var(--input-bg-dark); border-color: var(--input-border-dark); color: var(--text-dark); }
+        .futuristic-input:focus {
+            border-color: rgb(var(--primary-rgb)); box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2); outline: none;
         }
-        productsByModel[model].push(product);
-      });
+        body.light-theme .futuristic-input:focus { background-color: white; }
+        body.dark-theme .futuristic-input:focus { background-color: #334155; }
 
-      let pdfHTML = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Vinayaka Industries - Parts Catalog</title>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-            
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-              font-family: 'Inter', sans-serif;
+        .section-header {
+            background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            font-weight: 800; font-size: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;
+        }
+
+        .fixed-footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 1rem 2rem; display: flex; justify-content: center; align-items: center; gap: 1rem;
+            z-index: 100; transition: background-color 0.5s ease, border-color 0.5s ease;
+        }
+        body.light-theme .fixed-footer { background-color: var(--card-bg-light); border-top: 1px solid var(--card-border-light); }
+        body.dark-theme .fixed-footer { background-color: var(--card-bg-dark); border-top: 1px solid var(--card-border-dark); }
+        
+        .footer-btn {
+            background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
+            border: none; border-radius: 12px; color: white; font-weight: 600; padding: 12px 24px;
+            transition: all 0.3s ease; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
+        }
+        .footer-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.2); }
+        .footer-btn.settings-btn, .footer-btn.load-btn { background: linear-gradient(135deg, #64748b 0%, #334155 100%); }
+        .footer-btn.settings-btn:hover, .footer-btn.load-btn:hover { box-shadow: 0 10px 20px rgba(51, 65, 85, 0.2); }
+
+        #invoice-preview-container { display: flex; flex-direction: column; gap: 1rem; }
+        
+        .invoice-page {
+            width: 100%;
+            aspect-ratio: 1 / 1.414; /* A4 aspect ratio */
+            padding: 2rem; border-radius: 12px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.5s ease, border-color 0.5s ease;
+            display: flex; flex-direction: column;
+            border: 1px solid;
+            font-size: 0.9rem; /* Reduced base font size */
+        }
+        body.light-theme .invoice-page { background-color: var(--invoice-bg-light); border-color: var(--border-light); }
+        body.dark-theme .invoice-page { background-color: var(--invoice-bg-dark); border-color: var(--border-dark); }
+        body.dark-theme .invoice-page .text-slate-900 { color: white; }
+        body.dark-theme .invoice-page .text-slate-800 { color: var(--text-dark); }
+        body.dark-theme .invoice-page .text-slate-700 { color: var(--text-muted-dark); }
+        body.dark-theme .invoice-page .text-slate-600, body.dark-theme #invoice-preview .text-slate-500 { color: var(--text-muted-dark); }
+        body.dark-theme .invoice-page .border-slate-300 { border-color: var(--border-dark); }
+        
+        .invoice-table { width: 100%; border-collapse: collapse; border: 1px solid; }
+        body.light-theme .invoice-table { border-color: var(--border-light); }
+        body.dark-theme .invoice-table { border-color: var(--border-dark); }
+
+        .invoice-table th, .invoice-table td {
+            border-right: 1px solid;
+            padding: 6px; text-align: left; font-size: 0.75rem;
+        }
+        body.light-theme .invoice-table th, body.light-theme .invoice-table td { border-color: var(--border-light); }
+        body.dark-theme .invoice-table th, body.dark-theme .invoice-table td { border-color: var(--border-dark); }
+
+        .invoice-table th:last-child, .invoice-table td:last-child { border-right: none; }
+        .invoice-table thead tr { border-bottom: 1px solid; }
+        body.light-theme .invoice-table thead tr { border-color: var(--border-light); }
+        body.dark-theme .invoice-table thead tr { border-color: var(--border-dark); }
+
+        .invoice-table th { font-weight: 600; }
+        body.light-theme .invoice-table th { background-color: #e2e8f0; color: #334155; }
+        body.dark-theme .invoice-table th { background-color: var(--table-header-bg-dark); color: var(--text-dark); }
+        
+        .searchable-dropdown { position: relative; }
+        .searchable-dropdown-content {
+            position: absolute; top: 100%; left: 0; right: 0; border: 1px solid; border-radius: 12px;
+            max-height: 200px; overflow-y: auto; z-index: 1000; display: none;
+        }
+        body.light-theme .searchable-dropdown-content { background-color: white; border-color: #e2e8f0; }
+        body.dark-theme .searchable-dropdown-content { background-color: #334155; border-color: #475569; }
+        .searchable-dropdown-content div { padding: 10px 15px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        body.light-theme .searchable-dropdown-content div:hover { background-color: #f1f5f9; }
+        body.dark-theme .searchable-dropdown-content div:hover { background-color: #475569; }
+
+        .fade-in-item { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in-item:nth-child(1) { animation-delay: 0.1s; } .fade-in-item:nth-child(2) { animation-delay: 0.2s; }
+        .fade-in-item:nth-child(3) { animation-delay: 0.3s; }
+
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: rgb(var(--primary-rgb)); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgb(var(--primary-dark-rgb)); }
+        
+        .app-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .app-modal.active { opacity: 1; visibility: visible; }
+        .modal-content { background: white; border-radius: 20px; max-width: 90vw; max-height: 90vh; overflow: auto; position: relative; padding: 2rem; transform: scale(0.8); transition: transform 0.3s ease; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); }
+        .app-modal.active .modal-content { transform: scale(1); }
+        body.dark-theme .modal-content { background-color: var(--invoice-bg-dark); }
+
+        @media print {
+            body * { visibility: hidden; }
+            .sidebar, .fixed-footer { display: none; }
+            .main-content { width: 100%; margin: 0; padding: 0; }
+            #invoice-preview-container, #invoice-preview-container * { visibility: visible; }
+            .invoice-page {
+                box-shadow: none; border: 1px solid #333 !important; margin: 0;
+                font-size: 9px;
             }
-            
-            body {
-              background: white;
-              color: #1e293b;
-              line-height: 1.4;
-            }
-            
-            .pdf-page {
-              width: 210mm;
-              min-height: 297mm;
-              padding: 20mm;
-              margin: 0 auto;
-              background: white;
-              page-break-after: always;
-              position: relative;
-            }
-            
-            .pdf-page:last-child {
-              page-break-after: avoid;
-            }
-            
-            .pdf-header {
-              text-align: center;
-              margin-bottom: 40px;
-              border-bottom: 3px solid #1d4ed8;
-              padding-bottom: 20px;
-            }
-            
-            .pdf-logo-container {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 30px;
-              margin-bottom: 20px;
-            }
-            
-            .pdf-logo {
-              width: 80px;
-              height: 80px;
-              object-fit: contain;
-            }
-            
-            .pdf-model-title {
-              font-size: 48px;
-              font-weight: 900;
-              color: #1e293b;
-              letter-spacing: -1px;
-            }
-            
-            .pdf-grid {
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              gap: 25px;
-              margin-bottom: 30px;
-            }
-            
-            .pdf-item {
-              text-align: center;
-              border: 2px solid #e2e8f0;
-              border-radius: 12px;
-              padding: 15px;
-              background: #f8fafc;
-            }
-            
-            .pdf-item-image {
-              width: 100%;
-              height: 150px;
-              object-fit: cover;
-              border-radius: 8px;
-              margin-bottom: 12px;
-              background: white;
-              border: 1px solid #e2e8f0;
-            }
-            
-            .pdf-item-name {
-              font-size: 11px;
-              font-weight: 700;
-              color: #1d4ed8;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              line-height: 1.3;
-            }
-            
-            .pdf-footer {
-              position: absolute;
-              bottom: 15mm;
-              left: 20mm;
-              right: 20mm;
-              text-align: center;
-              font-size: 12px;
-              color: #64748b;
-              border-top: 1px solid #e2e8f0;
-              padding-top: 10px;
-            }
-            
-            @media print {
-              body { margin: 0; }
-              .pdf-page { 
-                margin: 0; 
-                box-shadow: none;
+            .invoice-page:not(:last-child) {
                 page-break-after: always;
-              }
-              .pdf-page:last-child {
-                page-break-after: avoid;
-              }
             }
-          </style>
-        </head>
-        <body>
-      `;
+        }
+    </style>
+</head>
+<body class="dark-theme">
 
-      // Generate pages for each model
-      Object.keys(productsByModel).forEach(model => {
-        const products = productsByModel[model];
-        const pages = Math.ceil(products.length / 9);
-        
-        for (let page = 0; page < pages; page++) {
-          const startIndex = page * 9;
-          const endIndex = Math.min(startIndex + 9, products.length);
-          const pageProducts = products.slice(startIndex, endIndex);
-          
-          pdfHTML += `
-            <div class="pdf-page">
-              <div class="pdf-header">
-                <div class="pdf-logo-container">
-                  <img src="https://drive.google.com/thumbnail?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W&sz=s800" alt="Vinayaka Industries" class="pdf-logo">
-                  <div class="pdf-model-title">${model}</div>
-                </div>
-              </div>
-              
-              <div class="pdf-grid">
-          `;
-          
-          pageProducts.forEach(product => {
-            const imageId = product['ID'] || product['IMAGE LINK'];
-            const imageUrl = imageId && imageId.trim() !== '' ? 
-              `https://drive.google.com/thumbnail?id=${imageId.trim()}&sz=s400` : 
-              'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjhGQUZDIi8+CjxwYXRoIGQ9Ik0xMDAgNzBWMTMwTTcwIDEwMEgxMzAiIHN0cm9rZT0iI0NCRDVFMSIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPHN2Zz4K';
-            
-            const fullDescription = [
-              product['MODEL'] || '',
-              product['MODEL NUMBER'] || '',
-              product['DEVICE'] || '',
-              product['SIZE'] || '',
-              product['ITEM NAME'] || ''
-            ].filter(part => part.trim() !== '').join(' ');
-            
-            pdfHTML += `
-              <div class="pdf-item">
-                <img src="${imageUrl}" alt="${product['ITEM NAME']}" class="pdf-item-image">
-                <div class="pdf-item-name">${fullDescription}</div>
-              </div>
-            `;
-          });
-          
-          pdfHTML += `
-              </div>
-              <div class="pdf-footer">
-                <div>Vinayaka Industries - Quality Parts & Components</div>
-                ${pages > 1 ? `<div>Page ${page + 1} of ${pages}</div>` : ''}
-              </div>
+    <div class="main-layout">
+        <aside class="sidebar">
+            <div class="fade-in-item flex justify-between items-center">
+                <h1 class="text-4xl font-black mb-6">
+                    <span class="section-header">InvoiceForge</span>
+                </h1>
+                <button id="theme-toggle" class="p-2 rounded-full transition-colors duration-300">
+                    <i id="theme-icon" data-lucide="moon" class="w-6 h-6 text-slate-500"></i>
+                </button>
             </div>
-          `;
+
+            <section class="glass-card fade-in-item">
+                <h2 class="section-header"><i data-lucide="user-round" class="w-6 h-6"></i>Customer Details</h2>
+                <div class="space-y-3">
+                    <input type="text" id="customer-name" class="futuristic-input" list="customer-names-datalist" onblur="populateCustomerDetails()" placeholder="Customer Name">
+                    <datalist id="customer-names-datalist"></datalist>
+                    <input type="text" id="customer-gstin" class="futuristic-input" oninput="updateInvoice()" placeholder="Customer GSTIN">
+                    <textarea id="customer-address" class="futuristic-input" rows="2" oninput="updateInvoice()" placeholder="Place of Delivery"></textarea>
+                </div>
+            </section>
+
+            <section class="glass-card fade-in-item">
+                <h2 class="section-header"><i data-lucide="package-plus" class="w-6 h-6"></i>Items</h2>
+                <div id="items-container" class="space-y-4"></div>
+                <div id="no-items-message" class="text-center italic p-4" style="display: none;">No items added.</div>
+                <button type="button" onclick="addItem()" class="footer-btn mt-4 w-full"><i data-lucide="plus" class="w-5 h-5"></i>Add Item</button>
+            </section>
+        </aside>
+
+        <main class="main-content">
+            <div id="invoice-preview-container">
+                <!-- Invoice pages will be rendered here by JS -->
+            </div>
+        </main>
+    </div>
+
+    <footer class="fixed-footer">
+        <button onclick="updateInvoice()" class="footer-btn"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
+        <button onclick="showInvoiceHistory()" class="footer-btn load-btn"><i data-lucide="history" class="w-5 h-5"></i>Load Invoices</button>
+        <button onclick="printInvoice()" class="footer-btn"><i data-lucide="printer" class="w-5 h-5"></i>Print</button>
+        <button onclick="downloadPDF()" class="footer-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Download</button>
+        <button onclick="saveInvoice()" class="footer-btn"><i data-lucide="save" class="w-5 h-5"></i>Save</button>
+        <button onclick="showSettings()" class="footer-btn settings-btn"><i data-lucide="settings" class="w-5 h-5"></i>Settings</button>
+    </footer>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="app-modal">
+        <div class="modal-content">
+            <button onclick="hideSettings()" class="absolute top-4 right-4 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <h2 class="text-3xl font-black mb-6 text-center"><span class="section-header">App Settings</span></h2>
+            <input type="hidden" id="settings-invoice-date"><input type="hidden" id="settings-due-date"><input type="hidden" id="settings-invoice-number">
+            <section class="glass-card p-6 mb-6">
+                <h3 class="section-header text-2xl"><i data-lucide="building" class="w-5 h-5"></i>Company Details</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="settings-company-name" class="futuristic-input" oninput="updateSettings()" placeholder="Company Name">
+                    <input type="text" id="settings-company-gstin" class="futuristic-input" oninput="updateSettings()" placeholder="Company GSTIN">
+                    <input type="text" id="settings-company-state" class="futuristic-input" oninput="updateSettings()" placeholder="State">
+                    <input type="text" id="settings-company-state-code" class="futuristic-input" oninput="updateSettings()" placeholder="State Code">
+                    <input type="text" id="settings-company-contact" class="futuristic-input" oninput="updateSettings()" placeholder="Contact No.">
+                    <input type="email" id="settings-company-email" class="futuristic-input" oninput="updateSettings()" placeholder="Email">
+                    <div class="md:col-span-2"><textarea id="settings-company-address" class="futuristic-input w-full" rows="2" oninput="updateSettings()" placeholder="Address"></textarea></div>
+                </div>
+            </section>
+            <section class="glass-card p-6 mb-6">
+                 <h3 class="section-header text-2xl"><i data-lucide="banknote" class="w-5 h-5"></i>Bank & Payment</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="settings-bank-name" class="futuristic-input" oninput="updateSettings()" placeholder="Bank Name">
+                    <input type="text" id="settings-account-number" class="futuristic-input" oninput="updateSettings()" placeholder="Account Number">
+                    <input type="text" id="settings-ifsc-code" class="futuristic-input" oninput="updateSettings()" placeholder="IFSC Code">
+                    <input type="text" id="settings-swift-code" class="futuristic-input" oninput="updateSettings()" placeholder="SWIFT Code">
+                    <div class="md:col-span-2"><textarea id="settings-payment-terms" class="futuristic-input w-full" rows="2" oninput="updateSettings()" placeholder="Payment Terms"></textarea></div>
+                    <div class="md:col-span-2"><textarea id="settings-notes" class="futuristic-input w-full" rows="2" oninput="updateSettings()" placeholder="Notes / Remarks"></textarea></div>
+                </div>
+            </section>
+            <div class="text-center"><button onclick="hideSettings()" class="footer-btn text-lg"><i data-lucide="check-circle" class="w-6 h-6"></i>Done</button></div>
+        </div>
+    </div>
+
+    <!-- Invoice History Modal -->
+    <div id="history-modal" class="app-modal">
+        <div class="modal-content w-full max-w-4xl">
+             <button onclick="hideInvoiceHistory()" class="absolute top-4 right-4 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <h2 class="text-3xl font-black mb-6 text-center"><span class="section-header">Invoice History</span></h2>
+            <input type="text" id="history-search" class="futuristic-input w-full mb-4" placeholder="Search by Invoice No. or Customer Name...">
+            <div id="history-list" class="space-y-2 max-h-[60vh] overflow-y-auto">
+                <!-- History items will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx3DwRHgmdCtucjRdAjRWy7SozFK8rXcKHNcKsBM-D9V5Orib5FpBh0ePanKcJZeCmz/exec';
+        const CUSTOMERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=1988877295&single=true&output=csv';
+        const PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=0&single=true&output=csv';
+
+        let invoiceData = {}, items = [], nextItemId = 1, customerData = [], productData = [], appSettings = {}, invoiceHistory = [];
+
+        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true, didOpen:t=>{t.onmouseenter=Swal.stopTimer;t.onmouseleave=Swal.resumeTimer} });
+        const showSuccess = m => Toast.fire({ icon: 'success', title: m, background: 'var(--bg-light)', color: 'rgb(var(--primary-dark-rgb))' });
+        const showError = m => Toast.fire({ icon: 'error', title: m, background: '#fee2e2', color: '#991b1b' });
+        const escapeHtml = t => String(t).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]);
+
+        function showSettings() {
+            Object.keys(appSettings).forEach(key => {
+                const el = document.getElementById(`settings-${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`);
+                if (el) el.value = appSettings[key];
+            });
+            document.getElementById('settings-invoice-number').value = invoiceData.invoiceNumber;
+            document.getElementById('settings-invoice-date').value = invoiceData.invoiceDate;
+            document.getElementById('settings-due-date').value = invoiceData.dueDate;
+            document.getElementById('settings-modal').classList.add('active');
         }
-      });
 
-      pdfHTML += `
-        </body>
-        </html>
-      `;
+        function hideSettings() { document.getElementById('settings-modal').classList.remove('active'); updateInvoice(); }
 
-      return pdfHTML;
-    }
-
-    // Event listeners
-    document.getElementById('modelFilter').addEventListener('change', applyFilters);
-    document.getElementById('modelNumberFilter').addEventListener('change', applyFilters);
-    document.getElementById('deviceFilter').addEventListener('change', applyFilters);
-    document.getElementById('itemNameFilter').addEventListener('change', applyFilters);
-
-    // Dashboard filter event listeners
-    document.getElementById('dashboardModelFilter').addEventListener('change', applyDashboardFilters);
-    document.getElementById('dashboardModelNumberFilter').addEventListener('change', applyDashboardFilters);
-    document.getElementById('dashboardDeviceFilter').addEventListener('change', applyDashboardFilters);
-    document.getElementById('dashboardItemNameFilter').addEventListener('change', applyDashboardFilters);
-
-    // Export filter event listeners
-    document.getElementById('exportModelFilter').addEventListener('change', renderExportProductGrid);
-    document.getElementById('exportModelNumberFilter').addEventListener('change', renderExportProductGrid);
-    document.getElementById('exportDeviceFilter').addEventListener('change', renderExportProductGrid);
-    document.getElementById('exportItemNameFilter').addEventListener('change', renderExportProductGrid);
-
-    // Search input event listeners
-    document.getElementById('searchInput').addEventListener('input', function(e) {
-      if (e.target.value === '') {
-        currentSearchTerm = '';
-        applyFilters();
-        document.getElementById('searchResultsBadge').classList.add('hidden');
-      }
-    });
-
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        performSearch();
-      }
-    });
-
-    // Dashboard search input event listeners
-    document.getElementById('dashboardSearchInput').addEventListener('input', function(e) {
-      if (e.target.value === '') {
-        currentDashboardSearchTerm = '';
-        applyDashboardFilters();
-      }
-    });
-
-    document.getElementById('dashboardSearchInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        performDashboardSearch();
-      }
-    });
-
-    // Close modal when clicking outside
-    document.getElementById('productModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeModal();
-      }
-    });
-
-    // Load data
-    showLoading();
-    
-    Papa.parse(SHEET_CSV_URL, {
-      download: true,
-      header: true,
-      complete: function (results) {
-        try {
-          allProducts = results.data.filter(row => row['ITEM NAME'] && row['ITEM NAME'].trim() !== '');
-          filteredProducts = [...allProducts];
-          dashboardProducts = [...allProducts];
-          
-          if (allProducts.length > 0) {
-            console.log('First product columns:', Object.keys(allProducts[0]));
-            console.log('Sample product:', allProducts[0]);
-          }
-          
-          populateDropdowns(allProducts);
-          populateDashboardDropdowns();
-          renderProductTable(filteredProducts);
-          renderDashboardProducts();
-          hideLoading();
-        } catch (err) {
-          showError('Failed to process product data');
-          console.error('Error processing data:', err);
+        function updateSettings() {
+            document.querySelectorAll('#settings-modal [id^="settings-"]').forEach(el => {
+                const key = el.id.replace('settings-', '').replace(/-(\w)/g, (m, p1) => p1.toUpperCase());
+                if (key in appSettings) appSettings[key] = el.value;
+                else if (key in invoiceData) invoiceData[key] = el.value;
+            });
+            saveDataToLocalStorage();
         }
-      },
-      error: function (error) {
-        showError('Error loading product data');
-        console.error('Error loading CSV:', error);
-      }
-    });
-  </script>
+
+        async function fetchCsvData(url, dataName) {
+            Swal.fire({ title: `Loading ${dataName}...`, html: '<div class="loading"></div>', allowOutsideClick: false, showConfirmButton: false, background: 'var(--card-bg-dark)', color: 'var(--text-dark)' });
+            return new Promise((resolve, reject) => {
+                Papa.parse(url, { download: true, header: true,
+                    complete: r => { Swal.close(); const d = r.data.filter(row => Object.values(row).some(v => v)); resolve(d); showSuccess(`${dataName} loaded!`); },
+                    error: e => { Swal.close(); showError(`Failed to load ${dataName}`); reject(e); }
+                });
+            });
+        }
+
+        function populateCustomerDetails() {
+            const name = document.getElementById('customer-name').value;
+            const found = customerData.find(c => c['Customer Name']?.toLowerCase() === name.toLowerCase());
+            document.getElementById('customer-gstin').value = found?.['Customer GSTIN'] || '';
+            document.getElementById('customer-address').value = found?.Address || '';
+            if(found) showSuccess(`Customer loaded!`);
+            updateInvoice();
+        }
+
+        function populateProductDetails(itemId) {
+            const item = items.find(i => i.id === itemId); if (!item) return;
+            const found = productData.find(p => p.MODEL?.toLowerCase() === item.model?.toLowerCase() && p.DEVICE?.toLowerCase() === item.device?.toLowerCase() && (p.SIZE + ' | ' + p['ITEM NAME'])?.toLowerCase() === item.itemName?.toLowerCase());
+            
+            if (found) {
+                item.description = [found.MODEL, found['MODEL NUMBER'], found.DEVICE, found['ITEM NAME'], found.SIZE].filter(Boolean).join(' - ');
+                item.hsnSac = found['HSN/SAC'] || '8431';
+                item.rate = parseFloat(found.PRICE || 0).toFixed(2);
+                item.gstRate = parseFloat(found.GST_Rate || 18).toFixed(2);
+            } else {
+                item.description = ''; item.hsnSac = ''; item.rate = '0.00'; item.gstRate = '18.00';
+            }
+            
+            const row = document.getElementById(`item-row-${itemId}`);
+            row.querySelector('[name="full-description"]').value = item.description;
+            row.querySelector('[name="hsn-sac"]').value = item.hsnSac;
+            row.querySelector('[name="rate"]').value = item.rate;
+
+            updateInvoice();
+        }
+
+        function populateDropdownOptions(select, options, defaultText, selected) {
+            select.innerHTML = `<option value="">${defaultText}</option>` + options.map(opt => `<option value="${escapeHtml(opt)}" ${selected?.toLowerCase() === opt.toLowerCase() ? 'selected' : ''}>${escapeHtml(opt).toUpperCase()}</option>`).join('');
+        }
+
+        function renderSpecificItemDropdowns(item) {
+            const row = document.getElementById(`item-row-${item.id}`); if (!row) return;
+            const modelSelect = row.querySelector('[name="model-select"]');
+            const deviceSelect = row.querySelector('[name="device-select"]');
+            
+            const allModels = [...new Set(productData.map(p => p.MODEL).filter(Boolean))].sort();
+            populateDropdownOptions(modelSelect, allModels, 'Select Model', item.model);
+
+            const devices = [...new Set(productData.filter(p => p.MODEL === item.model).map(p => p.DEVICE).filter(Boolean))].sort();
+            populateDropdownOptions(deviceSelect, devices, 'Select Device', item.device);
+        }
+
+        function addItem() { items.push({ id: nextItemId++, quantity: '1', discount: '0' }); renderItems(); updateInvoice(); }
+        function removeItem(id) { items = items.filter(i => i.id !== id); renderItems(); updateInvoice(); }
+        function updateItemField(id, field, value) { const item = items.find(i => i.id === id); if (item) { item[field] = value; updateInvoice(); } }
+        
+        function updateProductSelection(itemId, field, value) {
+            const item = items.find(i => i.id === itemId); if (!item) return;
+            item[field] = value;
+            if (field === 'model') { item.device = ''; item.itemName = ''; }
+            if (field === 'device') { item.itemName = ''; }
+            
+            const row = document.getElementById(`item-row-${itemId}`);
+            if(field === 'model') renderSpecificItemDropdowns(item);
+            if(field === 'device') {
+                const searchInput = row.querySelector('.searchable-input');
+                searchInput.value = '';
+            }
+            populateProductDetails(itemId);
+        }
+
+        function renderItems() {
+            const container = document.getElementById('items-container');
+            container.innerHTML = '';
+            document.getElementById('no-items-message').style.display = items.length === 0 ? 'block' : 'none';
+            
+            items.forEach(item => {
+                const itemRowHtml = `
+                    <div id="item-row-${item.id}" class="glass-card p-3 relative">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><select name="model-select" class="futuristic-input text-sm p-2"></select></div>
+                            <div><select name="device-select" class="futuristic-input text-sm p-2"></select></div>
+                            <div class="col-span-2 searchable-dropdown">
+                                <input type="text" name="item-name-search" class="futuristic-input searchable-input text-sm p-2" placeholder="Search & Select Item Name">
+                                <div class="searchable-dropdown-content"></div>
+                            </div>
+                            <div class="col-span-2"><input type="text" name="full-description" class="futuristic-input bg-opacity-50 text-xs p-2" readonly placeholder="Full Description"></div>
+                            <div class="col-span-2 grid grid-cols-4 gap-2">
+                                <input type="text" name="hsn-sac" class="futuristic-input bg-opacity-50 text-sm p-2" readonly placeholder="HSN">
+                                <input type="number" name="quantity" class="futuristic-input text-sm p-2" value="${item.quantity}" min="0" placeholder="Qty">
+                                <input type="number" name="rate" class="futuristic-input bg-opacity-50 text-sm p-2" readonly placeholder="Rate">
+                                <input type="number" name="discount" class="futuristic-input text-sm p-2" value="${item.discount || 0}" min="0" max="100" placeholder="Disc %">
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeItem(${item.id})" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    </div>`;
+                container.insertAdjacentHTML('beforeend', itemRowHtml);
+
+                const row = document.getElementById(`item-row-${item.id}`);
+                row.querySelector('[name="model-select"]').onchange = e => updateProductSelection(item.id, 'model', e.target.value);
+                row.querySelector('[name="device-select"]').onchange = e => updateProductSelection(item.id, 'device', e.target.value);
+                row.querySelector('[name="quantity"]').oninput = e => updateItemField(item.id, 'quantity', e.target.value);
+                row.querySelector('[name="discount"]').oninput = e => updateItemField(item.id, 'discount', e.target.value);
+
+                const searchInput = row.querySelector('.searchable-input');
+                const dropdownContent = row.querySelector('.searchable-dropdown-content');
+                
+                searchInput.onfocus = () => filterItemNames(item.id, '');
+                searchInput.oninput = () => filterItemNames(item.id, searchInput.value);
+                document.addEventListener('click', (e) => {
+                    if (!row.contains(e.target)) dropdownContent.style.display = 'none';
+                });
+                
+                renderSpecificItemDropdowns(item);
+                populateProductDetails(item.id);
+            });
+            lucide.createIcons();
+        }
+        
+        function filterItemNames(itemId, searchTerm) {
+            const item = items.find(i => i.id === itemId); if (!item) return;
+            const row = document.getElementById(`item-row-${itemId}`);
+            const dropdownContent = row.querySelector('.searchable-dropdown-content');
+            
+            const itemNames = [...new Set(productData
+                .filter(p => p.MODEL === item.model && p.DEVICE === item.device && (p.SIZE + ' | ' + p['ITEM NAME'])?.toLowerCase().includes(searchTerm.toLowerCase()))
+                .map(p => p.SIZE + ' | ' + p['ITEM NAME']).filter(Boolean))].sort();
+
+            dropdownContent.innerHTML = itemNames.map(name => `<div data-name="${escapeHtml(name)}">${escapeHtml(name)}</div>`).join('');
+            dropdownContent.style.display = 'block';
+
+            dropdownContent.querySelectorAll('div').forEach(div => {
+                div.onclick = () => {
+                    row.querySelector('.searchable-input').value = div.dataset.name;
+                    dropdownContent.style.display = 'none';
+                    updateProductSelection(itemId, 'itemName', div.dataset.name);
+                };
+            });
+        }
+        
+        const units = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+        const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+        const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+        function numToWords(n) {
+            if (n < 10) return units[n];
+            if (n >= 10 && n < 20) return teens[n - 10];
+            if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
+            if (n < 1000) return units[Math.floor(n / 100)] + ' hundred' + (n % 100 !== 0 ? ' and ' + numToWords(n % 100) : '');
+            return '';
+        }
+        function convertToWordsIndian(num) {
+            num = Math.floor(num); if (num === 0) return 'zero';
+            let words = [];
+            let crore = Math.floor(num / 10000000); if (crore > 0) { words.push(numToWords(crore) + ' crore'); num %= 10000000; }
+            let lakh = Math.floor(num / 100000); if (lakh > 0) { words.push(numToWords(lakh) + ' lakh'); num %= 100000; }
+            let thousand = Math.floor(num / 1000); if (thousand > 0) { words.push(numToWords(thousand) + ' thousand'); num %= 1000; }
+            if (num > 0) { words.push(numToWords(num)); }
+            return words.join(' ').trim();
+        }
+        function convertAmountToWords(amount) {
+            const amountFloat = parseFloat(amount); if (isNaN(amountFloat)) return 'ZERO RUPEES ONLY';
+            const [rupees, paise] = amountFloat.toFixed(2).split('.').map(Number);
+            let words = convertToWordsIndian(rupees) + ' rupees';
+            if (paise > 0) { words += ' and ' + convertToWordsIndian(paise) + ' paise'; }
+            return words.toUpperCase();
+        }
+
+        function updateInvoice() {
+            // 1. GATHER DATA
+            invoiceData.customerName = document.getElementById('customer-name').value;
+            invoiceData.customerAddress = document.getElementById('customer-address').value;
+            invoiceData.customerGSTIN = document.getElementById('customer-gstin').value;
+            
+            // 2. CALCULATE
+            let totalTaxableValue = 0, totalCGST = 0, totalSGST = 0, totalIGST = 0;
+            const karnatakaStateCode = "29";
+            const buyerStateCode = invoiceData.customerGSTIN?.substring(0, 2);
+            invoiceData.isInterstate = buyerStateCode !== karnatakaStateCode && !!buyerStateCode;
+            
+            items.forEach(item => {
+                const preDiscountAmount = (parseFloat(item.quantity) || 0) * (parseFloat(item.rate) || 0);
+                const discountAmount = preDiscountAmount * (parseFloat(item.discount || 0) / 100);
+                const taxableValue = preDiscountAmount - discountAmount;
+
+                item.taxableValue = taxableValue.toFixed(2);
+                totalTaxableValue += taxableValue;
+                const gstRate = parseFloat(item.gstRate) || 0;
+                item.igstAmount = '0.00'; item.cgstAmount = '0.00'; item.sgstAmount = '0.00';
+                if (invoiceData.isInterstate) {
+                    item.igstAmount = (taxableValue * gstRate / 100).toFixed(2); totalIGST += parseFloat(item.igstAmount);
+                } else {
+                    item.cgstAmount = (taxableValue * gstRate / 200).toFixed(2); totalCGST += parseFloat(item.cgstAmount);
+                    item.sgstAmount = (taxableValue * gstRate / 200).toFixed(2); totalSGST += parseFloat(item.sgstAmount);
+                }
+                item.lineTotal = (taxableValue + parseFloat(item.igstAmount) + parseFloat(item.cgstAmount) + parseFloat(item.sgstAmount)).toFixed(2);
+            });
+
+            invoiceData.totalTaxableValue = totalTaxableValue.toFixed(2);
+            invoiceData.totalIGST = totalIGST.toFixed(2);
+            invoiceData.totalCGST = totalCGST.toFixed(2);
+            invoiceData.totalSGST = totalSGST.toFixed(2);
+            const grandTotal = totalTaxableValue + totalIGST + totalCGST + totalSGST;
+            const roundedGrandTotal = Math.round(grandTotal);
+            invoiceData.roundOff = (roundedGrandTotal - grandTotal).toFixed(2);
+            invoiceData.grandTotal = roundedGrandTotal.toFixed(2);
+            invoiceData.grandTotalWords = convertAmountToWords(invoiceData.grandTotal);
+            
+            // 3. SAVE
+            saveDataToLocalStorage();
+
+            // 4. RENDER
+            renderPaginatedInvoice();
+        }
+
+        function renderPaginatedInvoice() {
+            const container = document.getElementById('invoice-preview-container');
+            container.innerHTML = '';
+            const itemsPerPage = 15;
+            const pageCount = Math.ceil(items.length / itemsPerPage) || 1;
+
+            for (let i = 0; i < pageCount; i++) {
+                const itemChunk = items.slice(i * itemsPerPage, (i + 1) * itemsPerPage);
+                container.innerHTML += generateInvoicePageHTML(itemChunk, i, pageCount);
+            }
+            lucide.createIcons();
+        }
+
+        function generateInvoicePageHTML(pageItems, currentPage, totalPages) {
+            let gstSummaryHtml = '';
+            if (invoiceData.isInterstate) {
+                gstSummaryHtml = `<div class="flex justify-between"><span>IGST</span><span>₹${invoiceData.totalIGST}</span></div>`;
+            } else {
+                gstSummaryHtml = `<div class="flex justify-between"><span>CGST</span><span>₹${invoiceData.totalCGST}</span></div>
+                                  <div class="flex justify-between"><span>SGST</span><span>₹${invoiceData.totalSGST}</span></div>`;
+            }
+
+            let headers = `<th>SrNo.</th><th>Product name</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Disc%</th><th>Amount</th>`;
+
+            let bodyHtml = pageItems.map((item, index) => {
+                return `<tr>
+                    <td>${currentPage * 15 + index + 1}</td>
+                    <td>${escapeHtml(item.description)}</td>
+                    <td>${item.hsnSac}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.rate}</td>
+                    <td>${item.discount || 0}%</td>
+                    <td class="font-semibold">₹${item.taxableValue}</td>
+                </tr>`;
+            }).join('');
+
+            return `
+                <div class="invoice-page">
+                    <div class="flex justify-between items-start pb-4 border-b-2 border-slate-300">
+                        <div class="w-1/4">
+                            <svg class="text-slate-500" width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/><path d="M12 6C9.79 6 8 7.79 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 7.79 14.21 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" fill="currentColor"/><path d="M18 16.5C18 15.67 17.33 15 16.5 15C15.67 15 15 15.67 15 16.5C15 18.43 12 20 12 20C12 20 9 18.43 9 16.5C9 15.67 8.33 15 7.5 15C6.67 15 6 15.67 6 16.5C6 19.5 12 22 12 22C12 22 18 19.5 18 16.5Z" fill="currentColor"/></svg>
+                        </div>
+                        <div class="text-center"><h2 class="text-xl font-bold text-slate-900">${appSettings.companyName || ''}</h2><p class="text-xs text-slate-500">${appSettings.companyAddress || ''}</p></div>
+                        <div class="w-1/4 text-right"><p class="text-xs text-slate-500">${appSettings.companyContact ? `Mo: ${appSettings.companyContact}` : ''}</p></div>
+                    </div>
+                    <div class="flex justify-between items-center py-1 border-b-2 border-slate-300"><span class="text-xs">Debit Memo</span><h1 class="text-base font-bold">TAX INVOICE</h1><span class="text-xs">Original</span></div>
+                    <div class="grid grid-cols-2 gap-4 py-2 border-b-2 border-slate-300">
+                        <div class="text-xs"><p class="font-bold">M/s. : <span class="font-normal">${invoiceData.customerName || ''}</span></p><p class="font-bold">Place of Supply : <span class="font-normal">${invoiceData.customerAddress?.split(',').pop().trim() || ''}</span></p><p class="font-bold">GSTIN No. : <span class="font-normal">${invoiceData.customerGSTIN || ''}</span></p></div>
+                        <div class="text-xs border-l-2 border-slate-300 pl-4"><p class="font-bold">Invoice No. : <span class="font-normal">${invoiceData.invoiceNumber || ''}</span></p><p class="font-bold">Date : <span class="font-normal">${invoiceData.invoiceDate || ''}</span></p><p class="font-bold">DELIVERY : <span class="font-normal">${invoiceData.customerAddress || ''}</span></p></div>
+                    </div>
+                    <div class="flex-grow mb-2"><table class="invoice-table"><thead><tr>${headers}</tr></thead><tbody>${bodyHtml}</tbody></table></div>
+                    <div class="grid grid-cols-2 gap-4 text-xs mt-auto">
+                        <div class="space-y-1"><p class="font-bold">GSTIN No. : <span class="font-normal">${appSettings.companyGSTIN || ''}</span></p><p class="font-bold">Total GST : <span class="font-normal">${convertAmountToWords((parseFloat(invoiceData.totalIGST) + parseFloat(invoiceData.totalCGST) + parseFloat(invoiceData.totalSGST)).toFixed(2))} ONLY</span></p><p class="font-bold">Bill Amount : <span class="font-normal capitalize">${invoiceData.grandTotalWords} ONLY</span></p><div class="pt-2"><p class="font-bold">Bank Details:</p><p class="font-normal">Bank: ${appSettings.bankName || ''}<br>A/C: ${appSettings.accountNumber || ''}<br>IFSC: ${appSettings.ifscCode || ''}</p></div><div class="pt-2"><p class="font-bold">Terms & Conditions:</p><p class="font-normal whitespace-pre-line">${appSettings.paymentTerms || ''}</p></div><div class="pt-2"><p class="font-bold">Note:</p><p class="font-normal">${appSettings.notes || ''}</p></div></div>
+                        <div class="border-l-2 border-slate-300 pl-4"><div class="flex justify-between py-1 border-b border-slate-300"><span class="font-bold">Taxable Amount</span><span>₹${invoiceData.totalTaxableValue || '0.00'}</span></div><div class="py-1 border-b border-slate-300">${gstSummaryHtml}</div><div class="flex justify-between py-1 border-b border-slate-300"><span class="font-bold">Round off</span><span>${invoiceData.roundOff || '0.00'}</span></div><div class="flex justify-between py-1 font-bold text-sm"><span class="font-bold">Grand Total</span><span>₹${invoiceData.grandTotal || '0.00'}</span></div><div class="mt-12 text-center"><p class="font-bold">For, ${appSettings.companyName || ''}</p><p>(Authorized Signature)</p></div></div>
+                    </div>
+                </div>`;
+        }
+
+
+        function validateInvoiceData() {
+            if (!appSettings.companyName || !appSettings.companyGSTIN) { showError('Company details in Settings are required.'); showSettings(); return false; }
+            if (!invoiceData.customerName) { showError('Customer Name is required.'); return false; }
+            if (items.length === 0) { showError('At least one item is required.'); return false; }
+            return true;
+        }
+        function printInvoice() { if (!validateInvoiceData()) return; window.print(); }
+        function downloadPDF() { if (!validateInvoiceData()) return; Swal.fire({title:'Generating PDF...'}); html2pdf().from(document.getElementById('invoice-preview-container')).set({margin:0.25, filename:`invoice-${invoiceData.invoiceNumber}.pdf`, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }}).save().then(()=>Swal.close()); }
+        
+        async function saveInvoice() {
+            if (!validateInvoiceData()) return;
+            Swal.fire({ title: 'Saving Invoice...', html: '<div class="loading"></div>', allowOutsideClick: false, showConfirmButton: false });
+            const dataToSend = { invoiceData: { ...invoiceData, ...appSettings }, items: [...items] };
+            try {
+                const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(dataToSend),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!response.ok) throw new Error(`Server responded with status: ${response.status}`);
+                const result = await response.json();
+                if (result.status === 'success') {
+                    Swal.close();
+                    showSuccess(`Invoice ${result.invoiceNumber || invoiceData.invoiceNumber} saved!`);
+                } else {
+                    throw new Error(result.message || 'Unknown error from server.');
+                }
+            } catch (error) {
+                Swal.close();
+                console.error("Save error:", error);
+                showError(`Save failed: ${error.message}`);
+            }
+        }
+
+
+        function saveDataToLocalStorage() { localStorage.setItem('invoiceForgeDataV4', JSON.stringify({ invoiceData, items, nextItemId, appSettings, theme: document.body.className })); }
+        function loadDataFromLocalStorage() {
+            const data = JSON.parse(localStorage.getItem('invoiceForgeDataV4'));
+            if (data) {
+                invoiceData = data.invoiceData || {};
+                items = data.items || [];
+                nextItemId = data.nextItemId || 1;
+                appSettings = data.appSettings || {};
+                document.body.className = data.theme || 'dark-theme';
+                document.getElementById('customer-name').value = invoiceData.customerName;
+                document.getElementById('customer-address').value = invoiceData.customerAddress;
+                document.getElementById('customer-gstin').value = invoiceData.customerGSTIN;
+                renderItems();
+                return true;
+            }
+            return false;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            const setTheme = (isDark) => {
+                document.body.className = isDark ? 'dark-theme' : 'light-theme';
+                themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+                lucide.createIcons();
+            };
+
+            themeToggle.onclick = () => {
+                const isDark = document.body.classList.contains('dark-theme');
+                setTheme(!isDark);
+                saveDataToLocalStorage();
+            };
+
+            const dataLoaded = loadDataFromLocalStorage();
+            if (!dataLoaded) {
+                setTheme(true); // Default to dark theme
+                const today = new Date().toISOString().split('T')[0];
+                invoiceData = { invoiceDate: today, dueDate: today, invoiceNumber: 'INV-001' };
+                appSettings = { companyName: 'Your Company', companyAddress: '123 Street, City', companyGSTIN: '29ABCDE1234F1Z5', companyContact: 'Contact', companyEmail: 'Email', bankName: 'Bank', accountNumber: 'Account No.', ifscCode: 'IFSC', paymentTerms: '1. Goods once sold will not be taken back.\n2. Interest @18% p.a. will be charged if payment is not made within due date.', notes: 'Thank you!' };
+                addItem();
+            } else {
+                 setTheme(document.body.className.includes('dark-theme'));
+            }
+            
+            showSuccess('Welcome to InvoiceForge!');
+            try { customerData = await fetchCsvData(CUSTOMERS_CSV_URL, 'Customers'); document.getElementById('customer-names-datalist').innerHTML = customerData.map(c => `<option value="${escapeHtml(c['Customer Name'])}">`).join(''); } catch(e) {}
+            try { productData = await fetchCsvData(PRODUCTS_CSV_URL, 'Products'); renderItems(); } catch(e) {}
+
+            updateInvoice();
+        });
+    </script>
 </body>
 </html>
