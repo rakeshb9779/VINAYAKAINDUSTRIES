@@ -6,7 +6,7 @@
     <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family/Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
@@ -17,28 +17,24 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         :root {
-            --primary-rgb: 56 189 248;       /* Blue from original file */
-            --primary-dark-rgb: 37 99 235;    /* Darker blue from original file */
-
-            /* Light Theme */
-            --bg-light: 241 245 249; /* slate-100 */
-            --text-light: 15 23 42; /* slate-900 */
+            --primary-rgb: 56 189 248;
+            --primary-dark-rgb: 37 99 235;
+            --bg-light: 241 245 249;
+            --text-light: 15 23 42;
             --card-bg-light: rgba(255, 255, 255, 0.7);
             --card-border-light: rgba(var(--primary-rgb), 0.3);
             --input-bg-light: rgba(255, 255, 255, 0.8);
             --input-border-light: rgba(var(--primary-rgb), 0.4);
-            --text-muted-light: 100 116 139; /* slate-500 */
+            --text-muted-light: 100 116 139;
             --invoice-bg-light: white;
-
-            /* Dark Theme */
-            --bg-dark: #0f172a; /* slate-900 */
-            --text-dark: #f8fafc; /* slate-50 */
-            --card-bg-dark: rgba(30, 41, 59, 0.5); /* slate-800 with alpha */
+            --bg-dark: #0f172a;
+            --text-dark: #f8fafc;
+            --card-bg-dark: rgba(30, 41, 59, 0.5);
             --card-border-dark: rgba(var(--primary-rgb), 0.3);
-            --input-bg-dark: rgba(51, 65, 85, 0.5); /* slate-700 with alpha */
+            --input-bg-dark: rgba(51, 65, 85, 0.5);
             --input-border-dark: rgba(var(--primary-rgb), 0.4);
-            --text-muted-dark: #94a3b8; /* slate-400 */
-            --invoice-bg-dark: #1e293b; /* slate-800 */
+            --text-muted-dark: #94a3b8;
+            --invoice-bg-dark: #1e293b;
         }
 
         * { box-sizing: border-box; }
@@ -58,13 +54,10 @@
             color: var(--text-dark); 
         }
 
-        .main-layout { 
-            display: flex; 
-            height: 100vh; 
-        }
+        .main-layout { display: flex; height: 100vh; }
 
         .sidebar {
-            width: 16rem; /* 256px */
+            width: 16rem;
             height: 100vh;
             flex-shrink: 0;
             backdrop-filter: blur(20px);
@@ -97,9 +90,7 @@
             box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.1);
             transition: background-color 0.5s ease, border-color 0.5s ease, transform 0.3s ease;
         }
-        .glass-card:hover {
-            transform: translateY(-5px);
-        }
+        .glass-card:hover { transform: translateY(-5px); }
         body.light-theme .glass-card { 
             background-color: var(--card-bg-light); 
             border-color: var(--card-border-light); 
@@ -135,17 +126,9 @@
         
         .futuristic-btn {
             background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
-            padding: 12px 24px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            border: none; border-radius: 12px; color: white; font-weight: 600;
+            padding: 12px 24px; transition: all 0.3s ease; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
         .futuristic-btn:hover {
             transform: translateY(-3px);
@@ -158,27 +141,15 @@
         .futuristic-btn-neutral { background: linear-gradient(135deg, #64748b 0%, #334155 100%); }
         .futuristic-btn-neutral:hover { box-shadow: 0 10px 20px rgba(100, 116, 139, 0.25); }
 
-
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            border-radius: 12px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem;
+            border-radius: 12px; font-weight: 500; transition: all 0.3s ease; cursor: pointer;
         }
         .nav-item.active {
             background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
-            color: white;
-            box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.3);
-            transform: translateY(-2px);
+            color: white; box-shadow: 0 6px 20px rgba(var(--primary-rgb), 0.3); transform: translateY(-2px);
         }
-        .nav-item:not(.active):hover {
-            background-color: rgba(var(--primary-rgb), 0.1);
-            transform: translateX(5px);
-        }
+        .nav-item:not(.active):hover { background-color: rgba(var(--primary-rgb), 0.1); transform: translateX(5px); }
         body.light-theme .nav-item:not(.active) { color: #334155; }
         body.dark-theme .nav-item:not(.active) { color: var(--text-dark); }
         
@@ -192,14 +163,11 @@
         body.light-theme .table-header { background-color: rgba(var(--primary-rgb), 0.05); }
         body.dark-theme .table-header { background-color: rgba(var(--primary-rgb), 0.1); }
         
-        .invoice-preview {
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.5s ease, color 0.5s ease;
-        }
+        .invoice-preview { box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1); transition: background-color 0.5s ease, color 0.5s ease; }
         body.light-theme .invoice-preview { background-color: var(--invoice-bg-light); color: var(--text-light); }
         body.dark-theme .invoice-preview { background-color: var(--invoice-bg-dark); color: var(--text-dark); }
         body.dark-theme .invoice-preview .text-black { color: var(--text-dark); }
-        body.dark-theme .invoice-preview .text-gray-600, body.dark-theme .invoice-preview .text-slate-400 { color: var(--text-muted-dark); }
+        body.dark-theme .invoice-preview .text-gray-600 { color: var(--text-muted-dark); }
         body.dark-theme .invoice-preview .border-blue-500 { border-color: rgb(var(--primary-rgb)); }
         body.dark-theme .invoice-preview .bg-gray-100 { background-color: rgba(var(--primary-rgb), 0.1); }
         body.dark-theme .invoice-preview .bg-blue-50 { background-color: rgba(var(--primary-rgb), 0.15); }
@@ -213,9 +181,7 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .fade-in-up {
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
+        .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
         
         @media print {
             .no-print { display: none !important; }
@@ -661,6 +627,7 @@
     <script>
         lucide.createIcons();
 
+        // --- THEME TOGGLE ---
         const themeToggle = document.getElementById('theme-toggle');
         const setTheme = (isDark) => {
             document.body.className = isDark ? 'dark-theme' : 'light-theme';
@@ -670,6 +637,7 @@
         };
         themeToggle.onclick = () => setTheme(!document.body.classList.contains('dark-theme'));
         
+        // --- APP LOGIC ---
         const API_URL = '/.netlify/functions/proxy'; 
         const CUSTOMERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=1988877295&single=true&output=csv';
         const PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=0&single=true&output=csv';
@@ -968,22 +936,8 @@
             }
 
             tbody.innerHTML = invoiceHistory.map(invoice => {
-                let amount = 0;
-                let status = 'unpaid';
-                try {
-                    if (invoice.fullInvoiceJSON && invoice.fullInvoiceJSON.trim() !== '') {
-                        const fullData = JSON.parse(invoice.fullInvoiceJSON);
-                        const invData = fullData.invoiceData;
-                        const taxable = parseFloat(invData.totalTaxableValue || 0);
-                        const cgst = parseFloat(invData.totalCGST || 0);
-                        const sgst = parseFloat(invData.totalSGST || 0);
-                        const igst = parseFloat(invData.totalIGST || 0);
-                        amount = taxable + cgst + sgst + igst;
-                        status = invData.status || 'unpaid'; 
-                    }
-                } catch (e) {
-                    console.error("Failed to parse invoice JSON for invoice #" + invoice.invoiceNumber, e);
-                }
+                const amount = parseFloat(invoice.amount || 0);
+                const status = invoice.status || 'unpaid';
 
                 return `<tr class="table-row hover:bg-black/10 dark:hover:bg-white/5">
                             <td class="p-4">${invoice.invoiceNumber}</td>
@@ -1008,19 +962,7 @@
         }
         
         function updateDashboardStats() {
-            let totalRevenue = 0;
-            invoiceHistory.forEach(inv => {
-                try {
-                     if (inv.fullInvoiceJSON && inv.fullInvoiceJSON.trim() !== '') {
-                        const fullData = JSON.parse(inv.fullInvoiceJSON);
-                        const invData = fullData.invoiceData;
-                        totalRevenue += (parseFloat(invData.totalTaxableValue) || 0) + (parseFloat(invData.totalCGST) || 0) + (parseFloat(invData.totalSGST) || 0) + (parseFloat(invData.totalIGST) || 0);
-                    }
-                } catch(e){
-                    console.error("Dashboard Stats: Could not parse invoice #" + inv.invoiceNumber, e);
-                }
-            });
-
+            const totalRevenue = invoiceHistory.reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0);
             document.getElementById('stats-total-invoices').textContent = invoiceHistory.length;
             document.getElementById('stats-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
             document.getElementById('stats-active-customers').textContent = customers.length;
