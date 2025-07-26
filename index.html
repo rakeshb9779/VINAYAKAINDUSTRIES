@@ -13,12 +13,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
         :root {
-            --primary-rgb: 14 185 166; /* Teal-500 */
-            --primary-dark-rgb: 15 118 110; /* Teal-700 */
-            
-            /* Light Theme */
+            --primary-rgb: 14 185 166;
+            --primary-dark-rgb: 15 118 110;
             --bg-light: 240 253 250;
             --text-light: 30 41 59;
             --card-bg-light: rgba(255, 255, 255, 0.6);
@@ -29,8 +26,6 @@
             --table-header-bg-light: #f8fafc;
             --text-muted-light: #64748b;
             --border-light: #94a3b8;
-
-            /* Dark Theme */
             --bg-dark: #0d1a1e;
             --text-dark: #cbd5e1;
             --card-bg-dark: rgba(15, 23, 42, 0.5);
@@ -42,20 +37,11 @@
             --text-muted-dark: #94a3b8;
             --border-dark: #64748b;
         }
-
         * { box-sizing: border-box; }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            transition: background-color 0.5s ease, color 0.5s ease;
-            overflow-x: hidden;
-        }
-
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.5s ease, color 0.5s ease; overflow-x: hidden;}
         body.light-theme { background-color: rgb(var(--bg-light)); color: rgb(var(--text-light)); }
         body.dark-theme { background-color: var(--bg-dark); color: var(--text-dark); }
-
         .main-layout { display: flex; height: 100vh; }
-
         .sidebar {
             width: 35%; height: 100vh; position: fixed; top: 0; left: 0;
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -63,9 +49,7 @@
         }
         body.light-theme .sidebar { background-color: var(--card-bg-light); border-right: 1px solid var(--card-border-light); }
         body.dark-theme .sidebar { background-color: var(--card-bg-dark); border-right: 1px solid var(--card-border-dark); }
-
         .main-content { width: 65%; margin-left: 35%; padding: 2rem; padding-bottom: 100px; overflow-y: auto; }
-
         .glass-card {
             border-radius: 20px; padding: 1.25rem; border: 1px solid;
             box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.1);
@@ -73,25 +57,20 @@
         }
         body.light-theme .glass-card { background-color: var(--card-bg-light); border-color: var(--card-border-light); }
         body.dark-theme .glass-card { background-color: var(--card-bg-dark); border-color: var(--card-border-dark); }
-
         .futuristic-input {
             border: 2px solid; border-radius: 12px; padding: 12px 16px;
             transition: all 0.3s ease; font-weight: 500; width: 100%;
         }
         body.light-theme .futuristic-input { background-color: var(--input-bg-light); border-color: var(--input-border-light); color: var(--text-light); }
         body.dark-theme .futuristic-input { background-color: var(--input-bg-dark); border-color: var(--input-border-dark); color: var(--text-dark); }
-        .futuristic-input:focus {
-            border-color: rgb(var(--primary-rgb)); box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2); outline: none;
-        }
+        .futuristic-input:focus { border-color: rgb(var(--primary-rgb)); box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.2); outline: none; }
         body.light-theme .futuristic-input:focus { background-color: white; }
         body.dark-theme .futuristic-input:focus { background-color: #334155; }
-
         .section-header {
             background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
             font-weight: 800; font-size: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem;
         }
-
         .fixed-footer {
             position: fixed; bottom: 0; left: 0; width: 100%;
             backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -100,7 +79,6 @@
         }
         body.light-theme .fixed-footer { background-color: var(--card-bg-light); border-top: 1px solid var(--card-border-light); }
         body.dark-theme .fixed-footer { background-color: var(--card-bg-dark); border-top: 1px solid var(--card-border-dark); }
-        
         .footer-btn {
             background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
             border: none; border-radius: 12px; color: white; font-weight: 600; padding: 12px 24px;
@@ -109,18 +87,16 @@
         .footer-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.2); }
         .footer-btn.settings-btn, .footer-btn.load-btn { background: linear-gradient(135deg, #64748b 0%, #334155 100%); }
         .footer-btn.settings-btn:hover, .footer-btn.load-btn:hover { box-shadow: 0 10px 20px rgba(51, 65, 85, 0.2); }
-
         #invoice-preview-container { display: flex; flex-direction: column; gap: 1rem; }
-        
         .invoice-page {
             width: 100%;
-            aspect-ratio: 1 / 1.414; /* A4 aspect ratio */
+            aspect-ratio: 1 / 1.414;
             padding: 2rem; border-radius: 12px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
             transition: background-color 0.5s ease, border-color 0.5s ease;
             display: flex; flex-direction: column;
             border: 1px solid;
-            font-size: 0.9rem; /* Reduced base font size */
+            font-size: 0.9rem;
         }
         body.light-theme .invoice-page { background-color: var(--invoice-bg-light); border-color: var(--border-light); }
         body.dark-theme .invoice-page { background-color: var(--invoice-bg-dark); border-color: var(--border-dark); }
@@ -129,27 +105,22 @@
         body.dark-theme .invoice-page .text-slate-700 { color: var(--text-muted-dark); }
         body.dark-theme .invoice-page .text-slate-600, body.dark-theme #invoice-preview .text-slate-500 { color: var(--text-muted-dark); }
         body.dark-theme .invoice-page .border-slate-300 { border-color: var(--border-dark); }
-        
         .invoice-table { width: 100%; border-collapse: collapse; border: 1px solid; }
         body.light-theme .invoice-table { border-color: var(--border-light); }
         body.dark-theme .invoice-table { border-color: var(--border-dark); }
-
         .invoice-table th, .invoice-table td {
             border-right: 1px solid;
             padding: 6px; text-align: left; font-size: 0.75rem;
         }
         body.light-theme .invoice-table th, body.light-theme .invoice-table td { border-color: var(--border-light); }
         body.dark-theme .invoice-table th, body.dark-theme .invoice-table td { border-color: var(--border-dark); }
-
         .invoice-table th:last-child, .invoice-table td:last-child { border-right: none; }
         .invoice-table thead tr { border-bottom: 1px solid; }
         body.light-theme .invoice-table thead tr { border-color: var(--border-light); }
         body.dark-theme .invoice-table thead tr { border-color: var(--border-dark); }
-
         .invoice-table th { font-weight: 600; }
         body.light-theme .invoice-table th { background-color: #e2e8f0; color: #334155; }
         body.dark-theme .invoice-table th { background-color: var(--table-header-bg-dark); color: var(--text-dark); }
-        
         .searchable-dropdown { position: relative; }
         .searchable-dropdown-content {
             position: absolute; top: 100%; left: 0; right: 0; border: 1px solid; border-radius: 12px;
@@ -160,22 +131,18 @@
         .searchable-dropdown-content div { padding: 10px 15px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         body.light-theme .searchable-dropdown-content div:hover { background-color: #f1f5f9; }
         body.dark-theme .searchable-dropdown-content div:hover { background-color: #475569; }
-
         .fade-in-item { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .fade-in-item:nth-child(1) { animation-delay: 0.1s; } .fade-in-item:nth-child(2) { animation-delay: 0.2s; }
         .fade-in-item:nth-child(3) { animation-delay: 0.3s; }
-
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: rgb(var(--primary-rgb)); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: rgb(var(--primary-dark-rgb)); }
-        
         .app-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .app-modal.active { opacity: 1; visibility: visible; }
         .modal-content { background: white; border-radius: 20px; max-width: 90vw; max-height: 90vh; overflow: auto; position: relative; padding: 2rem; transform: scale(0.8); transition: transform 0.3s ease; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25); }
         .app-modal.active .modal-content { transform: scale(1); }
         body.dark-theme .modal-content { background-color: var(--invoice-bg-dark); }
-
         @media print {
             body * { visibility: hidden; }
             .sidebar, .fixed-footer { display: none; }
@@ -185,25 +152,19 @@
                 box-shadow: none; border: 1px solid #333 !important; margin: 0;
                 font-size: 9px;
             }
-            .invoice-page:not(:last-child) {
-                page-break-after: always;
-            }
+            .invoice-page:not(:last-child) { page-break-after: always; }
         }
     </style>
 </head>
 <body class="dark-theme">
-
     <div class="main-layout">
         <aside class="sidebar">
             <div class="fade-in-item flex justify-between items-center">
-                <h1 class="text-4xl font-black mb-6">
-                    <span class="section-header">InvoiceForge</span>
-                </h1>
+                <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="VINAYAKA INDUSTRIES LOGO" class="h-12 mb-6 rounded-xl shadow-lg">
                 <button id="theme-toggle" class="p-2 rounded-full transition-colors duration-300">
                     <i id="theme-icon" data-lucide="moon" class="w-6 h-6 text-slate-500"></i>
                 </button>
             </div>
-
             <section class="glass-card fade-in-item">
                 <h2 class="section-header"><i data-lucide="user-round" class="w-6 h-6"></i>Customer Details</h2>
                 <div class="space-y-3">
@@ -213,7 +174,6 @@
                     <textarea id="customer-address" class="futuristic-input" rows="2" oninput="updateInvoice()" placeholder="Place of Delivery"></textarea>
                 </div>
             </section>
-
             <section class="glass-card fade-in-item">
                 <h2 class="section-header"><i data-lucide="package-plus" class="w-6 h-6"></i>Items</h2>
                 <div id="items-container" class="space-y-4"></div>
@@ -221,23 +181,19 @@
                 <button type="button" onclick="addItem()" class="footer-btn mt-4 w-full"><i data-lucide="plus" class="w-5 h-5"></i>Add Item</button>
             </section>
         </aside>
-
         <main class="main-content">
             <div id="invoice-preview-container">
                 <!-- Invoice pages will be rendered here by JS -->
             </div>
         </main>
     </div>
-
     <footer class="fixed-footer">
         <button onclick="updateInvoice()" class="footer-btn"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
-        <button onclick="showInvoiceHistory()" class="footer-btn load-btn"><i data-lucide="history" class="w-5 h-5"></i>Load Invoices</button>
         <button onclick="printInvoice()" class="footer-btn"><i data-lucide="printer" class="w-5 h-5"></i>Print</button>
         <button onclick="downloadPDF()" class="footer-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Download</button>
         <button onclick="saveInvoice()" class="footer-btn"><i data-lucide="save" class="w-5 h-5"></i>Save</button>
         <button onclick="showSettings()" class="footer-btn settings-btn"><i data-lucide="settings" class="w-5 h-5"></i>Settings</button>
     </footer>
-
     <!-- Settings Modal -->
     <div id="settings-modal" class="app-modal">
         <div class="modal-content">
@@ -247,7 +203,7 @@
             <section class="glass-card p-6 mb-6">
                 <h3 class="section-header text-2xl"><i data-lucide="building" class="w-5 h-5"></i>Company Details</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="settings-company-name" class="futuristic-input" oninput="updateSettings()" placeholder="Company Name">
+                    <!-- COMPANY NAME field intentionally removed to use LOGO only -->
                     <input type="text" id="settings-company-gstin" class="futuristic-input" oninput="updateSettings()" placeholder="Company GSTIN">
                     <input type="text" id="settings-company-state" class="futuristic-input" oninput="updateSettings()" placeholder="State">
                     <input type="text" id="settings-company-state-code" class="futuristic-input" oninput="updateSettings()" placeholder="State Code">
@@ -255,9 +211,13 @@
                     <input type="email" id="settings-company-email" class="futuristic-input" oninput="updateSettings()" placeholder="Email">
                     <div class="md:col-span-2"><textarea id="settings-company-address" class="futuristic-input w-full" rows="2" oninput="updateSettings()" placeholder="Address"></textarea></div>
                 </div>
+                <div class="mt-4">
+                    <label for="settings-invoice-prefix" class="block mb-1 font-bold text-slate-600">Start Invoice From</label>
+                    <input type="text" id="settings-invoice-prefix" class="futuristic-input" oninput="updateSettings()" placeholder="E.g. VI-001">
+                </div>
             </section>
             <section class="glass-card p-6 mb-6">
-                 <h3 class="section-header text-2xl"><i data-lucide="banknote" class="w-5 h-5"></i>Bank & Payment</h3>
+                <h3 class="section-header text-2xl"><i data-lucide="banknote" class="w-5 h-5"></i>Bank & Payment</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <input type="text" id="settings-bank-name" class="futuristic-input" oninput="updateSettings()" placeholder="Bank Name">
                     <input type="text" id="settings-account-number" class="futuristic-input" oninput="updateSettings()" placeholder="Account Number">
@@ -270,32 +230,16 @@
             <div class="text-center"><button onclick="hideSettings()" class="footer-btn text-lg"><i data-lucide="check-circle" class="w-6 h-6"></i>Done</button></div>
         </div>
     </div>
-
-    <!-- Invoice History Modal -->
-    <div id="history-modal" class="app-modal">
-        <div class="modal-content w-full max-w-4xl">
-             <button onclick="hideInvoiceHistory()" class="absolute top-4 right-4 z-10 bg-red-500 hover:bg-red-600 text-white rounded-full p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
-            <h2 class="text-3xl font-black mb-6 text-center"><span class="section-header">Invoice History</span></h2>
-            <input type="text" id="history-search" class="futuristic-input w-full mb-4" placeholder="Search by Invoice No. or Customer Name...">
-            <div id="history-list" class="space-y-2 max-h-[60vh] overflow-y-auto">
-                <!-- History items will be rendered here -->
-            </div>
-        </div>
-    </div>
-
-
     <script>
+        // Proxy function path
         const GOOGLE_APPS_SCRIPT_URL = '/.netlify/functions/proxy';
         const CUSTOMERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=1988877295&single=true&output=csv';
         const PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=0&single=true&output=csv';
-
         let invoiceData = {}, items = [], nextItemId = 1, customerData = [], productData = [], appSettings = {}, invoiceHistory = [];
-
         const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true, didOpen:t=>{t.onmouseenter=Swal.stopTimer;t.onmouseleave=Swal.resumeTimer} });
         const showSuccess = m => Toast.fire({ icon: 'success', title: m, background: 'var(--bg-light)', color: 'rgb(var(--primary-dark-rgb))' });
         const showError = m => Toast.fire({ icon: 'error', title: m, background: '#fee2e2', color: '#991b1b' });
         const escapeHtml = t => String(t).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]);
-
         function showSettings() {
             Object.keys(appSettings).forEach(key => {
                 const el = document.getElementById(`settings-${key.replace(/([A-Z])/g, "-$1").toLowerCase()}`);
@@ -306,18 +250,22 @@
             document.getElementById('settings-due-date').value = invoiceData.dueDate;
             document.getElementById('settings-modal').classList.add('active');
         }
-
-        function hideSettings() { document.getElementById('settings-modal').classList.remove('active'); updateInvoice(); }
-
+        function hideSettings() {
+            document.getElementById('settings-modal').classList.remove('active');
+            updateInvoice();
+        }
         function updateSettings() {
             document.querySelectorAll('#settings-modal [id^="settings-"]').forEach(el => {
                 const key = el.id.replace('settings-', '').replace(/-(\w)/g, (m, p1) => p1.toUpperCase());
                 if (key in appSettings) appSettings[key] = el.value;
                 else if (key in invoiceData) invoiceData[key] = el.value;
             });
+            // update starting invoice prefix too
+            if (document.getElementById('settings-invoice-prefix')) {
+                appSettings.invoicePrefix = document.getElementById('settings-invoice-prefix').value;
+            }
             saveDataToLocalStorage();
         }
-
         async function fetchCsvData(url, dataName) {
             Swal.fire({ title: `Loading ${dataName}...`, html: '<div class="loading"></div>', allowOutsideClick: false, showConfirmButton: false, background: 'var(--card-bg-dark)', color: 'var(--text-dark)' });
             return new Promise((resolve, reject) => {
@@ -327,7 +275,6 @@
                 });
             });
         }
-
         function populateCustomerDetails() {
             const name = document.getElementById('customer-name').value;
             const found = customerData.find(c => c['Customer Name']?.toLowerCase() === name.toLowerCase());
@@ -336,68 +283,61 @@
             if(found) showSuccess(`Customer loaded!`);
             updateInvoice();
         }
-
         function populateProductDetails(itemId) {
             const item = items.find(i => i.id === itemId); if (!item) return;
-            const found = productData.find(p => p.MODEL?.toLowerCase() === item.model?.toLowerCase() && p.DEVICE?.toLowerCase() === item.device?.toLowerCase() && (p.SIZE + ' | ' + p['ITEM NAME'])?.toLowerCase() === item.itemName?.toLowerCase());
-            
+            // Model+ModelNumber format
+            const found = productData.find(p =>
+                (p.MODEL + " " + (p["MODEL NUMBER"] || "")).trim().toLowerCase() === (item.model || "").toLowerCase() &&
+                p.DEVICE?.toLowerCase() === (item.device || "").toLowerCase() &&
+                (p.SIZE + ' | ' + p['ITEM NAME'])?.toLowerCase() === (item.itemName || "").toLowerCase()
+            );
             if (found) {
-                item.description = [found.MODEL, found['MODEL NUMBER'], found.DEVICE, found['ITEM NAME'], found.SIZE].filter(Boolean).join(' - ');
+                item.description = [
+                    (found.MODEL + " " + (found["MODEL NUMBER"] || "")).trim(),
+                    found.DEVICE, found['ITEM NAME'], found.SIZE
+                ].filter(Boolean).join(' - ');
                 item.hsnSac = found['HSN/SAC'] || '8431';
                 item.rate = parseFloat(found.PRICE || 0).toFixed(2);
                 item.gstRate = parseFloat(found.GST_Rate || 18).toFixed(2);
             } else {
                 item.description = ''; item.hsnSac = ''; item.rate = '0.00'; item.gstRate = '18.00';
             }
-            
             const row = document.getElementById(`item-row-${itemId}`);
             row.querySelector('[name="full-description"]').value = item.description;
             row.querySelector('[name="hsn-sac"]').value = item.hsnSac;
             row.querySelector('[name="rate"]').value = item.rate;
-
             updateInvoice();
         }
-
         function populateDropdownOptions(select, options, defaultText, selected) {
             select.innerHTML = `<option value="">${defaultText}</option>` + options.map(opt => `<option value="${escapeHtml(opt)}" ${selected?.toLowerCase() === opt.toLowerCase() ? 'selected' : ''}>${escapeHtml(opt).toUpperCase()}</option>`).join('');
         }
-
         function renderSpecificItemDropdowns(item) {
             const row = document.getElementById(`item-row-${item.id}`); if (!row) return;
-            const modelSelect = row.querySelector('[name="model-select"]');
-            const deviceSelect = row.querySelector('[name="device-select"]');
-            
-            const allModels = [...new Set(productData.map(p => p.MODEL).filter(Boolean))].sort();
-            populateDropdownOptions(modelSelect, allModels, 'Select Model', item.model);
-
-            const devices = [...new Set(productData.filter(p => p.MODEL === item.model).map(p => p.DEVICE).filter(Boolean))].sort();
-            populateDropdownOptions(deviceSelect, devices, 'Select Device', item.device);
+            // Model: combine MODEL + MODEL NUMBER and show unique
+            const allModels = [...new Set(productData.map(p => ((p.MODEL + " " + (p["MODEL NUMBER"] || "")).trim())).filter(Boolean))].sort();
+            populateDropdownOptions(row.querySelector('[name="model-select"]'), allModels, 'Select Model', item.model);
+            const devices = [...new Set(productData.filter(p =>
+                ((p.MODEL + " " + (p["MODEL NUMBER"] || "")).trim()) === item.model
+            ).map(p => p.DEVICE).filter(Boolean))].sort();
+            populateDropdownOptions(row.querySelector('[name="device-select"]'), devices, 'Select Device', item.device);
         }
-
         function addItem() { items.push({ id: nextItemId++, quantity: '1', discount: '0' }); renderItems(); updateInvoice(); }
         function removeItem(id) { items = items.filter(i => i.id !== id); renderItems(); updateInvoice(); }
         function updateItemField(id, field, value) { const item = items.find(i => i.id === id); if (item) { item[field] = value; updateInvoice(); } }
-        
         function updateProductSelection(itemId, field, value) {
             const item = items.find(i => i.id === itemId); if (!item) return;
             item[field] = value;
             if (field === 'model') { item.device = ''; item.itemName = ''; }
             if (field === 'device') { item.itemName = ''; }
-            
             const row = document.getElementById(`item-row-${itemId}`);
             if(field === 'model') renderSpecificItemDropdowns(item);
-            if(field === 'device') {
-                const searchInput = row.querySelector('.searchable-input');
-                searchInput.value = '';
-            }
+            if(field === 'device') { const searchInput = row.querySelector('.searchable-input'); searchInput.value = ''; }
             populateProductDetails(itemId);
         }
-
         function renderItems() {
             const container = document.getElementById('items-container');
             container.innerHTML = '';
             document.getElementById('no-items-message').style.display = items.length === 0 ? 'block' : 'none';
-            
             items.forEach(item => {
                 const itemRowHtml = `
                     <div id="item-row-${item.id}" class="glass-card p-3 relative">
@@ -419,40 +359,31 @@
                         <button type="button" onclick="removeItem(${item.id})" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
                     </div>`;
                 container.insertAdjacentHTML('beforeend', itemRowHtml);
-
                 const row = document.getElementById(`item-row-${item.id}`);
                 row.querySelector('[name="model-select"]').onchange = e => updateProductSelection(item.id, 'model', e.target.value);
                 row.querySelector('[name="device-select"]').onchange = e => updateProductSelection(item.id, 'device', e.target.value);
                 row.querySelector('[name="quantity"]').oninput = e => updateItemField(item.id, 'quantity', e.target.value);
                 row.querySelector('[name="discount"]').oninput = e => updateItemField(item.id, 'discount', e.target.value);
-
                 const searchInput = row.querySelector('.searchable-input');
                 const dropdownContent = row.querySelector('.searchable-dropdown-content');
-                
                 searchInput.onfocus = () => filterItemNames(item.id, '');
                 searchInput.oninput = () => filterItemNames(item.id, searchInput.value);
-                document.addEventListener('click', (e) => {
-                    if (!row.contains(e.target)) dropdownContent.style.display = 'none';
-                });
-                
+                document.addEventListener('click', (e) => { if (!row.contains(e.target)) dropdownContent.style.display = 'none'; });
                 renderSpecificItemDropdowns(item);
                 populateProductDetails(item.id);
             });
             lucide.createIcons();
         }
-        
         function filterItemNames(itemId, searchTerm) {
             const item = items.find(i => i.id === itemId); if (!item) return;
             const row = document.getElementById(`item-row-${itemId}`);
             const dropdownContent = row.querySelector('.searchable-dropdown-content');
-            
+            // Model + Model Number filtering
             const itemNames = [...new Set(productData
-                .filter(p => p.MODEL === item.model && p.DEVICE === item.device && (p.SIZE + ' | ' + p['ITEM NAME'])?.toLowerCase().includes(searchTerm.toLowerCase()))
+                .filter(p => ((p.MODEL + " " + (p["MODEL NUMBER"] || "")).trim()) === item.model && p.DEVICE === item.device && (p.SIZE + ' | ' + p['ITEM NAME'])?.toLowerCase().includes(searchTerm.toLowerCase()))
                 .map(p => p.SIZE + ' | ' + p['ITEM NAME']).filter(Boolean))].sort();
-
             dropdownContent.innerHTML = itemNames.map(name => `<div data-name="${escapeHtml(name)}">${escapeHtml(name)}</div>`).join('');
             dropdownContent.style.display = 'block';
-
             dropdownContent.querySelectorAll('div').forEach(div => {
                 div.onclick = () => {
                     row.querySelector('.searchable-input').value = div.dataset.name;
@@ -461,7 +392,6 @@
                 };
             });
         }
-        
         const units = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
         const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
         const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
@@ -488,24 +418,35 @@
             if (paise > 0) { words += ' and ' + convertToWordsIndian(paise) + ' paise'; }
             return words.toUpperCase();
         }
-
+        // --- Invoice Number Management ---
+        function parseInvoiceParts(invoiceString) {
+            const match = invoiceString.match(/^([^\d]*)(\d+)$/);
+            if (match) return { prefix: match[1], number: parseInt(match[2], 10), length: match[2].length };
+            return { prefix: invoiceString, number: 1, length: 3 }; // fallback
+        }
+        function getNextInvoiceNumber(current, manual) {
+            if (manual) return manual;
+            let { prefix, number, length } = parseInvoiceParts(current || appSettings.invoicePrefix || 'VI-001');
+            let nextNum = (number + 1).toString().padStart(length, '0');
+            return `${prefix}${nextNum}`;
+        }
+        // --- END Invoice Number Management ---
         function updateInvoice() {
-            // 1. GATHER DATA
             invoiceData.customerName = document.getElementById('customer-name').value;
             invoiceData.customerAddress = document.getElementById('customer-address').value;
             invoiceData.customerGSTIN = document.getElementById('customer-gstin').value;
-            
-            // 2. CALCULATE
+            // Invoice Number dynamic logic
+            let manualInvoiceNo = invoiceData.invoiceNumber && invoiceData.invoiceNumber !== appSettings.invoicePrefix ? invoiceData.invoiceNumber : '';
+            invoiceData.invoiceNumber = manualInvoiceNo || (invoiceData.invoiceNumber || appSettings.invoicePrefix || 'VI-001');
+            // GST Calculation
             let totalTaxableValue = 0, totalCGST = 0, totalSGST = 0, totalIGST = 0;
             const karnatakaStateCode = "29";
             const buyerStateCode = invoiceData.customerGSTIN?.substring(0, 2);
             invoiceData.isInterstate = buyerStateCode !== karnatakaStateCode && !!buyerStateCode;
-            
             items.forEach(item => {
                 const preDiscountAmount = (parseFloat(item.quantity) || 0) * (parseFloat(item.rate) || 0);
                 const discountAmount = preDiscountAmount * (parseFloat(item.discount || 0) / 100);
                 const taxableValue = preDiscountAmount - discountAmount;
-
                 item.taxableValue = taxableValue.toFixed(2);
                 totalTaxableValue += taxableValue;
                 const gstRate = parseFloat(item.gstRate) || 0;
@@ -518,7 +459,6 @@
                 }
                 item.lineTotal = (taxableValue + parseFloat(item.igstAmount) + parseFloat(item.cgstAmount) + parseFloat(item.sgstAmount)).toFixed(2);
             });
-
             invoiceData.totalTaxableValue = totalTaxableValue.toFixed(2);
             invoiceData.totalIGST = totalIGST.toFixed(2);
             invoiceData.totalCGST = totalCGST.toFixed(2);
@@ -528,27 +468,20 @@
             invoiceData.roundOff = (roundedGrandTotal - grandTotal).toFixed(2);
             invoiceData.grandTotal = roundedGrandTotal.toFixed(2);
             invoiceData.grandTotalWords = convertAmountToWords(invoiceData.grandTotal);
-            
-            // 3. SAVE
             saveDataToLocalStorage();
-
-            // 4. RENDER
             renderPaginatedInvoice();
         }
-
         function renderPaginatedInvoice() {
             const container = document.getElementById('invoice-preview-container');
             container.innerHTML = '';
             const itemsPerPage = 15;
             const pageCount = Math.ceil(items.length / itemsPerPage) || 1;
-
             for (let i = 0; i < pageCount; i++) {
                 const itemChunk = items.slice(i * itemsPerPage, (i + 1) * itemsPerPage);
                 container.innerHTML += generateInvoicePageHTML(itemChunk, i, pageCount);
             }
             lucide.createIcons();
         }
-
         function generateInvoicePageHTML(pageItems, currentPage, totalPages) {
             let gstSummaryHtml = '';
             if (invoiceData.isInterstate) {
@@ -557,9 +490,7 @@
                 gstSummaryHtml = `<div class="flex justify-between"><span>CGST</span><span>₹${invoiceData.totalCGST}</span></div>
                                   <div class="flex justify-between"><span>SGST</span><span>₹${invoiceData.totalSGST}</span></div>`;
             }
-
             let headers = `<th>SrNo.</th><th>Product name</th><th>HSN/SAC</th><th>Qty</th><th>Rate</th><th>Disc%</th><th>Amount</th>`;
-
             let bodyHtml = pageItems.map((item, index) => {
                 return `<tr>
                     <td>${currentPage * 15 + index + 1}</td>
@@ -571,15 +502,19 @@
                     <td class="font-semibold">₹${item.taxableValue}</td>
                 </tr>`;
             }).join('');
-
             return `
                 <div class="invoice-page">
                     <div class="flex justify-between items-start pb-4 border-b-2 border-slate-300">
                         <div class="w-1/4">
-                            <svg class="text-slate-500" width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20Z" fill="currentColor"/><path d="M12 6C9.79 6 8 7.79 8 10C8 12.21 9.79 14 12 14C14.21 14 16 12.21 16 10C16 7.79 14.21 6 12 6ZM12 12C10.9 12 10 11.1 10 10C10 8.9 10.9 8 12 8C13.1 8 14 8.9 14 10C14 11.1 13.1 12 12 12Z" fill="currentColor"/><path d="M18 16.5C18 15.67 17.33 15 16.5 15C15.67 15 15 15.67 15 16.5C15 18.43 12 20 12 20C12 20 9 18.43 9 16.5C9 15.67 8.33 15 7.5 15C6.67 15 6 15.67 6 16.5C6 19.5 12 22 12 22C12 22 18 19.5 18 16.5Z" fill="currentColor"/></svg>
+                            <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Vinayaka Logo" class="h-16 rounded-xl">
                         </div>
-                        <div class="text-center"><h2 class="text-xl font-bold text-slate-900">${appSettings.companyName || ''}</h2><p class="text-xs text-slate-500">${appSettings.companyAddress || ''}</p></div>
-                        <div class="w-1/4 text-right"><p class="text-xs text-slate-500">${appSettings.companyContact ? `Mo: ${appSettings.companyContact}` : ''}</p></div>
+                        <div class="text-center flex-1">
+                            <p class="text-xs text-slate-500 font-bold">No.34, Lakshmipura Main Road, Chikkabanavara post, Abbigere, Bangalore - 560090</p>
+                            <p class="text-xs text-slate-500 font-bold">GSTIN: 29AQCPK0903A1ZI</p>
+                            <p class="text-xs text-slate-500 font-bold">Phone: +91 9448355315, +91 9980561436</p>
+                            <p class="text-xs text-slate-500 font-bold">Email: Vinayakaindustries.banglore@mail.com</p>
+                        </div>
+                        <div class="w-1/4 text-right"></div>
                     </div>
                     <div class="flex justify-between items-center py-1 border-b-2 border-slate-300"><span class="text-xs">Debit Memo</span><h1 class="text-base font-bold">TAX INVOICE</h1><span class="text-xs">Original</span></div>
                     <div class="grid grid-cols-2 gap-4 py-2 border-b-2 border-slate-300">
@@ -588,22 +523,32 @@
                     </div>
                     <div class="flex-grow mb-2"><table class="invoice-table"><thead><tr>${headers}</tr></thead><tbody>${bodyHtml}</tbody></table></div>
                     <div class="grid grid-cols-2 gap-4 text-xs mt-auto">
-                        <div class="space-y-1"><p class="font-bold">GSTIN No. : <span class="font-normal">${appSettings.companyGSTIN || ''}</span></p><p class="font-bold">Total GST : <span class="font-normal">${convertAmountToWords((parseFloat(invoiceData.totalIGST) + parseFloat(invoiceData.totalCGST) + parseFloat(invoiceData.totalSGST)).toFixed(2))} ONLY</span></p><p class="font-bold">Bill Amount : <span class="font-normal capitalize">${invoiceData.grandTotalWords} ONLY</span></p><div class="pt-2"><p class="font-bold">Bank Details:</p><p class="font-normal">Bank: ${appSettings.bankName || ''}<br>A/C: ${appSettings.accountNumber || ''}<br>IFSC: ${appSettings.ifscCode || ''}</p></div><div class="pt-2"><p class="font-bold">Terms & Conditions:</p><p class="font-normal whitespace-pre-line">${appSettings.paymentTerms || ''}</p></div><div class="pt-2"><p class="font-bold">Note:</p><p class="font-normal">${appSettings.notes || ''}</p></div></div>
-                        <div class="border-l-2 border-slate-300 pl-4"><div class="flex justify-between py-1 border-b border-slate-300"><span class="font-bold">Taxable Amount</span><span>₹${invoiceData.totalTaxableValue || '0.00'}</span></div><div class="py-1 border-b border-slate-300">${gstSummaryHtml}</div><div class="flex justify-between py-1 border-b border-slate-300"><span class="font-bold">Round off</span><span>${invoiceData.roundOff || '0.00'}</span></div><div class="flex justify-between py-1 font-bold text-sm"><span class="font-bold">Grand Total</span><span>₹${invoiceData.grandTotal || '0.00'}</span></div><div class="mt-12 text-center"><p class="font-bold">For, ${appSettings.companyName || ''}</p><p>(Authorized Signature)</p></div></div>
+                        <div class="space-y-1">
+                            <p class="font-bold">GSTIN No. : <span class="font-normal">29AQCPK0903A1ZI</span></p>
+                            <p class="font-bold">Total GST : <span class="font-normal">${convertAmountToWords((parseFloat(invoiceData.totalIGST) + parseFloat(invoiceData.totalCGST) + parseFloat(invoiceData.totalSGST)).toFixed(2))} ONLY</span></p>
+                            <p class="font-bold">Bill Amount : <span class="font-normal capitalize">${invoiceData.grandTotalWords} ONLY</span></p>
+                            <div class="pt-2"><p class="font-bold">Bank Details:</p><p class="font-normal">Bank: ${appSettings.bankName || ''}<br>A/C: ${appSettings.accountNumber || ''}<br>IFSC: ${appSettings.ifscCode || ''}</p></div>
+                            <div class="pt-2"><p class="font-bold">Terms & Conditions:</p><p class="font-normal whitespace-pre-line">${appSettings.paymentTerms || ''}</p></div>
+                            <div class="pt-2"><p class="font-bold">Note:</p><p class="font-normal">${appSettings.notes || ''}</p></div>
+                        </div>
+                        <div class="border-l-2 border-slate-300 pl-4">
+                            <div class="flex justify-between py-1 border-b border-slate-300"><span class="font-bold">Taxable Amount</span><span>₹${invoiceData.totalTaxableValue || '0.00'}</span></div>
+                            <div class="py-1 border-b border-slate-300">${gstSummaryHtml}</div>
+                            <div class="flex justify-between py-1 border-b border-slate-300"><span class="font-bold">Round off</span><span>${invoiceData.roundOff || '0.00'}</span></div>
+                            <div class="flex justify-between py-1 font-bold text-sm"><span class="font-bold">Grand Total</span><span>₹${invoiceData.grandTotal || '0.00'}</span></div>
+                            <div class="mt-12 text-center"><p class="font-bold">For, <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Vinayaka Logo" class="h-8 mx-auto"></p><p>(Authorized Signature)</p></div>
+                        </div>
                     </div>
                 </div>`;
         }
-
-
         function validateInvoiceData() {
-            if (!appSettings.companyName || !appSettings.companyGSTIN) { showError('Company details in Settings are required.'); showSettings(); return false; }
+            if (!appSettings.companyGSTIN) { showError('Company GSTIN is required.'); showSettings(); return false; }
             if (!invoiceData.customerName) { showError('Customer Name is required.'); return false; }
             if (items.length === 0) { showError('At least one item is required.'); return false; }
             return true;
         }
         function printInvoice() { if (!validateInvoiceData()) return; window.print(); }
         function downloadPDF() { if (!validateInvoiceData()) return; Swal.fire({title:'Generating PDF...'}); html2pdf().from(document.getElementById('invoice-preview-container')).set({margin:0.25, filename:`invoice-${invoiceData.invoiceNumber}.pdf`, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }}).save().then(()=>Swal.close()); }
-        
         async function saveInvoice() {
             if (!validateInvoiceData()) return;
             Swal.fire({ title: 'Saving Invoice...', html: '<div class="loading"></div>', allowOutsideClick: false, showConfirmButton: false });
@@ -628,9 +573,9 @@
                 showError(`Save failed: ${error.message}`);
             }
         }
-
-
-        function saveDataToLocalStorage() { localStorage.setItem('invoiceForgeDataV4', JSON.stringify({ invoiceData, items, nextItemId, appSettings, theme: document.body.className })); }
+        function saveDataToLocalStorage() {
+            localStorage.setItem('invoiceForgeDataV4', JSON.stringify({ invoiceData, items, nextItemId, appSettings, theme: document.body.className }));
+        }
         function loadDataFromLocalStorage() {
             const data = JSON.parse(localStorage.getItem('invoiceForgeDataV4'));
             if (data) {
@@ -647,38 +592,43 @@
             }
             return false;
         }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const themeToggle = document.getElementById('theme-toggle');
             const themeIcon = document.getElementById('theme-icon');
-            
             const setTheme = (isDark) => {
                 document.body.className = isDark ? 'dark-theme' : 'light-theme';
                 themeIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
                 lucide.createIcons();
             };
-
             themeToggle.onclick = () => {
                 const isDark = document.body.classList.contains('dark-theme');
                 setTheme(!isDark);
                 saveDataToLocalStorage();
             };
-
             const dataLoaded = loadDataFromLocalStorage();
             if (!dataLoaded) {
-                setTheme(true); // Default to dark theme
+                setTheme(true);
                 const today = new Date().toISOString().split('T')[0];
-                invoiceData = { invoiceDate: today, dueDate: today, invoiceNumber: 'INV-001' };
-                appSettings = { companyName: 'Your Company', companyAddress: '123 Street, City', companyGSTIN: '29ABCDE1234F1Z5', companyContact: 'Contact', companyEmail: 'Email', bankName: 'Bank', accountNumber: 'Account No.', ifscCode: 'IFSC', paymentTerms: '1. Goods once sold will not be taken back.\n2. Interest @18% p.a. will be charged if payment is not made within due date.', notes: 'Thank you!' };
+                invoiceData = { invoiceDate: today, dueDate: today, invoiceNumber: 'VI-001' };
+                appSettings = {
+                    companyGSTIN: '29AQCPK0903A1ZI',
+                    companyContact: '+91 9448355315, +91 9980561436',
+                    companyEmail: 'Vinayakaindustries.banglore@mail.com',
+                    companyAddress: 'No.34, Lakshmipura Main Road, Chikkabanavara post, Abbigere, Bangalore - 560090',
+                    invoicePrefix: 'VI-001',
+                    bankName: 'Bank',
+                    accountNumber: 'Account No.',
+                    ifscCode: 'IFSC',
+                    paymentTerms: '1. Goods once sold will not be taken back.\n2. Interest @18% p.a. will be charged if payment is not made within due date.',
+                    notes: 'Thank you!'
+                };
                 addItem();
             } else {
                  setTheme(document.body.className.includes('dark-theme'));
             }
-            
             showSuccess('Welcome to InvoiceForge!');
             try { customerData = await fetchCsvData(CUSTOMERS_CSV_URL, 'Customers'); document.getElementById('customer-names-datalist').innerHTML = customerData.map(c => `<option value="${escapeHtml(c['Customer Name'])}">`).join(''); } catch(e) {}
             try { productData = await fetchCsvData(PRODUCTS_CSV_URL, 'Products'); renderItems(); } catch(e) {}
-
             updateInvoice();
         });
     </script>
