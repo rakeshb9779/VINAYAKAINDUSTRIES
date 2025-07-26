@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family/Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
@@ -638,9 +638,9 @@
         themeToggle.onclick = () => setTheme(!document.body.classList.contains('dark-theme'));
         
         // --- APP LOGIC ---
-        const API_URL = '/.netlify/functions/proxy'; 
-        const CUSTOMERS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=1988877295&single=true&output=csv';
-        const PRODUCTS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFxJyIv-_4zkNDXwmv5dYgWE-LRybVLKayk8jmiUCdbuL1XX4Ac0DuU5ip1jZmo-GaDQwWUhJFw8Pt/pub?gid=0&single=true&output=csv';
+        // !!! IMPORTANT !!! PASTE YOUR NEW WEB APP URL HERE
+        const GET_API_URL = 'PASTE_YOUR_NEW_WEB_APP_URL_HERE';
+        const POST_API_URL = '/.netlify/functions/proxy'; 
 
         let customers = [], allProducts = [], invoiceItems = [], invoiceHistory = [], currentInvoiceNumber = 'VI-001';
 
@@ -656,7 +656,8 @@
         };
 
         function postData(payload) {
-            return fetch(API_URL, {
+            // POST requests still go through the proxy for better CORS handling
+            return fetch(POST_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -1014,42 +1015,55 @@
             document.getElementById('invoice-example').textContent = `${prefix}${String(nextNumber).padStart(3, '0')}`;
         }
         
-        function fetchCsvData(url) {
+        function fetchJSONP(url) {
             return new Promise((resolve, reject) => {
-                Papa.parse(url, {
-                    download: true, header: true,
-                    complete: results => resolve(results.data.filter(row => Object.values(row).some(val => val))),
-                    error: error => reject(error)
-                });
+                const callbackName = '__jsonp_cb_' + Date.now() + Math.random().toString(36).substring(2);
+                let script = document.createElement('script');
+
+                const timeout = setTimeout(() => {
+                    delete window[callbackName];
+                    if (document.head.contains(script)) document.head.removeChild(script);
+                    reject(new Error('JSONP request timed out'));
+                }, 15000); // 15-second timeout
+
+                window[callbackName] = (data) => {
+                    clearTimeout(timeout);
+                    delete window[callbackName];
+                    if (document.head.contains(script)) document.head.removeChild(script);
+                    resolve(data);
+                };
+
+                script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}`;
+                script.onerror = () => reject(new Error('JSONP script failed to load'));
+                document.head.appendChild(script);
             });
         }
 
         async function syncData() {
             showToast('Syncing from Google Sheets...', 'info');
-            try {
-                const [customerData, productDataRaw, invoiceHistoryResult] = await Promise.all([
-                    fetchCsvData(CUSTOMERS_CSV_URL),
-                    fetchCsvData(PRODUCTS_CSV_URL),
-                    fetch(`${API_URL}?action=getInvoices`).then(res => {
-                        if (!res.ok) throw new Error(`Network response was not ok: ${res.statusText}`);
-                        return res.json();
-                    })
-                ]);
 
-                const productData = productDataRaw.map(p => ({
+            if (!GET_API_URL || GET_API_URL === 'PASTE_YOUR_NEW_WEB_APP_URL_HERE') {
+                showToast('API URL is not configured. Please edit the HTML file.', 'error');
+                return;
+            }
+
+            try {
+                const result = await fetchJSONP(`${GET_API_URL}&action=getAllData`);
+
+                if (result.status !== 'success') {
+                    throw new Error(result.message || 'Failed to fetch data from API');
+                }
+                
+                const allData = result.data;
+
+                const cleanedProducts = (allData.products || []).map(p => ({
                     ...p,
                     PRICE: parseFloat(String(p.PRICE || '0').replace(/[^0-9.]/g, '')) || 0
                 }));
 
-                if (invoiceHistoryResult.status !== 'success') {
-                    throw new Error(invoiceHistoryResult.message || 'Failed to fetch invoice history');
-                }
-
                 const combinedData = {
-                    customers: customerData,
-                    products: productData,
-                    invoiceHistory: invoiceHistoryResult.data,
-                    nextInvoiceNumber: (invoiceHistoryResult.data?.length || 0) + 1
+                    ...allData,
+                    products: cleanedProducts,
                 };
 
                 processAllData(combinedData);
