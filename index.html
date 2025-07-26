@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -627,7 +627,6 @@
     <script>
         lucide.createIcons();
 
-        // --- THEME TOGGLE ---
         const themeToggle = document.getElementById('theme-toggle');
         const setTheme = (isDark) => {
             document.body.className = isDark ? 'dark-theme' : 'light-theme';
@@ -638,8 +637,9 @@
         themeToggle.onclick = () => setTheme(!document.body.classList.contains('dark-theme'));
         
         // --- APP LOGIC ---
-        // !!! IMPORTANT !!! PASTE YOUR NEW WEB APP URL FROM STEP 2 HERE
+        // I have pasted your new URL here.
         const GET_API_URL = 'https://script.google.com/macros/s/AKfycbytvxDO1jlUxa289NXACCuRj0osY4Idep6WXaNC_rJ9WR_6h1pUYfWpBdtsI-AfuGkB/exec';
+        // POST requests still go through the proxy for better CORS handling. Make sure your proxy points to the same URL as above.
         const POST_API_URL = '/.netlify/functions/proxy'; 
 
         let customers = [], allProducts = [], invoiceItems = [], invoiceHistory = [], currentInvoiceNumber = 'VI-001';
@@ -656,7 +656,6 @@
         };
 
         function postData(payload) {
-            // NOTE: This uses the Netlify proxy. Ensure your proxy URL in your Netlify code points to your latest Apps Script URL.
             return fetch(POST_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1048,7 +1047,8 @@
             }
 
             try {
-                const result = await fetchJSONP(`${GET_API_URL}&action=getAllData`);
+                // *** FIX APPLIED HERE: Using '?' instead of '&' ***
+                const result = await fetchJSONP(`${GET_API_URL}?action=getAllData`);
 
                 if (result.status !== 'success') {
                     throw new Error(result.message || 'Failed to fetch data from API');
