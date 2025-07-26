@@ -301,11 +301,18 @@ function closeSidebarMobile() {
 }
 
 // Navigation logic
-document.querySelectorAll('.nav-item').forEach(item => {
-    item.onclick = () => {
-        let page = item.dataset.page;
-        setPage(page);
-        if (window.innerWidth < 900) closeSidebarMobile();
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.onclick = () => {
+            let page = item.dataset.page;
+            setPage(page);
+            if (window.innerWidth < 900) closeSidebarMobile();
+        };
+    });
+    document.getElementById('sidebarToggle').onclick = () => {
+        let sidebar = document.getElementById('mainSidebar');
+        sidebar.classList.toggle('closed');
+        document.getElementById('sidebarOverlay').classList.toggle('hidden');
     };
 });
 
@@ -315,6 +322,7 @@ function setPage(page) {
     document.getElementById(page + "Page").classList.remove('hide');
     document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
     document.querySelector('.nav-item[data-page="' + page + '"]').classList.add('active');
+    window.scrollTo(0,0); // Always scroll to top on SPA nav
     if (page === "invoice") {
         collapseSidebar();
         document.getElementById('mainContent').classList.add('flex');
@@ -328,13 +336,6 @@ function setPage(page) {
     if (page === "products") renderProducts();
 }
 window.setPage = setPage;
-
-// Hamburger (mobile)
-document.getElementById('sidebarToggle').onclick = () => {
-    let sidebar = document.getElementById('mainSidebar');
-    sidebar.classList.toggle('closed');
-    document.getElementById('sidebarOverlay').classList.toggle('hidden');
-};
 
 // ===============================
 // === DASHBOARD
@@ -507,13 +508,21 @@ window.downloadPDF = () => {
 window.saveInvoice = async () => {
     // POST to your Netlify Proxy
     Swal.fire({title:'Saving Invoice...',allowOutsideClick:false,showConfirmButton:false});
+    let total = 0;
+    (state.invoiceDraft.items || []).forEach((item) => {
+        let qty = parseFloat(item.quantity) || 1;
+        let rate = parseFloat(item.rate) || 0;
+        let disc = parseFloat(item.discount) || 0;
+        total += qty * rate * (1 - disc / 100);
+    });
     let dataToSend = {
         invoiceData: {
             invoiceNumber: state.invoiceDraft.invoiceNumber,
             customerName: state.invoiceDraft.customerName,
             customerGSTIN: state.invoiceDraft.customerGSTIN,
             customerAddress: state.invoiceDraft.customerAddress,
-            ...state.appSettings
+            ...state.appSettings,
+            grandTotal: total.toFixed(2)
         },
         items: state.invoiceDraft.items
     };
@@ -527,8 +536,13 @@ window.saveInvoice = async () => {
         let result = await response.json();
         Swal.close();
         showSuccess("Invoice Saved!");
-        // After Save: Only reset invoice if toggle OFF
-        if (!state.appSettings.keepDraft) resetInvoiceDraft();
+        // After Save: Only reset invoice if toggle OFF, and increment prefix
+        if (!state.appSettings.keepDraft) {
+            state.appSettings.invoicePrefix = incrementInvoicePrefix(state.appSettings.invoicePrefix);
+            state.invoiceDraft.invoiceNumber = state.appSettings.invoicePrefix;
+            localStorage.setItem("vinayakaAppSettings", JSON.stringify(state.appSettings));
+            resetInvoiceDraft();
+        }
     } catch (e) {
         Swal.close();
         showError("Save failed: "+(e.message||e));
@@ -575,7 +589,9 @@ window.showInvoiceDetail = invoiceNumber => {
         width: 700
     });
 };
-document.getElementById('history-search').oninput = renderHistory;
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('history-search').oninput = renderHistory;
+});
 
 function renderCustomers() {
     let list = state.customers.map(c => `<div class="bg-[#233043] rounded p-3 flex justify-between items-center">
@@ -686,15 +702,6 @@ function incrementInvoicePrefix(prefix) {
     return prefix.slice(0, match.index) + nextNum + prefix.slice(match.index + num.length);
 }
 
-// When user saves invoice, bump number if not keepDraft
-function afterInvoiceSave() {
-    if (!state.appSettings.keepDraft) {
-        state.appSettings.invoicePrefix = incrementInvoicePrefix(state.appSettings.invoicePrefix);
-        state.invoiceDraft.invoiceNumber = state.appSettings.invoicePrefix;
-        localStorage.setItem("vinayakaAppSettings", JSON.stringify(state.appSettings));
-    }
-}
-
 // ===============================
 // === INIT APP
 // ===============================
@@ -706,6 +713,5 @@ window.onload = () => {
 };
 
 </script>
-
 </body>
 </html>
