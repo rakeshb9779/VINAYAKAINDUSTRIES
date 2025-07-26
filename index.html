@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -638,7 +638,7 @@
         themeToggle.onclick = () => setTheme(!document.body.classList.contains('dark-theme'));
         
         // --- APP LOGIC ---
-        // !!! IMPORTANT !!! PASTE YOUR NEW WEB APP URL HERE
+        // !!! IMPORTANT !!! PASTE YOUR NEW WEB APP URL FROM STEP 2 HERE
         const GET_API_URL = 'https://script.google.com/macros/s/AKfycbytvxDO1jlUxa289NXACCuRj0osY4Idep6WXaNC_rJ9WR_6h1pUYfWpBdtsI-AfuGkB/exec';
         const POST_API_URL = '/.netlify/functions/proxy'; 
 
@@ -656,7 +656,7 @@
         };
 
         function postData(payload) {
-            // POST requests still go through the proxy for better CORS handling
+            // NOTE: This uses the Netlify proxy. Ensure your proxy URL in your Netlify code points to your latest Apps Script URL.
             return fetch(POST_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1018,13 +1018,13 @@
         function fetchJSONP(url) {
             return new Promise((resolve, reject) => {
                 const callbackName = '__jsonp_cb_' + Date.now() + Math.random().toString(36).substring(2);
-                let script = document.createElement('script');
+                const script = document.createElement('script');
 
                 const timeout = setTimeout(() => {
                     delete window[callbackName];
                     if (document.head.contains(script)) document.head.removeChild(script);
                     reject(new Error('JSONP request timed out'));
-                }, 15000); // 15-second timeout
+                }, 15000);
 
                 window[callbackName] = (data) => {
                     clearTimeout(timeout);
@@ -1042,7 +1042,7 @@
         async function syncData() {
             showToast('Syncing from Google Sheets...', 'info');
 
-            if (!GET_API_URL || GET_API_URL === 'PASTE_YOUR_NEW_WEB_APP_URL_HERE') {
+            if (!GET_API_URL || GET_API_URL.includes('PASTE_YOUR')) {
                 showToast('API URL is not configured. Please edit the HTML file.', 'error');
                 return;
             }
