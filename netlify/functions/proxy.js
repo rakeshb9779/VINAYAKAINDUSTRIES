@@ -4,3 +4,4 @@ export default async (event, context) => {
     body: "Hello from Netlify Function!"
   };
 };
+ 
