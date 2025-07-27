@@ -352,11 +352,11 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-muted mb-2">Customer GSTIN</label>
-                                    <input id="customer-gstin-display" type="text" class="futuristic-input" readonly>
+                                    <input id="customer-gstin-display" type="text" class="futuristic-input bg-opacity-50" readonly>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-muted mb-2">Place of Supply</label>
-                                    <input id="place-of-supply-display" type="text" class="futuristic-input" readonly>
+                                    <input id="place-of-supply-display" type="text" class="futuristic-input bg-opacity-50" readonly>
                                 </div>
                             </div>
 
@@ -773,10 +773,10 @@
                 <div class="flex justify-between items-center"><h4 class="font-semibold">Item ${itemIndex + 1}</h4><button type="button" onclick="removeInvoiceItem(${itemIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button></div>
                 <div class="grid grid-cols-2 gap-3">
                     <select class="item-model futuristic-select text-sm" onchange="updateDependentDropdowns(${itemIndex})"><option value="">SELECT MODEL</option></select>
-                    <select class="item-device futuristic-select text-sm" onchange="updateDependentDropdowns(${itemIndex})"><option value="">SELECT DEVICE</option><option value="SWING DEVICE">SWING DEVICE</option><option value="TRAVEL DEVICE">TRAVEL DEVICE</option></select>
+                    <select class="item-device futuristic-select text-sm" onchange="updateDependentDropdowns(${itemIndex})"><option value="">(BLANK)</option><option value="SWING DEVICE">SWING DEVICE</option><option value="TRAVEL DEVICE">TRAVEL DEVICE</option></select>
                 </div>
                 <select class="item-name futuristic-select text-sm" onchange="populateItemDetails(${itemIndex})"><option value="">SELECT ITEM NAME</option></select>
-                <div class="grid grid-cols-5 gap-2 text-sm">
+                <div class="grid grid-cols-6 gap-2 text-sm">
                     <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" value="8431" readonly>
                     <input type="number" class="item-rate futuristic-input" value="0" min="0" oninput="calculateItemTotal(${itemIndex})" placeholder="Rate" readonly>
                     <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})" placeholder="Qty">
@@ -793,11 +793,10 @@
         }
 
         function removeInvoiceItem(index) {
-            invoiceItems.splice(index, 1); // Remove from data array
+            invoiceItems.splice(index, 1);
             const itemElement = document.querySelector(`.invoice-item[data-index="${index}"]`);
-            if (itemElement) itemElement.remove(); // Remove from DOM
+            if (itemElement) itemElement.remove();
 
-            // Re-index remaining items
             document.querySelectorAll('.invoice-item').forEach((element, newIndex) => {
                 element.dataset.index = newIndex;
                 element.querySelector('h4').textContent = `Item ${newIndex + 1}`;
@@ -805,11 +804,7 @@
                 element.querySelector('.item-model').setAttribute('onchange', `updateDependentDropdowns(${newIndex})`);
                 element.querySelector('.item-device').setAttribute('onchange', `updateDependentDropdowns(${newIndex})`);
                 element.querySelector('.item-name').setAttribute('onchange', `populateItemDetails(${newIndex})`);
-                element.querySelectorAll('input').forEach(inp => {
-                    if (inp.hasAttribute('oninput')) {
-                        inp.setAttribute('oninput', `calculateItemTotal(${newIndex})`);
-                    }
-                });
+                element.querySelectorAll('input[oninput]').forEach(inp => inp.setAttribute('oninput', `calculateItemTotal(${newIndex})`));
             });
 
             if (invoiceItems.length === 0) addInvoiceItem();
@@ -847,7 +842,7 @@
                 nameSelect.innerHTML += `<option value="${item.row_index}">${item.uniqueItemName}</option>`;
             });
 
-            populateItemDetails(index); // Auto-select if only one item, or clear fields
+            populateItemDetails(index);
         }
 
         function populateItemDetails(index) {
@@ -856,11 +851,7 @@
             const selectedProductId = nameSelect.value;
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
-            if (product) {
-                itemElement.querySelector('.item-rate').value = product.PRICE || 0;
-            } else {
-                itemElement.querySelector('.item-rate').value = 0;
-            }
+            itemElement.querySelector('.item-rate').value = product ? (product.PRICE || 0) : 0;
             calculateItemTotal(index);
         }
 
@@ -872,7 +863,6 @@
             const rate = parseFloat(itemElement.querySelector('.item-rate').value || 0);
             const discount = parseFloat(itemElement.querySelector('.item-discount').value || 0);
             const taxRate = parseFloat(itemElement.querySelector('.item-tax-rate').value || 0);
-            const hsn = "8431";
 
             const subTotal = quantity * rate;
             const discountAmount = subTotal * (discount / 100);
@@ -884,7 +874,7 @@
             
             if (invoiceItems[index]) {
                 const product = allProducts.find(p => p.row_index == itemElement.querySelector('.item-name').value);
-                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxableAmount, taxAmount, total, hsn, description: product ? product.uniqueItemName : '' };
+                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxableAmount, taxAmount, total, hsn: "8431", description: product ? product.uniqueItemName : '' };
             }
             updateInvoicePreview();
         }
@@ -912,15 +902,33 @@
             }
         }
         
-        function updateInvoicePreview() { /* Stub for now */ }
-        async function generatePDF() { /* Stub for now */ }
-        function getInvoiceDataForPost() { /* Stub for now */ }
-        async function saveInvoiceRecord(data) { /* Stub for now */ }
-        async function saveOnly() { /* Stub for now */ }
+        function updateInvoicePreview() { 
+            /* This function will be fully implemented in the next step */
+            console.log("Updating preview...");
+        }
+
+        async function generatePDF() { 
+             /* This function will be fully implemented in the next step */
+             showToast("PDF generation is not yet implemented.", "info");
+        }
+        
+        function getInvoiceDataForPost() {
+             /* This function will be fully implemented in the next step */
+            return null;
+        }
+
+        async function saveInvoiceRecord(invoiceDataForPost) {
+             /* This function will be fully implemented in the next step */
+        }
+        
+        async function saveOnly() {
+             /* This function will be fully implemented in the next step */
+             showToast("Save function is not yet implemented.", "info");
+        }
 
         function resetInvoiceForm() {
             document.getElementById('invoice-form').reset();
-            populateCustomerDetails(); // Clear GSTIN and Address
+            populateCustomerDetails();
             const container = document.getElementById('invoice-items-container');
             container.innerHTML = '';
             invoiceItems = []; 
