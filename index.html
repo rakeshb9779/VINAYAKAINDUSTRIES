@@ -744,6 +744,12 @@
              populateCustomerSelect();
              renderInvoiceHistory();
              document.getElementById('invoice-number').value = currentInvoiceNumber;
+
+             // Refresh any existing item dropdowns after data is loaded
+             document.querySelectorAll('.invoice-item').forEach((item, index) => {
+                populateModelDropdown(index);
+                updateDependentDropdowns(index);
+             });
         }
 
         function setupEventListeners() {
@@ -782,7 +788,7 @@
                     <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${itemIndex})" placeholder="Disc %">
                     <input type="number" class="item-tax-rate futuristic-input" value="18" oninput="calculateItemTotal(${itemIndex})" placeholder="Tax %">
                 </div>
-                <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" value="0" readonly>
+                <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" readonly>
             </div>`;
             container.insertAdjacentHTML('beforeend', itemHtml);
             invoiceItems.push({ quantity: 1, rate: 0, discount: 0, taxRate: 18 });
@@ -799,7 +805,8 @@
             document.querySelectorAll('.invoice-item').forEach((element, newIndex) => {
                 element.dataset.index = newIndex;
                 element.querySelector('h4').textContent = `Item ${newIndex + 1}`;
-                element.querySelector('button').setAttribute('onclick', `removeInvoiceItem(${newIndex})`);
+                const removeBtn = element.querySelector('button');
+                if (removeBtn) removeBtn.setAttribute('onclick', `removeInvoiceItem(${newIndex})`);
                 element.querySelector('.item-model').setAttribute('onchange', `updateDependentDropdowns(${newIndex})`);
                 element.querySelector('.item-device').setAttribute('onchange', `updateDependentDropdowns(${newIndex})`);
                 element.querySelector('.item-name').setAttribute('onchange', `populateItemDetails(${newIndex})`);
@@ -851,7 +858,7 @@
             const selectedProductId = nameSelect.value;
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
-            itemElement.querySelector('.item-rate').value = product ? (product.PRICE || 0) : 0;
+            itemElement.querySelector('.item-rate').value = product ? (product.PRICE || 0) : '';
             calculateItemTotal(index);
         }
 
@@ -870,7 +877,7 @@
             const taxAmount = taxableAmount * (taxRate / 100);
             const total = taxableAmount + taxAmount;
             
-            itemElement.querySelector('.item-total').value = total.toFixed(2);
+            itemElement.querySelector('.item-total').value = total > 0 ? total.toFixed(2) : '';
             
             if (invoiceItems[index]) {
                 const product = allProducts.find(p => p.row_index == itemElement.querySelector('.item-name').value);
@@ -910,7 +917,7 @@
             const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
             const bankSettings = JSON.parse(localStorage.getItem('bankSettings') || '{}');
             
-            if (!selectedCustomer || invoiceItems.length === 0) {
+            if (!selectedCustomer || invoiceItems.length === 0 || invoiceItems.every(i => !i.description)) {
                  preview.innerHTML = `<div class="flex flex-col justify-center items-center text-center text-muted h-full"><i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 opacity-50"></i><p>Invoice preview will appear here</p><p class="text-sm">Fill in the invoice details to see live preview</p></div>`;
                  lucide.createIcons();
                  return;
@@ -919,14 +926,14 @@
             const invoiceDate = document.getElementById('invoice-date').value;
             let totalTaxableAmount = 0, totalTax = 0, grandTotal = 0;
 
-            const itemsHtml = invoiceItems.map((item, index) => {
+            const itemsHtml = invoiceItems.filter(item => item.description).map((item, index) => {
                 totalTaxableAmount += item.taxableAmount || 0;
                 totalTax += item.taxAmount || 0;
                 grandTotal += item.total || 0;
                 return `<tr class="border-b border-black/10 dark:border-white/10 text-xs">
                             <td class="p-2 text-center">${index + 1}</td>
-                            <td class="p-2">${item.description || 'N/A'}</td>
-                            <td class="p-2 text-center">${item.hsn || '8431'}</td>
+                            <td class="p-2">${item.description}</td>
+                            <td class="p-2 text-center">${item.hsn}</td>
                             <td class="p-2 text-center">${item.quantity}</td>
                             <td class="p-2 text-right">₹${(item.rate || 0).toFixed(2)}</td>
                             <td class="p-2 text-center">${item.discount || 0}%</td>
@@ -942,7 +949,7 @@
             
             preview.innerHTML = `<div class="p-8 bg-white text-black">
                 <div class="pb-6 mb-6 border-b-2 border-blue-500"><div class="flex justify-between items-start">
-                    <div><h1 class="text-3xl font-bold text-blue-600">${companySettings.name || 'Company Name'}</h1><div class="mt-2 text-sm text-gray-600"><p>${companySettings.address || 'Company Address'}</p><p>GSTIN: ${companySettings.gstin || 'N/A'}</p><p>Contact: ${companySettings.contact || 'N/A'}</p></div></div>
+                    <div><h1 class="text-3xl font-bold text-blue-600">${companySettings.name}</h1><div class="mt-2 text-sm text-gray-600"><p>${companySettings.address}</p><p>GSTIN: ${companySettings.gstin}</p><p>Contact: ${companySettings.contact}</p></div></div>
                     <div class="text-right"><h2 class="text-2xl font-bold text-gray-800">TAX INVOICE</h2><p><strong>Invoice #:</strong> ${document.getElementById('invoice-number').value}</p><p><strong>Date:</strong> ${new Date(invoiceDate).toLocaleDateString('en-IN')}</p></div>
                 </div></div>
                 <div class="mb-6"><h3 class="text-lg font-bold mb-2">Bill To:</h3><p class="font-semibold">${selectedCustomer['Customer Name']}</p><p>${selectedCustomer.Address}</p><p>GSTIN: ${selectedCustomer['Customer GSTIN']}</p></div>
@@ -1078,12 +1085,36 @@
              if(listEl) listEl.innerHTML = allProducts.map(p => `<div class="p-4 rounded-lg bg-black/10 dark:bg-white/5 flex justify-between items-center"><div><p class="font-bold">${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}</p><p class="text-sm text-muted">${p.DEVICE || ''} - ${p['ITEM NAME'] || ''}</p><p class="text-lg font-semibold text-amber-400">₹${(p.PRICE || 0).toFixed(2)}</p></div><p class="text-sm text-muted">HSN: ${p['HSN/SAC'] || 'N/A'}</p></div>`).join('');
         }
         
+        function animateCountUp(element, endValue, isCurrency = false) {
+            let startValue = 0;
+            const duration = 1500; // 1.5 seconds
+            const startTime = performance.now();
+
+            function easeOutCubic(t) {
+                return 1 - Math.pow(1 - t, 3);
+            }
+
+            function frame(currentTime) {
+                const elapsedTime = currentTime - startTime;
+                if (elapsedTime > duration) {
+                    element.textContent = (isCurrency ? '₹' : '') + endValue.toLocaleString('en-IN');
+                    return;
+                }
+                const progress = easeOutCubic(elapsedTime / duration);
+                const currentValue = startValue + (endValue - startValue) * progress;
+                
+                element.textContent = (isCurrency ? '₹' : '') + (isCurrency ? currentValue.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : Math.round(currentValue).toLocaleString('en-IN'));
+                requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        }
+
         function updateDashboardStats() {
             const totalRevenue = invoiceHistory.reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0);
-            document.getElementById('stats-total-invoices').textContent = invoiceHistory.length;
-            document.getElementById('stats-revenue').textContent = `₹${totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-            document.getElementById('stats-active-customers').textContent = customers.length;
-            document.getElementById('stats-products').textContent = allProducts.length;
+            animateCountUp(document.getElementById('stats-total-invoices'), invoiceHistory.length);
+            animateCountUp(document.getElementById('stats-revenue'), totalRevenue, true);
+            animateCountUp(document.getElementById('stats-active-customers'), customers.length);
+            animateCountUp(document.getElementById('stats-products'), allProducts.length);
         }
 
         function handleAddCustomerFormSubmit(e) { e.preventDefault(); showToast('Add new customers via the Google Sheet, then press Sync.', 'info'); }
@@ -1153,6 +1184,7 @@
             return new Promise((resolve, reject) => {
                 const callbackName = '__jsonp_cb_' + Date.now() + Math.random().toString(36).substring(2);
                 const script = document.createElement('script');
+
                 const timeout = setTimeout(() => {
                     delete window[callbackName];
                     if (document.head.contains(script)) document.head.removeChild(script);
@@ -1165,6 +1197,7 @@
                     if (document.head.contains(script)) document.head.removeChild(script);
                     resolve(data);
                 };
+
                 script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}`;
                 script.onerror = () => reject(new Error('JSONP script failed to load'));
                 document.head.appendChild(script);
@@ -1175,14 +1208,17 @@
             showToast('Syncing from Google Sheets...', 'info');
 
             if (!GET_API_URL || GET_API_URL.includes('PASTE_YOUR')) {
-                showToast('API URL is not configured.', 'error'); return;
+                showToast('API URL is not configured. Please edit the HTML file.', 'error');
+                return;
             }
+
             try {
                 const result = await fetchJSONP(`${GET_API_URL}?action=getAllData`);
 
                 if (result.status !== 'success') {
                     throw new Error(result.message || 'Failed to fetch data from API');
                 }
+                
                 processAllData(result.data);
                 showToast('Live data loaded!', 'success');
             } catch (error) {
