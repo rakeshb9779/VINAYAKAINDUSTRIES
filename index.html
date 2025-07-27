@@ -21,7 +21,7 @@
             --primary-dark-rgb: 37 99 235;
             --bg-light: 241 245 249;
             --text-light: 15 23 42;
-            --card-bg-light: rgba(255, 255, 255, 0.7);
+            --card-bg-light: rgba(255, 255, 255, 0.5); /* Increased transparency */
             --card-border-light: rgba(var(--primary-rgb), 0.3);
             --input-bg-light: rgba(255, 255, 255, 0.8);
             --input-border-light: rgba(var(--primary-rgb), 0.4);
@@ -29,7 +29,7 @@
             --invoice-bg-light: white;
             --bg-dark: #0f172a;
             --text-dark: #f8fafc;
-            --card-bg-dark: rgba(30, 41, 59, 0.5);
+            --card-bg-dark: rgba(30, 41, 59, 0.3); /* Increased transparency */
             --card-border-dark: rgba(var(--primary-rgb), 0.3);
             --input-bg-dark: rgba(51, 65, 85, 0.5);
             --input-border-dark: rgba(var(--primary-rgb), 0.4);
@@ -182,21 +182,6 @@
         }
         body.light-theme .fixed-footer { background-color: var(--card-bg-light); border-top: 1px solid var(--card-border-light); }
         body.dark-theme .fixed-footer { background-color: var(--card-bg-dark); border-top: 1px solid var(--card-border-dark); }
-
-        /* Shiny Text Effect */
-        .shiny-text {
-            color: #ffffff; /* Text color */
-            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 60%);
-            background-size: 200% 100%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            display: inline-block;
-            animation: shine 5s linear infinite;
-        }
-        @keyframes shine {
-            0% { background-position: 100%; }
-            100% { background-position: -100%; }
-        }
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -640,9 +625,10 @@
         </main>
     </div>
     <footer class="fixed-footer no-print page-footer hidden" data-page="create-invoice">
-        <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-secondary"><span class="shiny-text">Preview Live</span></button>
+        <a href="#settings" class="nav-link-action futuristic-btn futuristic-btn-neutral"><i data-lucide="settings" class="w-5 h-5"></i>Settings</a>
+        <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-secondary"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
         <button onclick="window.print()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="printer" class="w-5 h-5"></i>Print Preview</button>
-        <button onclick="generatePDF()" class="futuristic-btn"><span class="shiny-text">Generate</span></button>
+        <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Generate</button>
     </footer>
 
     <script>
@@ -796,7 +782,7 @@
                 </div>
                 <select class="item-name futuristic-select text-sm" onchange="populateItemDetails(${itemIndex})"><option value="">SELECT ITEM NAME</option></select>
                 <div class="grid grid-cols-6 gap-2 text-sm">
-                    <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" value="8431" readonly>
+                    <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" readonly>
                     <input type="number" class="item-rate futuristic-input" placeholder="Rate" readonly>
                     <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})" placeholder="Qty">
                     <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${itemIndex})" placeholder="Disc %">
@@ -808,7 +794,6 @@
             invoiceItems.push({ quantity: 1, rate: 0, discount: 0, taxRate: 18 });
             lucide.createIcons();
             populateModelDropdown(itemIndex);
-            updateDependentDropdowns(itemIndex);
         }
 
         function removeInvoiceItem(index) {
@@ -872,6 +857,7 @@
             const selectedProductId = nameSelect.value;
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
+            itemElement.querySelector('.item-hsn').value = product ? '8431' : '';
             itemElement.querySelector('.item-rate').value = product ? (product.PRICE || '') : '';
             calculateItemTotal(index);
         }
@@ -895,7 +881,7 @@
             
             if (invoiceItems[index]) {
                 const product = allProducts.find(p => p.row_index == itemElement.querySelector('.item-name').value);
-                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxableAmount, taxAmount, total, hsn: "8431", description: product ? product.uniqueItemName : '' };
+                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxRate, taxableAmount, taxAmount, total, hsn: "8431", description: product ? product.uniqueItemName : '' };
             }
             updateInvoicePreview();
         }
@@ -1039,19 +1025,6 @@
             }
         }
         
-        async function saveOnly() {
-            const invoiceDataForPost = getInvoiceDataForPost();
-            if (!invoiceDataForPost) return;
-            Swal.fire({ title: 'Saving Invoice...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            try {
-                await saveInvoiceRecord(invoiceDataForPost);
-                Swal.close();
-                showToast('Invoice Saved Successfully!', 'success');
-            } catch (e) {
-                Swal.close();
-            }
-        }
-
         function resetInvoiceForm() {
             document.getElementById('invoice-form').reset();
             populateCustomerDetails();
@@ -1109,7 +1082,7 @@
             function frame(currentTime) {
                 const elapsedTime = currentTime - startTime;
                 if (elapsedTime > duration) {
-                    element.textContent = (isCurrency ? '₹' : '') + endValue.toLocaleString('en-IN', {minimumFractionDigits: isCurrency ? 2 : 0, maximumFractionDigits: isCurrency ? 2 : 0});
+                    element.textContent = (isCurrency ? '₹' : '') + endValue.toLocaleString('en-IN', isCurrency ? {minimumFractionDigits: 2, maximumFractionDigits: 2} : {});
                     return;
                 }
                 const progress = easeOutCubic(elapsedTime / duration);
@@ -1210,7 +1183,7 @@
                     resolve(data);
                 };
 
-                script.src = `${url}${url.includes('?') ? '?' : '&'}callback=${callbackName}`;
+                script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}`;
                 script.onerror = () => reject(new Error('JSONP script failed to load'));
                 document.head.appendChild(script);
             });
