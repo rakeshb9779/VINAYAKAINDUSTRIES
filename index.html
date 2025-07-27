@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -343,44 +343,23 @@
                                     <input id="invoice-date" type="date" class="futuristic-input" required>
                                 </div>
                             </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Select Customer</label>
+                                <select id="customer-select" class="futuristic-select" required></select>
+                            </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-muted mb-2">Due Date</label>
-                                    <input id="due-date" type="date" class="futuristic-input" required>
+                                    <label class="block text-sm font-medium text-muted mb-2">Customer GSTIN</label>
+                                    <input id="customer-gstin-display" type="text" class="futuristic-input" readonly>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-muted mb-2">Challan Date</label>
-                                    <input id="challan-date" type="date" class="futuristic-input">
+                                    <label class="block text-sm font-medium text-muted mb-2">Place of Supply</label>
+                                    <input id="place-of-supply-display" type="text" class="futuristic-input" readonly>
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-muted mb-2">Select Customer</label>
-                                <select id="customer-select" class="futuristic-select" required>
-                                    <option value="">Select a customer...</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-muted mb-2">Place of Supply</label>
-                                <select id="place-of-supply" class="futuristic-select" required>
-                                    <option value="">Select place of supply...</option>
-                                    <option value="29-Karnataka">29-Karnataka</option>
-                                    <option value="36-Telangana">36-Telangana</option>
-                                    <option value="37-Andhra Pradesh">37-Andhra Pradesh</option>
-                                    <option value="33-Tamil Nadu">33-Tamil Nadu</option>
-                                    <option value="32-Kerala">32-Kerala</option>
-                                    <option value="30-Goa">30-Goa</option>
-                                    <option value="27-Maharashtra">27-Maharashtra</option>
-                                    <option value="01-Jammu and Kashmir">01-Jammu and Kashmir</option>
-                                </select>
-                            </div>
-
-                            <div class="flex items-center space-x-3">
-                                <input type="checkbox" id="reverse-charge" class="w-4 h-4 rounded">
-                                <label for="reverse-charge" class="text-sm text-muted">Reverse Charge Applicable</label>
-                            </div>
                         </form>
 
                         <div class="mt-8">
@@ -622,6 +601,25 @@
                             <button type="submit" class="w-full futuristic-btn futuristic-btn-secondary font-bold py-3 mt-4">Save Company Info</button>
                         </form>
                     </div>
+
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-bold mb-6">Bank Details</h3>
+                        <form id="bank-settings-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Bank Name</label>
+                                <input id="bank-name" type="text" class="futuristic-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Account Number</label>
+                                <input id="bank-account-number" type="text" class="futuristic-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">IFSC Code</label>
+                                <input id="bank-ifsc-code" type="text" class="futuristic-input">
+                            </div>
+                            <button type="submit" class="w-full futuristic-btn futuristic-btn-tertiary font-bold py-3 mt-4">Save Bank Details</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </main>
@@ -720,24 +718,31 @@
             setupEventListeners();
             loadInvoiceSettings();
             loadCompanySettings();
+            loadBankSettings();
             initializeInvoiceForm();
             await syncData();
         }
         
         function processAllData(data) {
              customers = data.customers || [];
-             allProducts = data.products ? data.products.map((p, index) => ({...p, row_index: index})) : [];
+             allProducts = (data.products || []).map((p, index) => ({
+                ...p, 
+                row_index: index,
+                uniqueModel: `${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}`.trim().toUpperCase(),
+                uniqueItemName: `${p.SIZE || ''} ${p['ITEM NAME'] || ''}`.trim().toUpperCase()
+            }));
+
              invoiceHistory = data.invoiceHistory || [];
              
              const settings = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
              const prefix = settings.prefix || 'VI-';
-             const nextNum = data.nextInvoiceNumber || (invoiceHistory.length + 1);
+             const nextNum = settings.nextNumber || (invoiceHistory.length + 1);
              currentInvoiceNumber = `${prefix}${String(nextNum).padStart(3, '0')}`;
              
              renderCustomerList();
              renderProductList();
              updateDashboardStats();
-             populateCustomerSelect(); // Restored call
+             populateCustomerSelect();
              renderInvoiceHistory();
              document.getElementById('invoice-number').value = currentInvoiceNumber;
         }
@@ -747,16 +752,17 @@
             document.getElementById('add-product-form').addEventListener('submit', handleAddProductFormSubmit);
             document.getElementById('invoice-settings-form').addEventListener('submit', handleInvoiceSettingsFormSubmit);
             document.getElementById('company-settings-form').addEventListener('submit', handleCompanySettingsFormSubmit);
+            document.getElementById('bank-settings-form').addEventListener('submit', handleBankSettingsFormSubmit);
+            
             document.getElementById('invoice-prefix').addEventListener('input', updateInvoiceExample);
             document.getElementById('invoice-next-number').addEventListener('input', updateInvoiceExample);
             document.getElementById('invoice-form').addEventListener('input', updateInvoicePreview);
+            document.getElementById('customer-select').addEventListener('change', populateCustomerDetails);
         }
 
         function initializeInvoiceForm() {
             const today = new Date();
             document.getElementById('invoice-date').value = today.toISOString().split('T')[0];
-            const dueDate = new Date(new Date().setDate(today.getDate() + 30));
-            document.getElementById('due-date').value = dueDate.toISOString().split('T')[0];
             if (invoiceItems.length === 0) addInvoiceItem();
         }
         
@@ -766,35 +772,55 @@
             const itemHtml = `<div class="invoice-item bg-black/10 dark:bg-white/5 p-4 rounded-xl space-y-3" data-index="${itemIndex}">
                 <div class="flex justify-between items-center"><h4 class="font-semibold">Item ${itemIndex + 1}</h4><button type="button" onclick="removeInvoiceItem(${itemIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button></div>
                 <div class="grid grid-cols-2 gap-3">
-                    <select class="item-model futuristic-select text-sm" onchange="updateDependentDropdowns(${itemIndex})"><option value="">Select Model</option></select>
-                    <select class="item-device futuristic-select text-sm" onchange="updateDependentDropdowns(${itemIndex})"><option value="">Select Device</option></select>
+                    <select class="item-model futuristic-select text-sm" onchange="updateDependentDropdowns(${itemIndex})"><option value="">SELECT MODEL</option></select>
+                    <select class="item-device futuristic-select text-sm" onchange="updateDependentDropdowns(${itemIndex})"><option value="">SELECT DEVICE</option><option value="SWING DEVICE">SWING DEVICE</option><option value="TRAVEL DEVICE">TRAVEL DEVICE</option></select>
                 </div>
-                <select class="item-name futuristic-select text-sm" onchange="populateItemDetails(${itemIndex})"><option value="">Select Item Name</option></select>
+                <select class="item-name futuristic-select text-sm" onchange="populateItemDetails(${itemIndex})"><option value="">SELECT ITEM NAME</option></select>
                 <div class="grid grid-cols-5 gap-2 text-sm">
-                    <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" readonly>
-                    <input type="number" class="item-rate futuristic-input" value="0" min="0" oninput="calculateItemTotal(${itemIndex})" placeholder="Rate">
+                    <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" value="8431" readonly>
+                    <input type="number" class="item-rate futuristic-input" value="0" min="0" oninput="calculateItemTotal(${itemIndex})" placeholder="Rate" readonly>
                     <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})" placeholder="Qty">
                     <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${itemIndex})" placeholder="Disc %">
+                    <input type="number" class="item-tax-rate futuristic-input" value="18" oninput="calculateItemTotal(${itemIndex})" placeholder="Tax %">
                 </div>
-                <input type="number" class="item-total futuristic-input" value="0" readonly>
+                <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" value="0" readonly>
             </div>`;
             container.insertAdjacentHTML('beforeend', itemHtml);
-            invoiceItems.push({ quantity: 1, rate: 0, discount: 0 });
+            invoiceItems.push({ quantity: 1, rate: 0, discount: 0, taxRate: 18 });
             lucide.createIcons();
             populateModelDropdown(itemIndex);
             updateDependentDropdowns(itemIndex);
         }
 
         function removeInvoiceItem(index) {
-            invoiceItems.splice(index, 1);
+            invoiceItems.splice(index, 1); // Remove from data array
+            const itemElement = document.querySelector(`.invoice-item[data-index="${index}"]`);
+            if (itemElement) itemElement.remove(); // Remove from DOM
+
+            // Re-index remaining items
+            document.querySelectorAll('.invoice-item').forEach((element, newIndex) => {
+                element.dataset.index = newIndex;
+                element.querySelector('h4').textContent = `Item ${newIndex + 1}`;
+                element.querySelector('button').setAttribute('onclick', `removeInvoiceItem(${newIndex})`);
+                element.querySelector('.item-model').setAttribute('onchange', `updateDependentDropdowns(${newIndex})`);
+                element.querySelector('.item-device').setAttribute('onchange', `updateDependentDropdowns(${newIndex})`);
+                element.querySelector('.item-name').setAttribute('onchange', `populateItemDetails(${newIndex})`);
+                element.querySelectorAll('input').forEach(inp => {
+                    if (inp.hasAttribute('oninput')) {
+                        inp.setAttribute('oninput', `calculateItemTotal(${newIndex})`);
+                    }
+                });
+            });
+
             if (invoiceItems.length === 0) addInvoiceItem();
             updateInvoicePreview();
         }
 
         function populateModelDropdown(index) {
-            const models = [...new Set(allProducts.map(p => p.MODEL).filter(Boolean))];
+            const models = [...new Set(allProducts.map(p => p.uniqueModel).filter(Boolean))];
             const select = document.querySelector(`[data-index="${index}"] .item-model`);
-            select.innerHTML = '<option value="">Select Model</option>';
+            if (!select) return;
+            select.innerHTML = '<option value="">SELECT MODEL</option>';
             models.forEach(model => {
                 select.innerHTML += `<option value="${model}">${model}</option>`;
             });
@@ -805,28 +831,23 @@
             const modelSelect = itemElement.querySelector('.item-model');
             const deviceSelect = itemElement.querySelector('.item-device');
             const nameSelect = itemElement.querySelector('.item-name');
-            const selectedModel = modelSelect.value;
-            const selectedDevice = deviceSelect.value;
+            const selectedModel = modelSelect.value.toUpperCase();
+            const selectedDevice = deviceSelect.value.toUpperCase();
             
-            // Update Device Dropdown
-            const devices = [...new Set(allProducts.filter(p => p.MODEL === selectedModel).map(p => p.DEVICE).filter(Boolean))];
-            deviceSelect.innerHTML = '<option value="">Select Device</option>';
-            devices.forEach(device => {
-                deviceSelect.innerHTML += `<option value="${device}">${device}</option>`;
-            });
-            deviceSelect.value = selectedDevice;
-
-            // Update Item Name Dropdown
-            const items = allProducts.filter(p => p.MODEL === selectedModel && p.DEVICE === selectedDevice);
-            nameSelect.innerHTML = '<option value="">Select Item Name</option>';
-            items.forEach(item => {
-                nameSelect.innerHTML += `<option value="${item.row_index}">${item['ITEM NAME'] || 'N/A'}</option>`;
+            const items = allProducts.filter(p => {
+                const modelMatch = p.uniqueModel.toUpperCase() === selectedModel;
+                const deviceMatch = selectedDevice === "" ? !p.DEVICE : (p.DEVICE || '').toUpperCase() === selectedDevice;
+                return modelMatch && deviceMatch;
             });
 
-            // Clear dependent fields if selection changes
-            itemElement.querySelector('.item-hsn').value = '';
-            itemElement.querySelector('.item-rate').value = 0;
-            calculateItemTotal(index);
+            nameSelect.innerHTML = '<option value="">SELECT ITEM NAME</option>';
+            const uniqueItems = [...new Map(items.map(item => [item.uniqueItemName, item])).values()];
+
+            uniqueItems.forEach(item => {
+                nameSelect.innerHTML += `<option value="${item.row_index}">${item.uniqueItemName}</option>`;
+            });
+
+            populateItemDetails(index); // Auto-select if only one item, or clear fields
         }
 
         function populateItemDetails(index) {
@@ -836,8 +857,9 @@
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
             if (product) {
-                itemElement.querySelector('.item-hsn').value = product['HSN/SAC'] || '';
                 itemElement.querySelector('.item-rate').value = product.PRICE || 0;
+            } else {
+                itemElement.querySelector('.item-rate').value = 0;
             }
             calculateItemTotal(index);
         }
@@ -849,67 +871,56 @@
             const quantity = parseFloat(itemElement.querySelector('.item-quantity').value || 0);
             const rate = parseFloat(itemElement.querySelector('.item-rate').value || 0);
             const discount = parseFloat(itemElement.querySelector('.item-discount').value || 0);
-            const hsn = itemElement.querySelector('.item-hsn').value;
+            const taxRate = parseFloat(itemElement.querySelector('.item-tax-rate').value || 0);
+            const hsn = "8431";
 
             const subTotal = quantity * rate;
             const discountAmount = subTotal * (discount / 100);
-            const total = subTotal - discountAmount;
+            const taxableAmount = subTotal - discountAmount;
+            const taxAmount = taxableAmount * (taxRate / 100);
+            const total = taxableAmount + taxAmount;
             
             itemElement.querySelector('.item-total').value = total.toFixed(2);
             
             if (invoiceItems[index]) {
                 const product = allProducts.find(p => p.row_index == itemElement.querySelector('.item-name').value);
-                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, total, hsn, description: product ? `${product.MODEL} - ${product.DEVICE} - ${product['ITEM NAME']}` : '' };
+                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxableAmount, taxAmount, total, hsn, description: product ? product.uniqueItemName : '' };
             }
             updateInvoicePreview();
         }
 
-        // *** FIX: Restored the missing function ***
         function populateCustomerSelect() {
             const select = document.getElementById('customer-select');
             if (!select) return;
-
             const currentVal = select.value;
             select.innerHTML = '<option value="">Select a customer...</option>';
             customers.forEach(customer => {
-                const option = document.createElement('option');
-                option.value = customer['Customer Name'];
-                option.textContent = customer['Customer Name'];
-                select.appendChild(option);
+                select.innerHTML += `<option value="${customer['Customer Name']}">${customer['Customer Name']}</option>`;
             });
             select.value = currentVal;
         }
 
-        function updateInvoicePreview() {
-            // This function would need updates to handle the new item structure
-        }
-
-        async function generatePDF() {
-            // This function would need updates
-        }
-        
-        function getInvoiceDataForPost() {
-            // This function would need updates
-        }
-
-        async function saveInvoiceRecord(invoiceDataForPost) {
-            // This function would need updates
-        }
-        
-        async function saveOnly() {
-            const invoiceDataForPost = getInvoiceDataForPost();
-            if (!invoiceDataForPost) return;
-            showToast('Saving invoice...', 'info');
-            try {
-                await saveInvoiceRecord(invoiceDataForPost);
-                showToast('Invoice Saved Successfully!', 'success');
-            } catch (e) {
-                // Error toast is shown in saveInvoiceRecord
+        function populateCustomerDetails() {
+            const selectedName = document.getElementById('customer-select').value;
+            const customer = customers.find(c => c['Customer Name'] === selectedName);
+            if (customer) {
+                document.getElementById('customer-gstin-display').value = customer['Customer GSTIN'] || 'N/A';
+                document.getElementById('place-of-supply-display').value = customer['Address'] || 'N/A';
+            } else {
+                document.getElementById('customer-gstin-display').value = '';
+                document.getElementById('place-of-supply-display').value = '';
             }
         }
+        
+        function updateInvoicePreview() { /* Stub for now */ }
+        async function generatePDF() { /* Stub for now */ }
+        function getInvoiceDataForPost() { /* Stub for now */ }
+        async function saveInvoiceRecord(data) { /* Stub for now */ }
+        async function saveOnly() { /* Stub for now */ }
 
         function resetInvoiceForm() {
             document.getElementById('invoice-form').reset();
+            populateCustomerDetails(); // Clear GSTIN and Address
             const container = document.getElementById('invoice-items-container');
             container.innerHTML = '';
             invoiceItems = []; 
@@ -985,6 +996,17 @@
             updateInvoicePreview();
         }
 
+        function handleBankSettingsFormSubmit(e) {
+            e.preventDefault();
+            const bankData = {
+                name: document.getElementById('bank-name').value, 
+                accountNumber: document.getElementById('bank-account-number').value,
+                ifsc: document.getElementById('bank-ifsc-code').value
+            };
+            localStorage.setItem('bankSettings', JSON.stringify(bankData));
+            showToast('Bank details saved!');
+        }
+
         function loadInvoiceSettings() {
             const config = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
             document.getElementById('invoice-prefix').value = config.prefix || 'VI-';
@@ -999,6 +1021,13 @@
             document.getElementById('company-gstin').value = settings.gstin || '';
             document.getElementById('company-contact').value = settings.contact || '';
             document.getElementById('company-email').value = settings.email || '';
+        }
+
+        function loadBankSettings() {
+            const settings = JSON.parse(localStorage.getItem('bankSettings') || '{}');
+            document.getElementById('bank-name').value = settings.name || '';
+            document.getElementById('bank-account-number').value = settings.accountNumber || '';
+            document.getElementById('bank-ifsc-code').value = settings.ifsc || '';
         }
 
         function updateInvoiceExample() {
@@ -1048,17 +1077,7 @@
                 
                 const allData = result.data;
 
-                const cleanedProducts = (allData.products || []).map(p => ({
-                    ...p,
-                    PRICE: parseFloat(String(p.PRICE || '0').replace(/[^0-9.]/g, '')) || 0
-                }));
-
-                const combinedData = {
-                    ...allData,
-                    products: cleanedProducts,
-                };
-
-                processAllData(combinedData);
+                processAllData(allData);
                 showToast('Live data loaded!', 'success');
             } catch (error) {
                 console.error("Error fetching live data:", error);
