@@ -54,7 +54,7 @@
             color: var(--text-dark); 
         }
 
-        .main-layout { display: flex; height: 100vh; position: relative; }
+        .main-layout { display: flex; height: 100vh; }
 
         .sidebar {
             width: 16rem;
@@ -67,8 +67,6 @@
             transition: background-color 0.5s ease, border-color 0.5s ease;
             display: flex;
             flex-direction: column;
-            position: relative;
-            z-index: 20;
         }
         body.light-theme .sidebar { 
             background-color: var(--card-bg-light); 
@@ -84,27 +82,8 @@
             padding: 2rem;
             padding-bottom: 100px; /* Space for the fixed footer */
             overflow-y: auto;
-            position: relative;
-            z-index: 10;
         }
         
-        /* Animated Background for Dashboard */
-        #dashboard-background {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100%; height: 100%;
-            z-index: 1;
-            background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #475569);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-        }
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-
         .glass-card {
             border-radius: 20px;
             padding: 1.5rem;
@@ -227,7 +206,6 @@
 </head>
 <body class="dark-theme">
     <div class="main-layout">
-        <div id="dashboard-background"></div>
         <aside class="sidebar no-print">
             <div class="flex justify-between items-center mb-6">
                  <div class="flex items-center space-x-3">
@@ -263,8 +241,8 @@
              <div id="dashboard" class="page">
                 <div class="flex justify-between items-center mb-8 fade-in-up" style="animation-delay: 100ms;">
                     <div>
-                        <h2 class="text-3xl font-bold">Dashboard</h2>
-                        <p class="text-muted">An overview of your business</p>
+                        <h2 class="text-3xl font-bold">Invoice Generator Pro</h2>
+                        <p class="text-muted">Create professional invoices with GST compliance</p>
                     </div>
                     <div class="flex items-center space-x-4">
                         <span class="bg-green-500/20 text-green-400 text-xs font-semibold px-3 py-1 rounded-full flex items-center">
@@ -649,7 +627,6 @@
     <footer class="fixed-footer no-print page-footer hidden" data-page="create-invoice">
         <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-secondary"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
         <button onclick="window.print()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="printer" class="w-5 h-5"></i>Print Preview</button>
-        <a href="#settings" class="futuristic-btn futuristic-btn-neutral nav-link-action"><i data-lucide="settings" class="w-5 h-5"></i>Settings</a>
         <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Generate</button>
     </footer>
 
@@ -805,11 +782,11 @@
                 </div>
                 <select class="item-name futuristic-select text-sm" onchange="populateItemDetails(${itemIndex})"><option value="">SELECT ITEM NAME</option></select>
                 <div class="grid grid-cols-6 gap-2 text-sm">
-                    <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" readonly>
+                    <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" value="8431" readonly>
                     <input type="number" class="item-rate futuristic-input" placeholder="Rate" readonly>
-                    <input type="number" class="item-quantity futuristic-input" placeholder="Qty" min="1" oninput="calculateItemTotal(${itemIndex})">
-                    <input type="number" class="item-discount futuristic-input" placeholder="Disc %" min="0" max="100" oninput="calculateItemTotal(${itemIndex})">
-                    <input type="number" class="item-tax-rate futuristic-input" placeholder="Tax %" oninput="calculateItemTotal(${itemIndex})">
+                    <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})" placeholder="Qty">
+                    <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${itemIndex})" placeholder="Disc %">
+                    <input type="number" class="item-tax-rate futuristic-input" value="18" oninput="calculateItemTotal(${itemIndex})" placeholder="Tax %">
                 </div>
                 <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" readonly>
             </div>`;
@@ -817,6 +794,7 @@
             invoiceItems.push({ quantity: 1, rate: 0, discount: 0, taxRate: 18 });
             lucide.createIcons();
             populateModelDropdown(itemIndex);
+            updateDependentDropdowns(itemIndex);
         }
 
         function removeInvoiceItem(index) {
@@ -843,12 +821,10 @@
             const models = [...new Set(allProducts.map(p => p.uniqueModel).filter(Boolean))];
             const select = document.querySelector(`[data-index="${index}"] .item-model`);
             if (!select) return;
-            const currentVal = select.value;
             select.innerHTML = '<option value="">SELECT MODEL</option>';
             models.forEach(model => {
                 select.innerHTML += `<option value="${model}">${model}</option>`;
             });
-            select.value = currentVal;
         }
 
         function updateDependentDropdowns(index) {
@@ -893,7 +869,7 @@
             const quantity = parseFloat(itemElement.querySelector('.item-quantity').value || 1);
             const rate = parseFloat(itemElement.querySelector('.item-rate').value || 0);
             const discount = parseFloat(itemElement.querySelector('.item-discount').value || 0);
-            const taxRate = parseFloat(itemElement.querySelector('.item-tax-rate').value || 18);
+            const taxRate = parseFloat(itemElement.querySelector('.item-tax-rate').value || 0);
 
             const subTotal = quantity * rate;
             const discountAmount = subTotal * (discount / 100);
@@ -965,10 +941,7 @@
                         </tr>`;
             }).join('');
             
-            const companyStateCode = (companySettings.gstin || '').substring(0, 2);
-            const customerStateCode = (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
-            const isIntraState = companyStateCode && customerStateCode && companyStateCode === customerStateCode;
-
+            const isIntraState = (companySettings.gstin || '').substring(0, 2) === (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
             let taxRows = isIntraState
                 ? `<tr><td colspan="6" class="p-2 text-right font-semibold">CGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>
                    <tr><td colspan="6" class="p-2 text-right font-semibold">SGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>`
@@ -1114,15 +1087,17 @@
         
         function animateCountUp(element, endValue, isCurrency = false) {
             let startValue = 0;
-            const duration = 1500;
+            const duration = 1500; // 1.5 seconds
             const startTime = performance.now();
 
-            function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+            function easeOutCubic(t) {
+                return 1 - Math.pow(1 - t, 3);
+            }
 
             function frame(currentTime) {
                 const elapsedTime = currentTime - startTime;
                 if (elapsedTime > duration) {
-                    element.textContent = (isCurrency ? '₹' : '') + endValue.toLocaleString('en-IN', isCurrency ? {minimumFractionDigits: 2, maximumFractionDigits: 2} : {});
+                    element.textContent = (isCurrency ? '₹' : '') + endValue.toLocaleString('en-IN');
                     return;
                 }
                 const progress = easeOutCubic(elapsedTime / duration);
