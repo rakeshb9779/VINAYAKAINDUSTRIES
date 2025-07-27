@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -737,7 +737,7 @@
              renderCustomerList();
              renderProductList();
              updateDashboardStats();
-             populateCustomerSelect();
+             populateCustomerSelect(); // Restored call
              renderInvoiceHistory();
              document.getElementById('invoice-number').value = currentInvoiceNumber;
         }
@@ -787,11 +787,6 @@
 
         function removeInvoiceItem(index) {
             invoiceItems.splice(index, 1);
-            const container = document.getElementById('invoice-items-container');
-            container.innerHTML = ''; // Simple redraw
-            const tempItems = [...invoiceItems];
-            invoiceItems = [];
-            tempItems.forEach(itemData => addInvoiceItem()); // This is a simplified redraw
             if (invoiceItems.length === 0) addInvoiceItem();
             updateInvoicePreview();
         }
@@ -867,6 +862,22 @@
                 invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, total, hsn, description: product ? `${product.MODEL} - ${product.DEVICE} - ${product['ITEM NAME']}` : '' };
             }
             updateInvoicePreview();
+        }
+
+        // *** FIX: Restored the missing function ***
+        function populateCustomerSelect() {
+            const select = document.getElementById('customer-select');
+            if (!select) return;
+
+            const currentVal = select.value;
+            select.innerHTML = '<option value="">Select a customer...</option>';
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer['Customer Name'];
+                option.textContent = customer['Customer Name'];
+                select.appendChild(option);
+            });
+            select.value = currentVal;
         }
 
         function updateInvoicePreview() {
