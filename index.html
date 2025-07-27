@@ -183,6 +183,21 @@
         body.light-theme .fixed-footer { background-color: var(--card-bg-light); border-top: 1px solid var(--card-border-light); }
         body.dark-theme .fixed-footer { background-color: var(--card-bg-dark); border-top: 1px solid var(--card-border-dark); }
 
+        /* Shiny Text Effect */
+        .shiny-text {
+            color: #ffffff; /* Text color */
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 60%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            display: inline-block;
+            animation: shine 5s linear infinite;
+        }
+        @keyframes shine {
+            0% { background-position: 100%; }
+            100% { background-position: -100%; }
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgb(var(--primary-rgb)); border-radius: 4px; }
@@ -625,9 +640,9 @@
         </main>
     </div>
     <footer class="fixed-footer no-print page-footer hidden" data-page="create-invoice">
-        <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-secondary"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
+        <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-secondary"><span class="shiny-text">Preview Live</span></button>
         <button onclick="window.print()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="printer" class="w-5 h-5"></i>Print Preview</button>
-        <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Generate</button>
+        <button onclick="generatePDF()" class="futuristic-btn"><span class="shiny-text">Generate</span></button>
     </footer>
 
     <script>
@@ -745,7 +760,6 @@
              renderInvoiceHistory();
              document.getElementById('invoice-number').value = currentInvoiceNumber;
 
-             // Refresh any existing item dropdowns after data is loaded
              document.querySelectorAll('.invoice-item').forEach((item, index) => {
                 populateModelDropdown(index);
                 updateDependentDropdowns(index);
@@ -858,7 +872,7 @@
             const selectedProductId = nameSelect.value;
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
-            itemElement.querySelector('.item-rate').value = product ? (product.PRICE || 0) : '';
+            itemElement.querySelector('.item-rate').value = product ? (product.PRICE || '') : '';
             calculateItemTotal(index);
         }
 
@@ -1087,17 +1101,15 @@
         
         function animateCountUp(element, endValue, isCurrency = false) {
             let startValue = 0;
-            const duration = 1500; // 1.5 seconds
+            const duration = 1500;
             const startTime = performance.now();
 
-            function easeOutCubic(t) {
-                return 1 - Math.pow(1 - t, 3);
-            }
+            function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
 
             function frame(currentTime) {
                 const elapsedTime = currentTime - startTime;
                 if (elapsedTime > duration) {
-                    element.textContent = (isCurrency ? '₹' : '') + endValue.toLocaleString('en-IN');
+                    element.textContent = (isCurrency ? '₹' : '') + endValue.toLocaleString('en-IN', {minimumFractionDigits: isCurrency ? 2 : 0, maximumFractionDigits: isCurrency ? 2 : 0});
                     return;
                 }
                 const progress = easeOutCubic(elapsedTime / duration);
@@ -1198,7 +1210,7 @@
                     resolve(data);
                 };
 
-                script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}`;
+                script.src = `${url}${url.includes('?') ? '?' : '&'}callback=${callbackName}`;
                 script.onerror = () => reject(new Error('JSONP script failed to load'));
                 document.head.appendChild(script);
             });
