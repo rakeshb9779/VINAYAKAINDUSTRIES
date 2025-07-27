@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -45,46 +45,79 @@
             overflow: hidden;
         }
 
-        body.light-theme { background-color: rgb(var(--bg-light)); color: rgb(var(--text-light)); }
-        body.dark-theme { background-color: var(--bg-dark); color: var(--text-dark); }
+        body.light-theme { 
+            background-color: rgb(var(--bg-light)); 
+            color: rgb(var(--text-light)); 
+        }
+        body.dark-theme { 
+            background-color: var(--bg-dark); 
+            color: var(--text-dark); 
+        }
 
         .main-layout { display: flex; height: 100vh; }
 
         .sidebar {
-            width: 16rem; height: 100vh; flex-shrink: 0;
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            padding: 1.5rem 1rem; overflow-y: auto;
+            width: 16rem;
+            height: 100vh;
+            flex-shrink: 0;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.5rem 1rem;
+            overflow-y: auto;
             transition: background-color 0.5s ease, border-color 0.5s ease;
-            display: flex; flex-direction: column;
+            display: flex;
+            flex-direction: column;
         }
-        body.light-theme .sidebar { background-color: var(--card-bg-light); border-right: 1px solid var(--card-border-light); }
-        body.dark-theme .sidebar { background-color: var(--card-bg-dark); border-right: 1px solid var(--card-border-dark); }
+        body.light-theme .sidebar { 
+            background-color: var(--card-bg-light); 
+            border-right: 1px solid var(--card-border-light); 
+        }
+        body.dark-theme .sidebar { 
+            background-color: var(--card-bg-dark); 
+            border-right: 1px solid var(--card-border-dark); 
+        }
 
         .main-content {
             flex-grow: 1;
             padding: 2rem;
-            padding-bottom: 100px; /* Space for the fixed footer */
             overflow-y: auto;
         }
         
         .glass-card {
-            border-radius: 20px; padding: 1.5rem; border: 1px solid;
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid;
             box-shadow: 0 8px 32px rgba(var(--primary-rgb), 0.1);
             transition: background-color 0.5s ease, border-color 0.5s ease, transform 0.3s ease;
         }
         .glass-card:hover { transform: translateY(-5px); }
-        body.light-theme .glass-card { background-color: var(--card-bg-light); border-color: var(--card-border-light); }
-        body.dark-theme .glass-card { background-color: var(--card-bg-dark); border-color: var(--card-border-dark); }
+        body.light-theme .glass-card { 
+            background-color: var(--card-bg-light); 
+            border-color: var(--card-border-light); 
+        }
+        body.dark-theme .glass-card { 
+            background-color: var(--card-bg-dark); 
+            border-color: var(--card-border-dark); 
+        }
 
         .futuristic-input, .futuristic-select, .futuristic-textarea {
-            border: 2px solid; border-radius: 12px; padding: 12px 16px;
-            transition: all 0.3s ease; font-weight: 500; width: 100%; outline: none;
+            border: 2px solid;
+            border-radius: 12px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            width: 100%;
+            outline: none;
         }
         body.light-theme .futuristic-input, body.light-theme .futuristic-select, body.light-theme .futuristic-textarea { 
-            background-color: var(--input-bg-light); border-color: var(--input-border-light); color: var(--text-light); 
+            background-color: var(--input-bg-light); 
+            border-color: var(--input-border-light); 
+            color: var(--text-light); 
         }
         body.dark-theme .futuristic-input, body.dark-theme .futuristic-select, body.dark-theme .futuristic-textarea { 
-            background-color: var(--input-bg-dark); border-color: var(--input-border-dark); color: var(--text-dark); 
+            background-color: var(--input-bg-dark); 
+            border-color: var(--input-border-dark); 
+            color: var(--text-dark); 
         }
         .futuristic-input:focus, .futuristic-select:focus, .futuristic-textarea:focus {
             border-color: rgb(var(--primary-rgb));
@@ -138,16 +171,6 @@
         body.dark-theme .invoice-preview .border-blue-500 { border-color: rgb(var(--primary-rgb)); }
         body.dark-theme .invoice-preview .bg-gray-100 { background-color: rgba(var(--primary-rgb), 0.1); }
         body.dark-theme .invoice-preview .bg-blue-50 { background-color: rgba(var(--primary-rgb), 0.15); }
-        
-        .fixed-footer {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            padding: 1rem 2rem;
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            display: flex; justify-content: center; align-items: center; gap: 1rem;
-            z-index: 100;
-        }
-        body.light-theme .fixed-footer { background-color: var(--card-bg-light); border-top: 1px solid var(--card-border-light); }
-        body.dark-theme .fixed-footer { background-color: var(--card-bg-dark); border-top: 1px solid var(--card-border-dark); }
 
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -162,7 +185,7 @@
         
         @media print {
             .no-print { display: none !important; }
-            .sidebar, .main-content > .flex.justify-between, .fixed-footer { display: none !important; }
+            .sidebar, .main-content > .flex.justify-between { display: none !important; }
             .main-layout { display: block; }
             .main-content { padding: 0; overflow: visible; }
             .invoice-preview { box-shadow: none; margin: 0; padding: 0; }
@@ -293,6 +316,14 @@
                         <h2 class="text-3xl font-bold">Create Invoice</h2>
                         <p class="text-muted">Generate GST compliant invoices</p>
                     </div>
+                    <div class="flex space-x-4">
+                        <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-neutral">
+                            <i data-lucide="eye" class="w-4 h-4"></i><span>Preview</span>
+                        </button>
+                        <button onclick="generatePDF()" class="futuristic-btn">
+                            <i data-lucide="download" class="w-4 h-4"></i><span>Generate PDF & Save</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -356,7 +387,7 @@
                                     <i data-lucide="plus" class="w-4 h-4"></i><span>Add Item</span>
                                 </button>
                             </div>
-                            <div id="invoice-items-container" class="space-y-4 max-h-[50vh] overflow-y-auto p-1">
+                            <div id="invoice-items-container" class="space-y-4 max-h-96 overflow-y-auto p-1">
                             </div>
                         </div>
                     </div>
@@ -592,17 +623,10 @@
             </div>
         </main>
     </div>
-    <footer class="fixed-footer no-print page-footer hidden" data-page="create-invoice">
-        <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
-        <button onclick="window.print()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="printer" class="w-5 h-5"></i>Print</button>
-        <button onclick="saveOnly()" class="futuristic-btn futuristic-btn-secondary"><i data-lucide="save" class="w-5 h-5"></i>Save</button>
-        <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Download & Save</button>
-    </footer>
 
     <script>
         lucide.createIcons();
 
-        // --- THEME TOGGLE ---
         const themeToggle = document.getElementById('theme-toggle');
         const setTheme = (isDark) => {
             document.body.className = isDark ? 'dark-theme' : 'light-theme';
@@ -613,7 +637,9 @@
         themeToggle.onclick = () => setTheme(!document.body.classList.contains('dark-theme'));
         
         // --- APP LOGIC ---
+        // I have pasted your new URL here.
         const GET_API_URL = 'https://script.google.com/macros/s/AKfycbytvxDO1jlUxa289NXACCuRj0osY4Idep6WXaNC_rJ9WR_6h1pUYfWpBdtsI-AfuGkB/exec';
+        // POST requests still go through the proxy for better CORS handling. Make sure your proxy points to the same URL as above.
         const POST_API_URL = '/.netlify/functions/proxy'; 
 
         let customers = [], allProducts = [], invoiceItems = [], invoiceHistory = [], currentInvoiceNumber = 'VI-001';
@@ -658,18 +684,10 @@
 
         const navLinks = document.querySelectorAll('.nav-item, .nav-link-action');
         const pages = document.querySelectorAll('.page');
-        const footers = document.querySelectorAll('.page-footer');
-
         function showPage(pageId) {
             pages.forEach(page => page.classList.add('hidden'));
-            footers.forEach(footer => footer.classList.add('hidden'));
-
             const activePage = document.getElementById(pageId);
             if (activePage) activePage.classList.remove('hidden');
-
-            const activeFooter = document.querySelector(`.page-footer[data-page="${pageId}"]`);
-            if (activeFooter) activeFooter.classList.remove('hidden');
-
             document.querySelectorAll('.nav-item').forEach(link => {
                 link.classList.remove('active');
                 if (link.getAttribute('href') === `#${pageId}`) link.classList.add('active');
@@ -730,25 +748,11 @@
         function addInvoiceItem() {
             const container = document.getElementById('invoice-items-container');
             const itemIndex = invoiceItems.length;
-            const itemHtml = `<div class="invoice-item bg-black/10 dark:bg-white/5 p-4 rounded-xl space-y-3" data-index="${itemIndex}">
-                <div class="flex justify-between items-center"><h4 class="font-semibold">Item ${itemIndex + 1}</h4><button type="button" onclick="removeInvoiceItem(${itemIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button></div>
-                <div class="grid grid-cols-2 gap-3">
-                    <select class="item-model futuristic-select text-sm" onchange="updateItemDropdowns(${itemIndex})"><option value="">Select Model</option></select>
-                    <select class="item-device futuristic-select text-sm" onchange="updateItemDropdowns(${itemIndex})"><option value="">Select Device</option></select>
-                </div>
-                <input type="text" class="item-name-search futuristic-input text-sm" oninput="filterItemNames(${itemIndex}, this.value)" placeholder="Search & Select Item Name...">
-                <div class="grid grid-cols-5 gap-2 text-sm">
-                    <input type="text" class="item-hsn futuristic-input" placeholder="HSN">
-                    <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})">
-                    <input type="number" class="item-rate futuristic-input" value="0" min="0" oninput="calculateItemTotal(${itemIndex})">
-                    <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${itemIndex})">
-                    <input type="number" class="item-total futuristic-input" value="0" readonly>
-                </div>
-            </div>`;
+            const itemHtml = `<div class="invoice-item bg-black/10 dark:bg-white/5 p-4 rounded-xl" data-index="${itemIndex}"><div class="flex justify-between items-start mb-4"><h4 class="font-semibold">Item ${itemIndex + 1}</h4><button type="button" onclick="removeInvoiceItem(${itemIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div><label class="block text-sm font-medium text-muted mb-2">Product</label><select class="product-select futuristic-select" onchange="updateItemDetails(${itemIndex})"></select></div><div><label class="block text-sm font-medium text-muted mb-2">Quantity</label><input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})"></div><div><label class="block text-sm font-medium text-muted mb-2">Rate (₹)</label><input type="number" class="item-rate futuristic-input" value="0" min="0" step="0.01" oninput="calculateItemTotal(${itemIndex})"></div><div><label class="block text-sm font-medium text-muted mb-2">Total (₹)</label><input type="number" class="item-total futuristic-input" value="0" readonly></div><div><label class="block text-sm font-medium text-muted mb-2">HSN/SAC</label><input type="text" class="item-hsn futuristic-input"></div><div><label class="block text-sm font-medium text-muted mb-2">Tax Rate (%)</label><select class="item-tax-rate futuristic-select" onchange="calculateItemTotal(${itemIndex})"><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option></select></div></div></div>`;
             container.insertAdjacentHTML('beforeend', itemHtml);
-            invoiceItems.push({ quantity: 1, rate: 0, discount: 0, taxRate: 18 });
+            invoiceItems.push({ quantity: 1, rate: 0, taxRate: 18 });
             lucide.createIcons();
-            populateModelDropdown(itemIndex);
+            populateProductSelects();
             calculateItemTotal(itemIndex);
         }
 
@@ -758,12 +762,23 @@
             updateInvoicePreview();
         }
 
-        function updateItemDropdowns(index) {
-            // Logic to update device dropdown based on model, etc.
-        }
+        function updateItemDetails(index) {
+            const itemElement = document.querySelector(`[data-index="${index}"]`);
+            const select = itemElement.querySelector('.product-select');
+            const selectedOption = select.selectedOptions[0];
+            if (!selectedOption || select.value === "") return;
 
-        function filterItemNames(index, searchTerm) {
-            // Logic for search
+            const rate = parseFloat(selectedOption.dataset.price || 0);
+            const hsn = selectedOption.dataset.hsn || '';
+            const itemName = selectedOption.dataset.name || '';
+            const description = selectedOption.textContent;
+
+            itemElement.querySelector('.item-rate').value = rate;
+            itemElement.querySelector('.item-hsn').value = hsn;
+            if (invoiceItems[index]) {
+                invoiceItems[index] = { ...invoiceItems[index], product: itemName, description, rate, hsn };
+            }
+            calculateItemTotal(index);
         }
 
         function calculateItemTotal(index) {
@@ -772,15 +787,14 @@
 
             const quantity = parseFloat(itemElement.querySelector('.item-quantity').value || 0);
             const rate = parseFloat(itemElement.querySelector('.item-rate').value || 0);
-            const discount = parseFloat(itemElement.querySelector('.item-discount').value || 0);
-            const subTotal = quantity * rate;
-            const discountAmount = subTotal * (discount / 100);
-            const total = subTotal - discountAmount;
-            
+            const taxRate = parseFloat(itemElement.querySelector('.item-tax-rate').value || 0);
+            const total = quantity * rate;
+            const taxAmount = (total * taxRate) / 100;
+            const grandTotal = total + taxAmount;
             itemElement.querySelector('.item-total').value = total.toFixed(2);
             
             if (invoiceItems[index]) {
-                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, total };
+                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, total, taxRate, taxAmount, grandTotal, hsn: itemElement.querySelector('.item-hsn').value };
             }
             updateInvoicePreview();
         }
@@ -798,46 +812,109 @@
             select.value = currentVal;
         }
 
-        function populateModelDropdown(index) {
-            const models = [...new Set(allProducts.map(p => p.MODEL).filter(Boolean))];
-            const select = document.querySelector(`[data-index="${index}"] .item-model`);
-            select.innerHTML = '<option value="">Select Model</option>';
-            models.forEach(model => {
-                const option = document.createElement('option');
-                option.value = model;
-                option.textContent = model;
-                select.appendChild(option);
+        function populateProductSelects() {
+            document.querySelectorAll('.product-select').forEach(select => {
+                const currentVal = select.value;
+                select.innerHTML = '<option value="">Select product...</option>';
+                allProducts.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.row_index;
+                    option.dataset.price = p.PRICE || 0;
+                    option.dataset.hsn = p['HSN/SAC'] || '';
+                    option.dataset.name = p['ITEM NAME'] || p.DEVICE || '';
+                    option.textContent = `${p.MODEL || ''} ${p['MODEL NUMBER'] || ''} - ${p['ITEM NAME'] || ''}`;
+                    select.appendChild(option);
+                });
+                select.value = currentVal;
             });
         }
         
         function updateInvoicePreview() {
-            // This function would need updates to handle the new item structure
+            const preview = document.getElementById('invoice-preview');
+            const customerName = document.getElementById('customer-select').value;
+            if (!customerName || invoiceItems.length === 0) {
+                 preview.innerHTML = `<div class="flex flex-col justify-center items-center text-center text-muted h-full"><i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 opacity-50"></i><p>Invoice preview will appear here</p><p class="text-sm">Fill in the invoice details to see live preview</p></div>`;
+                 lucide.createIcons();
+                 return;
+            }
+
+            const invoiceDate = document.getElementById('invoice-date').value;
+            const selectedCustomer = customers.find(c => c['Customer Name'] === customerName);
+            const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
+            if(!selectedCustomer) return; 
+
+            let subtotal = 0, totalTax = 0, grandTotal = 0;
+            const itemsHtml = invoiceItems.map((item, index) => {
+                subtotal += item.total || 0;
+                totalTax += item.taxAmount || 0;
+                grandTotal += item.grandTotal || 0;
+                return `<tr class="border-b border-black/10 dark:border-white/10"><td class="p-2 text-center">${index + 1}</td><td class="p-2">${item.description || 'N/A'}</td><td class="p-2 text-center">${item.hsn || 'N/A'}</td><td class="p-2 text-center">${item.quantity}</td><td class="p-2 text-right">₹${(item.rate || 0).toFixed(2)}</td><td class="p-2 text-right">₹${(item.total || 0).toFixed(2)}</td><td class="p-2 text-right">₹${(item.grandTotal || 0).toFixed(2)}</td></tr>`;
+            }).join('');
+            
+            const isIntraState = (companySettings.gstin || '').substring(0, 2) === (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
+            let taxRows = isIntraState
+                ? `<tr><td colspan="6" class="p-2 text-right font-semibold">CGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr><tr><td colspan="6" class="p-2 text-right font-semibold">SGST:</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>`
+                : `<tr><td colspan="6" class="p-2 text-right font-semibold">IGST:</td><td class="p-2 text-right font-semibold">₹${totalTax.toFixed(2)}</td></tr>`;
+            
+            preview.innerHTML = `<div class="p-8 bg-white text-black"><div class="pb-6 mb-6 border-b-2 border-blue-500"><div class="flex justify-between items-start"><div><h1 class="text-3xl font-bold text-blue-600">${companySettings.name || 'Company Name'}</h1><div class="mt-2 text-sm text-gray-600"><p>${companySettings.address || 'Company Address'}</p><p>GSTIN: ${companySettings.gstin || 'N/A'}</p><p>Contact: ${companySettings.contact || 'N/A'}</p></div></div><div class="text-right"><h2 class="text-2xl font-bold text-gray-800">TAX INVOICE</h2><p><strong>Invoice #:</strong> ${document.getElementById('invoice-number').value}</p><p><strong>Date:</strong> ${new Date(invoiceDate).toLocaleDateString('en-IN')}</p></div></div></div><div class="mb-6"><h3 class="text-lg font-bold mb-2">Bill To:</h3><p class="font-semibold">${selectedCustomer['Customer Name']}</p><p>${selectedCustomer.Address}</p><p>GSTIN: ${selectedCustomer['Customer GSTIN']}</p></div><table class="w-full text-sm mb-6"><thead><tr class="bg-gray-100"><th class="border p-2 text-left">#</th><th class="border p-2 text-left">Item</th><th class="border p-2 text-center">HSN</th><th class="border p-2 text-center">Qty</th><th class="border p-2 text-right">Rate</th><th class="border p-2 text-right">Amount</th><th class="border p-2 text-right">Total</th></tr></thead><tbody>${itemsHtml}<tr><td colspan="6" class="p-2 text-right font-semibold border-t-2">Subtotal:</td><td class="p-2 text-right font-semibold border-t-2">₹${subtotal.toFixed(2)}</td></tr>${taxRows}<tr class="bg-blue-50"><td colspan="6" class="p-3 text-right text-lg font-bold">Grand Total:</td><td class="p-3 text-right text-lg font-bold">₹${grandTotal.toFixed(2)}</td></tr></tbody></table></div>`;
         }
 
         async function generatePDF() {
-            // This function would need updates
+            const invoiceDataForPost = getInvoiceDataForPost();
+            if(!invoiceDataForPost) return;
+
+            const element = document.getElementById('invoice-preview');
+            const opt = { margin: 0.25, filename: `${invoiceDataForPost.invoiceData.invoiceNumber}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
+            
+            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                await html2pdf().set(opt).from(element).save();
+                await saveInvoiceRecord(invoiceDataForPost);
+                Swal.close(); 
+                showToast('Invoice PDF Generated and Saved!');
+            } catch (error) {
+                Swal.close(); 
+                showToast('Operation failed. Check console.', 'error');
+            }
         }
         
         function getInvoiceDataForPost() {
-            // This function would need updates
+            if (invoiceItems.some(i => !i.product)) {
+                showToast('Please select a product for all items.', 'error'); return null;
+            }
+
+            const totalTaxableValue = invoiceItems.reduce((sum, item) => sum + (item.total || 0), 0);
+            const totalCGST = invoiceItems.reduce((sum, item) => sum + ((item.isIGST ? 0 : item.taxAmount / 2) || 0), 0);
+            const totalSGST = invoiceItems.reduce((sum, item) => sum + ((item.isIGST ? 0 : item.taxAmount / 2) || 0), 0);
+            const totalIGST = invoiceItems.reduce((sum, item) => sum + ((item.isIGST ? item.taxAmount : 0) || 0), 0);
+            
+            return {
+                invoiceData: {
+                    invoiceNumber: document.getElementById('invoice-number').value, date: document.getElementById('invoice-date').value,
+                    dueDate: document.getElementById('due-date').value, customerName: document.getElementById('customer-select').value,
+                    customerAddress: customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value)?.Address || '',
+                    customerGSTIN: customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value)?.['Customer GSTIN'] || '',
+                    totalTaxableValue: totalTaxableValue.toFixed(2), totalCGST: totalCGST.toFixed(2), totalSGST: totalSGST.toFixed(2), totalIGST: totalIGST.toFixed(2),
+                    status: 'unpaid'
+                },
+                items: JSON.parse(JSON.stringify(invoiceItems))
+            };
         }
 
         async function saveInvoiceRecord(invoiceDataForPost) {
-            // This function would need updates
-        }
-        
-        async function saveOnly() {
-            const invoiceDataForPost = getInvoiceDataForPost();
-            if (!invoiceDataForPost) return;
-            showToast('Saving invoice...', 'info');
             try {
-                await saveInvoiceRecord(invoiceDataForPost);
-                showToast('Invoice Saved Successfully!', 'success');
-            } catch (e) {
-                // Error toast is shown in saveInvoiceRecord
+                const response = await postData(invoiceDataForPost);
+                if (response.status === 'success') {
+                    await syncData();
+                    resetInvoiceForm();
+                } else { throw new Error(response.message || 'Failed to save on server.'); }
+            } catch (error) {
+                showToast(`Save failed: ${error.message}`, 'error');
+                throw error;
             }
         }
-
+        
         function resetInvoiceForm() {
             document.getElementById('invoice-form').reset();
             const container = document.getElementById('invoice-items-container');
@@ -970,6 +1047,7 @@
             }
 
             try {
+                // *** FIX APPLIED HERE: Using '?' instead of '&' ***
                 const result = await fetchJSONP(`${GET_API_URL}?action=getAllData`);
 
                 if (result.status !== 'success') {
