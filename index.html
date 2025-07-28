@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -197,6 +197,7 @@
             .sidebar, .main-content > .flex.justify-between, .fixed-footer { display: none !important; }
             .main-layout { display: block; }
             .main-content { padding: 0; overflow: visible; }
+            .invoice-preview-container { border: none !important; }
             .invoice-preview { box-shadow: none; margin: 0; padding: 0; }
             body { background-color: white; color: black; }
         }
@@ -365,6 +366,10 @@
                                         <option>By Self</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Eway Bill #</label>
+                                <input id="eway-bill-number" type="text" class="futuristic-input" placeholder="Enter E-Way Bill Number if applicable">
                             </div>
                         </form>
 
@@ -545,7 +550,7 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="glass-card p-6">
-                        <h3 class="text-lg font-bold mb-4">GSTR-1 Summary</h3>
+                        <h3 class="text-lg font-bold mb-6">GSTR-1 Summary</h3>
                         <div class="space-y-2">
                             <div class="flex justify-between">
                                 <span class="text-muted">B2B Supplies</span>
@@ -648,6 +653,8 @@
         <button onclick="window.print()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="printer" class="w-5 h-5"></i>Print Preview</button>
         <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Generate</button>
     </footer>
+     <footer class="fixed-footer no-print page-footer hidden" data-page="quotation">
+        </footer>
 
     <script>
         lucide.createIcons();
@@ -707,7 +714,7 @@
             const activePage = document.getElementById(pageId);
             if (activePage) activePage.classList.remove('hidden');
 
-            const activeFooter = document.querySelector(`.page-footer[data-page="${pageId}"]`);
+            const activeFooter = document.querySelector(`.page-footer[data-page="${pageId}"], .page-footer[data-page="${pageId.split('-')[0]}"]`);
             if (activeFooter) activeFooter.classList.remove('hidden');
 
             document.querySelectorAll('.nav-item').forEach(link => {
@@ -752,7 +759,7 @@
              renderProductList();
              updateDashboardStats();
              populateCustomerSelect();
-             renderInvoiceHistory(); // Initially render invoice history
+             renderInvoiceHistory();
              document.getElementById('invoice-number').value = currentInvoiceNumber;
 
              document.querySelectorAll('.invoice-item').forEach((item, index) => {
@@ -955,27 +962,31 @@
                     <div class="flex items-start space-x-4">
                         <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Logo" class="h-16">
                         <div>
-                            <h2 class="text-xl font-bold">VINAYAKA INDUSTRIES</h2>
+                            <h2 class="text-xl font-bold text-gray-800">VINAYAKA INDUSTRIES</h2>
                             <p class="text-xs max-w-xs">${companySettings.address}</p>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="font-bold">GSTIN: ${companySettings.gstin}</p>
-                        <h1 class="text-2xl font-bold mt-2">TAX INVOICE</h1>
+                        <p class="font-bold text-gray-800">GSTIN: ${companySettings.gstin}</p>
+                        <h1 class="text-2xl font-bold mt-2 text-gray-800">TAX INVOICE</h1>
                     </div>
                 </div></header>
                 <div class="flex justify-between text-sm border-b-2 border-dotted pb-4 mb-4">
                     <div class="w-1/2">
                         <strong class="block mb-2">Bill To:</strong>
-                        <p><strong>Name&nbsp;&nbsp;&nbsp;:</strong> ${selectedCustomer['Customer Name']}</p>
-                        <p><strong>Address:</strong> ${selectedCustomer.Address}</p>
-                        <p><strong>GSTIN&nbsp;&nbsp;:</strong> ${selectedCustomer['Customer GSTIN']}</p>
+                        <table><tbody>
+                            <tr><td class="pr-2 font-bold">Name</td><td>: ${selectedCustomer['Customer Name']}</td></tr>
+                            <tr><td class="pr-2 font-bold">Address</td><td>: ${selectedCustomer.Address}</td></tr>
+                            <tr><td class="pr-2 font-bold">GSTIN</td><td>: ${selectedCustomer['Customer GSTIN']}</td></tr>
+                        </tbody></table>
                     </div>
                     <div class="w-1/2">
-                         <p><strong>Invoice #:</strong> ${document.getElementById('invoice-number').value}</p>
-                         <p><strong>Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</strong> ${new Date(invoiceDate).toLocaleDateString('en-GB')}</p>
-                         <p><strong>Dispatch&nbsp;:</strong> ${document.getElementById('dispatch-method').value}</p>
-                         <p><strong>Eway Bill #:</strong> _________________</p>
+                         <table><tbody>
+                            <tr><td class="pr-2 font-bold">Invoice #</td><td>: ${document.getElementById('invoice-number').value}</td></tr>
+                            <tr><td class="pr-2 font-bold">Date</td><td>: ${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
+                            <tr><td class="pr-2 font-bold">Dispatch</td><td>: ${document.getElementById('dispatch-method').value}</td></tr>
+                            <tr><td class="pr-2 font-bold">Eway Bill #</td><td>: ${document.getElementById('eway-bill-number').value || '_________________'}</td></tr>
+                         </tbody></table>
                     </div>
                 </div>
                 <table class="w-full text-sm mb-2">
@@ -985,14 +996,19 @@
                 <div class="flex justify-end">
                     <table class="w-1/2 text-sm">
                         <tbody>
-                            <tr><td class="p-2 text-right font-semibold border-t-2">Subtotal:</td><td class="p-2 text-right font-semibold border-t-2">₹${totalTaxableAmount.toFixed(2)}</td></tr>
+                            <tr><td colspan="5" class="p-2 text-right font-semibold border-t-2">Subtotal:</td><td class="p-2 text-right font-semibold border-t-2">₹${totalTaxableAmount.toFixed(2)}</td></tr>
                             ${taxRows}
-                            <tr class="bg-blue-500/10"><td class="p-3 text-right text-lg font-bold">Grand Total:</td><td class="p-3 text-right text-lg font-bold">₹${grandTotal.toFixed(2)}</td></tr>
+                            <tr class="bg-blue-500/10"><td colspan="5" class="p-3 text-right text-lg font-bold">Grand Total:</td><td class="p-3 text-right text-lg font-bold">₹${grandTotal.toFixed(2)}</td></tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="border-t-2 border-dotted pt-2 mt-2 text-xs font-semibold">Amount in Words: ${grandTotalInWords}</div>
-                <div class="mt-4"><p class="font-bold text-sm">Bank Details:</p><div class="text-xs"><p>Bank: ${bankSettings.name || ''}</p><p>Acc No: ${bankSettings.accountNumber || ''}</p><p>IFSC: ${bankSettings.ifsc || ''}</p></div></div>
+                <div class="flex justify-between mt-8">
+                    <div class="text-xs"><p class="font-bold">Bank Details:</p><div><p>Bank: ${bankSettings.name || ''}</p><p>Acc No: ${bankSettings.accountNumber || ''}</p><p>IFSC: ${bankSettings.ifsc || ''}</p></div></div>
+                    <div class="text-center text-xs pt-8">
+                        <p class="border-t pt-2">For Vinayaka Industries</p><p>(Authorized Signatory)</p>
+                    </div>
+                </div>
             </div>`;
         }
 
@@ -1099,7 +1115,7 @@
 
         function renderProductList() {
              const listEl = document.getElementById('existing-products-list');
-             if(listEl) listEl.innerHTML = allProducts.map(p => `<div class="p-4 rounded-lg bg-black/10 dark:bg-white/5 flex justify-between items-center"><div><p class="font-bold">${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}</p><p class="text-sm text-muted">${p.DEVICE || ''} - ${p['ITEM NAME'] || ''}</p><p class="text-lg font-semibold text-amber-400">₹${(p.PRICE || 0).toFixed(2)}</p></div><p class="text-sm text-muted">HSN: ${p['HSN/SAC'] || 'N/A'}</p></div>`).join('');
+             if(listEl) listEl.innerHTML = allProducts.map(p => `<div class="p-4 rounded-lg bg-black/10 dark:hover:bg-white/5 flex justify-between items-center"><div><p class="font-bold">${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}</p><p class="text-sm text-muted">${p.DEVICE || ''} - ${p['ITEM NAME'] || ''}</p><p class="text-lg font-semibold text-amber-400">₹${(p.PRICE || 0).toFixed(2)}</p></div><p class="text-sm text-muted">HSN: ${p['HSN/SAC'] || 'N/A'}</p></div>`).join('');
         }
         
         function animateCountUp(element, endValue, isCurrency = false) {
@@ -1205,7 +1221,7 @@
             function inWords(num) {
                 if ((num = num.toString()).length > 9) return 'overflow';
                 const n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
-                if (!n) return; let str = '';
+                if (!n) return ''; let str = '';
                 str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
                 str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
                 str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand ' : '';
