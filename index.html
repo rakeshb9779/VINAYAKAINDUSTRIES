@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -53,6 +53,19 @@
             background-color: var(--bg-dark); 
             color: var(--text-dark); 
         }
+        
+        /* Login Page Styles */
+        #login-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            backdrop-filter: blur(10px);
+        }
+
+        .main-app { display: none; }
+        .main-app.active { display: flex; }
+
 
         .main-layout { display: flex; height: 100vh; }
 
@@ -204,7 +217,38 @@
     </style>
 </head>
 <body class="dark-theme">
-    <div class="main-layout">
+    
+    <div id="login-page">
+        <div class="glass-card w-full max-w-sm p-8">
+            <div class="flex justify-center items-center space-x-3 mb-6">
+                <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-2 rounded-lg shadow-lg">
+                    <i data-lucide="file-text" class="w-8 h-8 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-2xl tracking-wider">VINAYAKA</h1>
+                    <p class="text-sm text-muted">INDUSTRIES</p>
+                </div>
+            </div>
+            <h2 class="text-xl font-bold text-center mb-6">Application Login</h2>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-muted mb-2">Username</label>
+                    <input id="username" type="text" class="futuristic-input" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-muted mb-2">Password</label>
+                    <input id="password" type="password" class="futuristic-input" required>
+                </div>
+                <div class="flex items-center space-x-2 pt-2">
+                    <input type="checkbox" id="remember-me" class="w-4 h-4 rounded">
+                    <label for="remember-me" class="text-sm text-muted">Remember Me</label>
+                </div>
+                <button type="submit" class="w-full futuristic-btn font-bold py-3 mt-4">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="main-app main-layout">
         <aside class="sidebar no-print">
             <div class="flex justify-between items-center mb-6">
                  <div class="flex items-center space-x-3">
@@ -232,8 +276,9 @@
                     <li><a href="#reports" class="nav-item"><i data-lucide="bar-chart-3" class="w-5 h-5"></i><span>Reports</span></a></li>
                 </ul>
             </nav>
-             <div>
+             <div class="space-y-2">
                 <a href="#settings" class="nav-item"><i data-lucide="settings" class="w-5 h-5"></i><span>Settings</span></a>
+                <button id="logout-button" class="nav-item w-full"><i data-lucide="log-out" class="w-5 h-5"></i><span>Logout</span></button>
              </div>
         </aside>
 
@@ -550,7 +595,7 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="glass-card p-6">
-                        <h3 class="text-lg font-bold mb-6">GSTR-1 Summary</h3>
+                        <h3 class="text-xl font-bold mb-6">GSTR-1 Summary</h3>
                         <div class="space-y-2">
                             <div class="flex justify-between">
                                 <span class="text-muted">B2B Supplies</span>
@@ -759,7 +804,7 @@
              renderProductList();
              updateDashboardStats();
              populateCustomerSelect();
-             renderInvoiceHistory();
+             renderInvoiceHistory(); // Initially render invoice history
              document.getElementById('invoice-number').value = currentInvoiceNumber;
 
              document.querySelectorAll('.invoice-item').forEach((item, index) => {
@@ -1231,11 +1276,12 @@
             }
 
             let mainInWords = inWords(main);
+            if(main === 0) mainInWords = "zero ";
             let decimalInWords = inWords(decimal);
             
-            let result = mainInWords ? mainInWords.trim() + ' rupees' : '';
+            let result = mainInWords.trim() + ' rupees';
             if(decimalInWords) {
-                result += (result ? ' and ' : '') + decimalInWords.trim() + ' paise';
+                result += ' and ' + decimalInWords.trim() + ' paise';
             }
             return result.toUpperCase() + ' ONLY';
         }
