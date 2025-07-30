@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INvoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1184,7 +1184,7 @@
                 return;
             }
 
-            tbody.innerHTML = invoiceHistory.map(invoice => {
+            tbody.innerHTML = invoiceHistory.map((invoice, index) => {
                 const amount = parseFloat(invoice.amount || 0);
                 const status = invoice.status || 'unpaid';
 
@@ -1194,11 +1194,73 @@
                             <td class="p-4">${invoice.customerName}</td>
                             <td class="p-4">₹${amount.toFixed(2)}</td>
                             <td class="p-4"><span class="px-2 py-1 rounded text-xs ${status === 'paid' ? 'text-green-400 bg-green-500/20' : 'text-yellow-400 bg-yellow-500/20'}">${status.toUpperCase()}</span></td>
-                            <td class="p-4"><button class="text-blue-400"><i data-lucide="eye"></i></button></td>
+                            <td class="p-4">
+                                <button onclick="loadInvoiceForEditing('${invoice.invoiceNumber}')" class="text-blue-400 hover:text-blue-300" title="Edit Invoice">
+                                    <i data-lucide="edit"></i>
+                                </button>
+                            </td>
                         </tr>`;
             }).join('');
             lucide.createIcons();
         }
+
+        function loadInvoiceForEditing(invoiceNumber) {
+            const invoiceToEdit = invoiceHistory.find(inv => inv.invoiceNumber === invoiceNumber);
+            if (!invoiceToEdit || !invoiceToEdit.fullInvoiceJSON) {
+                showToast('Could not load invoice data.', 'error');
+                return;
+            }
+
+            try {
+                const fullData = JSON.parse(invoiceToEdit.fullInvoiceJSON);
+                const invoiceData = fullData.invoiceData;
+                const itemsData = fullData.items;
+
+                // Go to the create invoice page
+                showPage('create-invoice');
+                window.location.hash = 'create-invoice';
+
+                // Populate main invoice details
+                document.getElementById('invoice-number').value = invoiceData.invoiceNumber;
+                document.getElementById('invoice-date').value = invoiceData.date;
+                document.getElementById('customer-select').value = invoiceData.customerName;
+                populateCustomerDetails(); // This will fill in GSTIN and Place of Supply
+
+                // Clear existing items
+                const container = document.getElementById('invoice-items-container');
+                container.innerHTML = '';
+                invoiceItems = [];
+
+                // Re-create and populate invoice items
+                itemsData.forEach(itemData => {
+                    addInvoiceItem();
+                    const newIndex = invoiceItems.length - 1;
+                    const itemElement = document.querySelector(`.invoice-item[data-index="${newIndex}"]`);
+                    
+                    // This part is tricky because we need to find the product again
+                    // For simplicity, we'll just populate the fields directly
+                    // A more robust solution would involve storing product IDs
+                    itemElement.querySelector('.item-quantity').value = itemData.quantity;
+                    itemElement.querySelector('.item-rate').value = itemData.rate;
+                    itemElement.querySelector('.item-discount').value = itemData.discount;
+                    itemElement.querySelector('.item-tax-rate').value = itemData.taxRate;
+                    itemElement.querySelector('.item-hsn').value = itemData.hsn;
+                    
+                    // We can't easily re-select the dropdowns without more info,
+                    // but we can set the description and calculate the total
+                    invoiceItems[newIndex] = itemData;
+                    calculateItemTotal(newIndex);
+                });
+
+                showToast(`Loaded Invoice ${invoiceNumber} for editing.`, 'info');
+                updateInvoicePreview();
+
+            } catch (error) {
+                console.error("Error parsing invoice data for editing:", error);
+                showToast('Failed to parse invoice data.', 'error');
+            }
+        }
+
 
         function renderCustomerList() {
             const listEl = document.getElementById('existing-customers-list');
