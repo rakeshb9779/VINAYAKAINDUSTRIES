@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -770,8 +770,10 @@
              const prefix = settings.prefix || 'VI-';
              let nextNum;
 
-             if (data.latestInvoiceNumber) {
-                 const numericPart = parseInt(data.latestInvoiceNumber.replace(/[^0-9]/g, ''), 10);
+             // FIX: More robust check to prevent type errors
+             const latestNumStr = String(data.latestInvoiceNumber || '');
+             if (latestNumStr) {
+                 const numericPart = parseInt(latestNumStr.replace(/[^0-9]/g, ''), 10);
                  nextNum = isNaN(numericPart) ? (settings.nextNumber || 1) : numericPart + 1;
              } else {
                  nextNum = settings.nextNumber || (invoiceHistory.length + 1);
