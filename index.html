@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -343,7 +343,12 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-muted mb-2">Invoice Number</label>
-                                    <input id="invoice-number" type="text" class="futuristic-input" readonly>
+                                    <div class="relative">
+                                        <input id="invoice-number" type="text" class="futuristic-input pr-10" readonly>
+                                        <button type="button" onclick="refreshInvoiceNumber()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted hover:text-blue-400 transition-colors" title="Refresh Invoice Number">
+                                            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-muted mb-2">Invoice Date</label>
@@ -761,7 +766,6 @@
              invoiceHistory = data.invoiceHistory || [];
              quotationHistory = data.quotationHistory || [];
              
-             // Task 1: Dynamic Invoice Number Generation
              const settings = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
              const prefix = settings.prefix || 'VI-';
              let nextNum;
@@ -976,7 +980,6 @@
                 : `<tr><td colspan="5" class="p-2 text-right font-semibold">IGST (${taxRate}%):</td><td class="p-2 text-right font-semibold">₹${totalTax.toFixed(2)}</td></tr>`;
             
             const grandTotalInWords = amountToWords(grandTotal);
-            // Task 6: Add Terms and Conditions
             const termsAndConditions = (companySettings.terms || `1. Goods once sold will not be taken back.
 2. Interest @18% p.a. will be charged if the bill is not paid within 30 days.
 3. All disputes are subject to jurisdiction of local courts.`).replace(/\n/g, '<br>');
@@ -1041,18 +1044,15 @@
         }
 
         async function generatePDF() {
-            // Task 2: Modified Generate flow
             Swal.fire({ title: 'Generating PDF...', text: 'Please wait while we create your document.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             const element = document.getElementById('invoice-preview');
             const opt = { margin: 0.25, filename: `${document.getElementById('invoice-number').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
             
             try {
-                // The data is already loaded via handleLoadData, so we just generate the PDF.
                 await html2pdf().set(opt).from(element).save();
                 Swal.close(); 
                 showToast('PDF Generated Successfully!', 'success');
-                // Removed window.print()
             } catch (error) {
                 Swal.close(); 
                 showToast('PDF generation failed. Check console.', 'error');
@@ -1092,25 +1092,23 @@
              try {
                 const response = await postData({ action: action, data: invoiceDataForPost });
                 if (response.status === 'success') {
-                    await syncData(); // Resync to get the latest state
+                    await syncData(); 
                     showToast(`Invoice ${action === 'addInvoice' ? 'added' : 'updated'} successfully!`, 'success');
                 } else { throw new Error(response.message || 'Failed to save on server.'); }
             } catch (error) {
                 showToast(`Save failed: ${error.message}`, 'error');
-                throw error; // Propagate error to calling function
+                throw error; 
             }
         }
         
-        // Task 4: New function to handle "Load Data" button
         async function handleLoadData() {
             const invoiceDataForPost = getInvoiceDataForPost();
-            if (!invoiceDataForPost) return; // Validation failed
+            if (!invoiceDataForPost) return; 
 
             const invoiceNumber = invoiceDataForPost.invoiceData.invoiceNumber;
             const existingInvoice = invoiceHistory.find(inv => inv.invoiceNumber === invoiceNumber);
 
             if (existingInvoice) {
-                // Invoice exists, ask for confirmation to replace
                 Swal.fire({
                     title: 'Invoice Exists',
                     text: `Invoice number ${invoiceNumber} is already in your history. Do you want to replace it with the current data?`,
@@ -1122,7 +1120,6 @@
                     cancelButtonColor: '#d33',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        // Second confirmation
                         Swal.fire({
                             title: 'Final Confirmation',
                             text: 'Are you sure you want to submit and overwrite the existing invoice?',
@@ -1144,7 +1141,6 @@
                     }
                 });
             } else {
-                // New invoice, just save it
                 Swal.fire({ title: 'Loading Data...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 try {
                     await saveInvoiceRecord(invoiceDataForPost, 'addInvoice');
@@ -1156,6 +1152,11 @@
             }
         }
 
+        async function refreshInvoiceNumber() {
+            showToast('Refreshing invoice number...', 'info');
+            await syncData();
+        }
+
         function resetInvoiceForm() {
             document.getElementById('invoice-form').reset();
             populateCustomerDetails();
@@ -1163,7 +1164,6 @@
             container.innerHTML = '';
             invoiceItems = []; 
             initializeInvoiceForm(); 
-            // After reset, set the next invoice number again
             processAllData({ customers, products: allProducts, invoiceHistory, quotationHistory, latestInvoiceNumber: invoiceHistory[0]?.invoiceNumber });
             updateInvoicePreview();
         }
@@ -1252,7 +1252,7 @@
                 name: document.getElementById('company-name').value, address: document.getElementById('company-address').value,
                 gstin: document.getElementById('company-gstin').value, contact: document.getElementById('company-contact').value,
                 email: document.getElementById('company-email').value,
-                terms: document.getElementById('company-terms').value // Task 6: Save terms
+                terms: document.getElementById('company-terms').value
             };
             localStorage.setItem('companySettings', JSON.stringify(companyData));
             showToast('Company settings saved!');
@@ -1284,7 +1284,7 @@
             document.getElementById('company-gstin').value = settings.gstin || '';
             document.getElementById('company-contact').value = settings.contact || '';
             document.getElementById('company-email').value = settings.email || '';
-            document.getElementById('company-terms').value = settings.terms || ''; // Task 6: Load terms
+            document.getElementById('company-terms').value = settings.terms || '';
         }
 
         function loadBankSettings() {
