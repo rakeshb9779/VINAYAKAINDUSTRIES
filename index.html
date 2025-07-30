@@ -1195,7 +1195,7 @@
                             <td class="p-4">₹${amount.toFixed(2)}</td>
                             <td class="p-4"><span class="px-2 py-1 rounded text-xs ${status === 'paid' ? 'text-green-400 bg-green-500/20' : 'text-yellow-400 bg-yellow-500/20'}">${status.toUpperCase()}</span></td>
                             <td class="p-4">
-                                <button onclick="loadInvoiceForEditing('${invoice.invoiceNumber}')" class="text-blue-400 hover:text-blue-300" title="Edit Invoice">
+                                <button onclick="loadInvoiceForEditing(${index})" class="text-blue-400 hover:text-blue-300" title="Edit Invoice">
                                     <i data-lucide="edit"></i>
                                 </button>
                             </td>
@@ -1204,8 +1204,8 @@
             lucide.createIcons();
         }
 
-        function loadInvoiceForEditing(invoiceNumber) {
-            const invoiceToEdit = invoiceHistory.find(inv => inv.invoiceNumber === invoiceNumber);
+        function loadInvoiceForEditing(index) {
+            const invoiceToEdit = invoiceHistory[index];
             if (!invoiceToEdit || !invoiceToEdit.fullInvoiceJSON) {
                 showToast('Could not load invoice data.', 'error');
                 return;
@@ -1252,7 +1252,7 @@
                     calculateItemTotal(newIndex);
                 });
 
-                showToast(`Loaded Invoice ${invoiceNumber} for editing.`, 'info');
+                showToast(`Loaded Invoice ${invoiceData.invoiceNumber} for editing.`, 'info');
                 updateInvoicePreview();
 
             } catch (error) {
@@ -1445,3 +1445,5 @@
     </script>
 </body>
 </html>
+" and am asking a follow up question.
+can you make the page responsi
