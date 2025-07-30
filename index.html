@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INvoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1216,40 +1216,39 @@
                 const invoiceData = fullData.invoiceData;
                 const itemsData = fullData.items;
 
-                // Go to the create invoice page
                 showPage('create-invoice');
                 window.location.hash = 'create-invoice';
 
-                // Populate main invoice details
                 document.getElementById('invoice-number').value = invoiceData.invoiceNumber;
                 document.getElementById('invoice-date').value = invoiceData.date;
                 document.getElementById('customer-select').value = invoiceData.customerName;
-                populateCustomerDetails(); // This will fill in GSTIN and Place of Supply
+                populateCustomerDetails();
 
-                // Clear existing items
                 const container = document.getElementById('invoice-items-container');
                 container.innerHTML = '';
                 invoiceItems = [];
 
-                // Re-create and populate invoice items
                 itemsData.forEach(itemData => {
                     addInvoiceItem();
                     const newIndex = invoiceItems.length - 1;
                     const itemElement = document.querySelector(`.invoice-item[data-index="${newIndex}"]`);
                     
-                    // This part is tricky because we need to find the product again
-                    // For simplicity, we'll just populate the fields directly
-                    // A more robust solution would involve storing product IDs
-                    itemElement.querySelector('.item-quantity').value = itemData.quantity;
-                    itemElement.querySelector('.item-rate').value = itemData.rate;
-                    itemElement.querySelector('.item-discount').value = itemData.discount;
-                    itemElement.querySelector('.item-tax-rate').value = itemData.taxRate;
-                    itemElement.querySelector('.item-hsn').value = itemData.hsn;
-                    
-                    // We can't easily re-select the dropdowns without more info,
-                    // but we can set the description and calculate the total
-                    invoiceItems[newIndex] = itemData;
-                    calculateItemTotal(newIndex);
+                    const originalProduct = allProducts.find(p => p.uniqueItemName === itemData.description);
+
+                    if (originalProduct) {
+                        itemElement.querySelector('.item-model').value = originalProduct.uniqueModel;
+                        updateDependentDropdowns(newIndex);
+                        itemElement.querySelector('.item-device').value = originalProduct.DEVICE || '';
+                        updateDependentDropdowns(newIndex);
+                        itemElement.querySelector('.item-name').value = originalProduct.row_index;
+                        
+                        populateItemDetails(newIndex); 
+                        
+                        itemElement.querySelector('.item-quantity').value = itemData.quantity;
+                        itemElement.querySelector('.item-discount').value = itemData.discount;
+                        
+                        calculateItemTotal(newIndex);
+                    }
                 });
 
                 showToast(`Loaded Invoice ${invoiceData.invoiceNumber} for editing.`, 'info');
@@ -1445,5 +1444,3 @@
     </script>
 </body>
 </html>
-" and am asking a follow up question.
-can you make the page responsi
