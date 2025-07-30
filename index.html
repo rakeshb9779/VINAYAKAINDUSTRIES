@@ -199,7 +199,14 @@
             .main-content { padding: 0; overflow: visible; }
             .invoice-preview-container { border: none !important; }
             .invoice-preview { box-shadow: none; margin: 0; padding: 0; }
-            body { background-color: white; color: black; }
+            body { background-color: white !important; color: black !important; }
+            .invoice-preview {
+                background-color: white !important;
+                color: black !important;
+            }
+            .invoice-preview *, .invoice-preview .text-gray-800 {
+                color: black !important;
+            }
         }
     </style>
 </head>
@@ -207,7 +214,7 @@
     <div class="main-layout">
         <aside class="sidebar no-print">
             <div class="flex justify-between items-center mb-6">
-                 <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3">
                     <div class="bg-gradient-to-br from-blue-500 to-blue-700 p-2 rounded-lg shadow-lg">
                         <i data-lucide="file-text" class="w-6 h-6 text-white"></i>
                     </div>
@@ -234,7 +241,7 @@
             </nav>
              <div>
                 <a href="#settings" class="nav-item"><i data-lucide="settings" class="w-5 h-5"></i><span>Settings</span></a>
-             </div>
+              </div>
         </aside>
 
         <main class="main-content">
@@ -612,6 +619,10 @@
                                 <label class="block text-sm font-medium text-muted mb-2">Email</label>
                                 <input id="company-email" type="email" class="futuristic-input">
                             </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">Terms & Conditions</label>
+                                <textarea id="company-terms" rows="4" class="futuristic-textarea" placeholder="Enter default terms and conditions for invoices..."></textarea>
+                            </div>
                             <button type="submit" class="w-full futuristic-btn futuristic-btn-secondary font-bold py-3 mt-4">Save Company Info</button>
                         </form>
                     </div>
@@ -650,11 +661,11 @@
     <footer class="fixed-footer no-print page-footer hidden" data-page="create-invoice">
         <a href="#settings" class="nav-link-action futuristic-btn futuristic-btn-neutral"><i data-lucide="settings" class="w-5 h-5"></i>Settings</a>
         <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-secondary"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
-        <button onclick="window.print()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="printer" class="w-5 h-5"></i>Print Preview</button>
+        <button onclick="handleLoadData()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="upload-cloud" class="w-5 h-5"></i>Load Data</button>
         <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Generate</button>
     </footer>
      <footer class="fixed-footer no-print page-footer hidden" data-page="quotation">
-        </footer>
+     </footer>
 
     <script>
         lucide.createIcons();
@@ -750,9 +761,18 @@
              invoiceHistory = data.invoiceHistory || [];
              quotationHistory = data.quotationHistory || [];
              
+             // Task 1: Dynamic Invoice Number Generation
              const settings = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
              const prefix = settings.prefix || 'VI-';
-             const nextNum = settings.nextNumber || (invoiceHistory.length + 1);
+             let nextNum;
+
+             if (data.latestInvoiceNumber) {
+                 const numericPart = parseInt(data.latestInvoiceNumber.replace(/[^0-9]/g, ''), 10);
+                 nextNum = isNaN(numericPart) ? (settings.nextNumber || 1) : numericPart + 1;
+             } else {
+                 nextNum = settings.nextNumber || (invoiceHistory.length + 1);
+             }
+             
              currentInvoiceNumber = `${prefix}${String(nextNum).padStart(3, '0')}`;
              
              renderCustomerList();
@@ -763,7 +783,7 @@
              document.getElementById('invoice-number').value = currentInvoiceNumber;
 
              document.querySelectorAll('.invoice-item').forEach((item, index) => {
-                populateModelDropdown(index);
+                 populateModelDropdown(index);
              });
         }
 
@@ -956,6 +976,10 @@
                 : `<tr><td colspan="5" class="p-2 text-right font-semibold">IGST (${taxRate}%):</td><td class="p-2 text-right font-semibold">₹${totalTax.toFixed(2)}</td></tr>`;
             
             const grandTotalInWords = amountToWords(grandTotal);
+            // Task 6: Add Terms and Conditions
+            const termsAndConditions = (companySettings.terms || `1. Goods once sold will not be taken back.
+2. Interest @18% p.a. will be charged if the bill is not paid within 30 days.
+3. All disputes are subject to jurisdiction of local courts.`).replace(/\n/g, '<br>');
 
             preview.innerHTML = `<div class="p-8">
                 <header class="pb-4 mb-4 border-b-2 border-dotted"><div class="flex justify-between items-start">
@@ -1003,6 +1027,10 @@
                     </table>
                 </div>
                 <div class="border-t-2 border-dotted pt-2 mt-2 text-xs font-semibold">Amount in Words: ${grandTotalInWords}</div>
+                <div class="mt-6 pt-4 border-t-2 border-dotted text-xs">
+                    <p class="font-bold mb-2">Terms & Conditions:</p>
+                    <p>${termsAndConditions}</p>
+                </div>
                 <div class="flex justify-between mt-8">
                     <div class="text-xs"><p class="font-bold">Bank Details:</p><div><p>Bank: ${bankSettings.name || ''}</p><p>Acc No: ${bankSettings.accountNumber || ''}</p><p>IFSC: ${bankSettings.ifsc || ''}</p></div></div>
                     <div class="text-center text-xs pt-8">
@@ -1013,23 +1041,22 @@
         }
 
         async function generatePDF() {
-            const invoiceDataForPost = getInvoiceDataForPost();
-            if(!invoiceDataForPost) return;
+            // Task 2: Modified Generate flow
+            Swal.fire({ title: 'Generating PDF...', text: 'Please wait while we create your document.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
             const element = document.getElementById('invoice-preview');
-            const opt = { margin: 0.25, filename: `${invoiceDataForPost.invoiceData.invoiceNumber}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
+            const opt = { margin: 0.25, filename: `${document.getElementById('invoice-number').value}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
             
-            Swal.fire({ title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
             try {
-                await saveInvoiceRecord(invoiceDataForPost);
+                // The data is already loaded via handleLoadData, so we just generate the PDF.
                 await html2pdf().set(opt).from(element).save();
-                window.print();
                 Swal.close(); 
-                showToast('Invoice Generated Successfully!', 'success');
+                showToast('PDF Generated Successfully!', 'success');
+                // Removed window.print()
             } catch (error) {
                 Swal.close(); 
-                showToast('Operation failed. Check console.', 'error');
+                showToast('PDF generation failed. Check console.', 'error');
+                console.error("PDF Generation Error:", error);
             }
         }
         
@@ -1044,6 +1071,7 @@
             const totalTaxableValue = invoiceItems.reduce((sum, item) => sum + (item.taxableAmount || 0), 0);
             const isIntraState = (document.getElementById('customer-gstin-display').value || '').substring(0, 2) === (JSON.parse(localStorage.getItem('companySettings') || '{}').gstin || '').substring(0, 2);
             const totalTax = invoiceItems.reduce((sum, item) => sum + (item.taxAmount || 0), 0);
+            const grandTotal = invoiceItems.reduce((sum, item) => sum + (item.total || 0), 0);
             
             return {
                 invoiceData: {
@@ -1053,24 +1081,81 @@
                     totalCGST: (isIntraState ? totalTax / 2 : 0).toFixed(2), 
                     totalSGST: (isIntraState ? totalTax / 2 : 0).toFixed(2), 
                     totalIGST: (!isIntraState ? totalTax : 0).toFixed(2),
+                    grandTotal: grandTotal.toFixed(2),
                     status: 'unpaid'
                 },
                 items: JSON.parse(JSON.stringify(invoiceItems))
             };
         }
 
-        async function saveInvoiceRecord(invoiceDataForPost) {
-            try {
-                const response = await postData({action: 'addInvoice', data: invoiceDataForPost});
+        async function saveInvoiceRecord(invoiceDataForPost, action = 'addInvoice') {
+             try {
+                const response = await postData({ action: action, data: invoiceDataForPost });
                 if (response.status === 'success') {
-                    await syncData();
+                    await syncData(); // Resync to get the latest state
+                    showToast(`Invoice ${action === 'addInvoice' ? 'added' : 'updated'} successfully!`, 'success');
                 } else { throw new Error(response.message || 'Failed to save on server.'); }
             } catch (error) {
                 showToast(`Save failed: ${error.message}`, 'error');
-                throw error;
+                throw error; // Propagate error to calling function
             }
         }
         
+        // Task 4: New function to handle "Load Data" button
+        async function handleLoadData() {
+            const invoiceDataForPost = getInvoiceDataForPost();
+            if (!invoiceDataForPost) return; // Validation failed
+
+            const invoiceNumber = invoiceDataForPost.invoiceData.invoiceNumber;
+            const existingInvoice = invoiceHistory.find(inv => inv.invoiceNumber === invoiceNumber);
+
+            if (existingInvoice) {
+                // Invoice exists, ask for confirmation to replace
+                Swal.fire({
+                    title: 'Invoice Exists',
+                    text: `Invoice number ${invoiceNumber} is already in your history. Do you want to replace it with the current data?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, replace it!',
+                    cancelButtonText: 'No, cancel',
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Second confirmation
+                        Swal.fire({
+                            title: 'Final Confirmation',
+                            text: 'Are you sure you want to submit and overwrite the existing invoice?',
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonText: 'SUBMIT Invoice',
+                        }).then(async (finalResult) => {
+                            if (finalResult.isConfirmed) {
+                                Swal.fire({ title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                                try {
+                                    await saveInvoiceRecord(invoiceDataForPost, 'updateInvoice');
+                                    Swal.close();
+                                } catch (e) {
+                                    Swal.close();
+                                    showToast('Update failed!', 'error');
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                // New invoice, just save it
+                Swal.fire({ title: 'Loading Data...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                try {
+                    await saveInvoiceRecord(invoiceDataForPost, 'addInvoice');
+                    Swal.close();
+                } catch(e) {
+                     Swal.close();
+                     showToast('Load data failed!', 'error');
+                }
+            }
+        }
+
         function resetInvoiceForm() {
             document.getElementById('invoice-form').reset();
             populateCustomerDetails();
@@ -1078,6 +1163,8 @@
             container.innerHTML = '';
             invoiceItems = []; 
             initializeInvoiceForm(); 
+            // After reset, set the next invoice number again
+            processAllData({ customers, products: allProducts, invoiceHistory, quotationHistory, latestInvoiceNumber: invoiceHistory[0]?.invoiceNumber });
             updateInvoicePreview();
         }
 
@@ -1164,7 +1251,8 @@
             const companyData = {
                 name: document.getElementById('company-name').value, address: document.getElementById('company-address').value,
                 gstin: document.getElementById('company-gstin').value, contact: document.getElementById('company-contact').value,
-                email: document.getElementById('company-email').value
+                email: document.getElementById('company-email').value,
+                terms: document.getElementById('company-terms').value // Task 6: Save terms
             };
             localStorage.setItem('companySettings', JSON.stringify(companyData));
             showToast('Company settings saved!');
@@ -1196,6 +1284,7 @@
             document.getElementById('company-gstin').value = settings.gstin || '';
             document.getElementById('company-contact').value = settings.contact || '';
             document.getElementById('company-email').value = settings.email || '';
+            document.getElementById('company-terms').value = settings.terms || ''; // Task 6: Load terms
         }
 
         function loadBankSettings() {
