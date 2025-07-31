@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INvoice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -660,7 +660,7 @@
                         <p class="text-muted">Generate a new estimate for a customer</p>
                     </div>
                 </div>
-                 </div>
+             </div>
         </main>
     </div>
     <footer class="fixed-footer no-print page-footer hidden" data-page="create-invoice">
@@ -890,9 +890,24 @@
             uniqueItems.forEach(item => {
                 nameSelect.innerHTML += `<option value="${item.row_index}">${item.uniqueItemName}</option>`;
             });
-
-            // FIX: Explicitly set the value to empty and clear details
+            
             nameSelect.value = "";
+
+            // FIX: Clear the invoiceItems data for this index to prevent stale data.
+            if (invoiceItems[index]) {
+                invoiceItems[index] = {
+                    quantity: 1,
+                    rate: 0,
+                    discount: 0,
+                    taxRate: 18,
+                    taxableAmount: 0,
+                    taxAmount: 0,
+                    total: 0,
+                    hsn: '',
+                    description: ''
+                };
+            }
+            
             populateItemDetails(index);
         }
 
