@@ -891,7 +891,10 @@
                 nameSelect.innerHTML += `<option value="${item.row_index}">${item.uniqueItemName}</option>`;
             });
 
-            populateItemDetails(index);
+            // Clear details when dropdowns change
+            itemElement.querySelector('.item-hsn').value = '';
+            itemElement.querySelector('.item-rate').value = '';
+            calculateItemTotal(index);
         }
 
         function populateItemDetails(index) {
@@ -1252,7 +1255,10 @@
                             const newIndex = invoiceItems.length - 1;
                             const itemElement = document.querySelector(`.invoice-item[data-index="${newIndex}"]`);
                             
-                            const originalProduct = allProducts.find(p => p.uniqueItemName === itemData.description.split('_').slice(-2).join(' '));
+                            const originalProduct = allProducts.find(p => {
+                                const fullProductName = [p.MODEL, p['MODEL NUMBER'], p.DEVICE, p.SIZE, p['ITEM NAME']].filter(Boolean).join('_');
+                                return fullProductName === itemData.description;
+                            });
 
                             if (originalProduct) {
                                 itemElement.querySelector('.item-model').value = originalProduct.uniqueModel;
