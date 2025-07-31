@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INvoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -208,9 +208,83 @@
                 color: black !important;
             }
         }
+
+        /* --- GST Toggle Styles --- */
+        .gooey-wrapper { filter: url('#gooey-filter'); }
+        .toggle-container {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 9999px;
+            background-color: rgba(31, 41, 55, 0.5); /* gray-800 with 50% opacity */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 0.375rem;
+            transition: background-color 0.3s ease;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .toggle-radio { display: none; }
+        .toggle-label {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.875rem 1.25rem;
+            cursor: pointer;
+            color: #d1d5db; /* gray-300 */
+            font-weight: 500;
+            border-radius: 9999px;
+            transition: color 0.4s ease, opacity 0.4s ease, text-shadow 0.4s ease;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .toggle-radio:checked + .toggle-label {
+            color: #ffffff;
+            font-weight: 700;
+            opacity: 1;
+            text-shadow: 0 0 12px rgba(236, 72, 153, 0.8);
+        }
+        .toggle-radio:not(:checked) + .toggle-label { opacity: 0.6; }
+        .toggle-slider {
+            position: absolute;
+            top: 0.375rem;
+            left: 0.375rem;
+            width: calc((100% - 0.75rem) / 3);
+            height: calc(100% - 0.75rem);
+            background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899);
+            border-radius: 9999px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+            transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1), left 0.5s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.5s ease;
+            background-size: 200% 200%;
+            animation: gradient-flow 4s ease infinite;
+        }
+        @keyframes gradient-flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .toggle-slider.is-moving {
+            transform: scale(0);
+            opacity: 0;
+        }
     </style>
 </head>
 <body class="dark-theme">
+    <!-- SVG filter for the gooey effect -->
+    <svg style="position:absolute; width:0; height:0;">
+        <defs>
+            <filter id="gooey-filter">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -7" result="goo" />
+                <feBlend in="SourceGraphic" in2="goo" />
+            </filter>
+        </defs>
+    </svg>
+
     <div class="main-layout">
         <aside class="sidebar no-print">
             <div class="flex justify-between items-center mb-6">
@@ -384,6 +458,29 @@
                                 <input id="eway-bill-number" type="text" class="futuristic-input" placeholder="Enter E-Way Bill Number if applicable">
                             </div>
                         </form>
+                        
+                        <!-- GST Toggle Section -->
+                        <div class="mt-8">
+                            <h3 class="text-xl font-bold mb-4 text-center">GST Configuration</h3>
+                            <div class="gooey-wrapper">
+                                <div class="toggle-container mx-auto">
+                                    <input type="radio" id="gst-option1" name="gst_toggle" class="toggle-radio" value="100" checked>
+                                    <label for="gst-option1" class="toggle-label">100% GST</label>
+
+                                    <input type="radio" id="gst-option2" name="gst_toggle" class="toggle-radio" value="50">
+                                    <label for="gst-option2" class="toggle-label">50% GST</label>
+
+                                    <input type="radio" id="gst-option3" name="gst_toggle" class="toggle-radio" value="custom">
+                                    <label for="gst-option3" class="toggle-label">Custom</label>
+
+                                    <div class="toggle-slider"></div>
+                                </div>
+                            </div>
+                            <div id="custom-gst-input-container" class="mt-4 hidden">
+                                <label class="block text-sm font-medium text-muted mb-2 text-center">Enter Target Invoice Value (₹)</label>
+                                <input id="custom-gst-value" type="number" class="futuristic-input max-w-xs mx-auto" placeholder="e.g., 500">
+                            </div>
+                        </div>
 
                         <div class="mt-8">
                             <div class="flex justify-between items-center mb-4">
@@ -891,16 +988,28 @@
                 nameSelect.innerHTML += `<option value="${item.row_index}">${item.uniqueItemName}</option>`;
             });
 
-            // Clear details when dropdowns change
-            itemElement.querySelector('.item-hsn').value = '';
-            itemElement.querySelector('.item-rate').value = '';
-            calculateItemTotal(index);
+            // FIX: Explicitly set the value to empty and clear details
+            nameSelect.value = "";
+            populateItemDetails(index);
         }
 
         function populateItemDetails(index) {
             const itemElement = document.querySelector(`[data-index="${index}"]`);
             const nameSelect = itemElement.querySelector('.item-name');
             const selectedProductId = nameSelect.value;
+            
+            // If the user selects the placeholder, clear the fields
+            if (!selectedProductId) {
+                itemElement.querySelector('.item-hsn').value = '';
+                itemElement.querySelector('.item-rate').value = '';
+                // Reset the corresponding data object
+                if (invoiceItems[index]) {
+                    invoiceItems[index] = { quantity: 1, rate: 0, discount: 0, taxRate: 18, taxableAmount: 0, taxAmount: 0, total: 0, hsn: '', description: '' };
+                }
+                calculateItemTotal(index);
+                return;
+            }
+
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
             itemElement.querySelector('.item-hsn').value = product ? '8431' : '';
