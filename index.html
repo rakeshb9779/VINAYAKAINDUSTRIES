@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INvoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -924,7 +924,18 @@
             
             if (invoiceItems[index]) {
                 const product = allProducts.find(p => p.row_index == itemElement.querySelector('.item-name').value);
-                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxRate, taxableAmount, taxAmount, total, hsn: "8431", description: product ? product.uniqueItemName : '' };
+                let fullDescription = '';
+                if (product) {
+                    const descriptionParts = [
+                        product.MODEL,
+                        product['MODEL NUMBER'],
+                        product.DEVICE,
+                        product.SIZE,
+                        product['ITEM NAME']
+                    ];
+                    fullDescription = descriptionParts.filter(Boolean).join('_');
+                }
+                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxRate, taxableAmount, taxAmount, total, hsn: "8431", description: fullDescription };
             }
             updateInvoicePreview();
         }
@@ -1168,9 +1179,8 @@
             container.innerHTML = '';
             invoiceItems = []; 
             initializeInvoiceForm(); 
-            // After reset, set the next invoice number again
-            processAllData({ customers, products: allProducts, invoiceHistory, quotationHistory, latestInvoiceNumber: invoiceHistory[0]?.invoiceNumber }, true);
             updateInvoicePreview();
+            refreshInvoiceNumber();
         }
 
         function previewInvoice() { updateInvoicePreview(); showToast('Preview updated!', 'info'); }
@@ -1205,59 +1215,70 @@
         }
 
         function loadInvoiceForEditing(index) {
-            const invoiceToEdit = invoiceHistory[index];
-            if (!invoiceToEdit || !invoiceToEdit.fullInvoiceJSON) {
-                showToast('Could not load invoice data.', 'error');
-                return;
-            }
-
-            try {
-                const fullData = JSON.parse(invoiceToEdit.fullInvoiceJSON);
-                const invoiceData = fullData.invoiceData;
-                const itemsData = fullData.items;
-
-                showPage('create-invoice');
-                window.location.hash = 'create-invoice';
-
-                document.getElementById('invoice-number').value = invoiceData.invoiceNumber;
-                document.getElementById('invoice-date').value = invoiceData.date;
-                document.getElementById('customer-select').value = invoiceData.customerName;
-                populateCustomerDetails();
-
-                const container = document.getElementById('invoice-items-container');
-                container.innerHTML = '';
-                invoiceItems = [];
-
-                itemsData.forEach(itemData => {
-                    addInvoiceItem();
-                    const newIndex = invoiceItems.length - 1;
-                    const itemElement = document.querySelector(`.invoice-item[data-index="${newIndex}"]`);
-                    
-                    const originalProduct = allProducts.find(p => p.uniqueItemName === itemData.description);
-
-                    if (originalProduct) {
-                        itemElement.querySelector('.item-model').value = originalProduct.uniqueModel;
-                        updateDependentDropdowns(newIndex);
-                        itemElement.querySelector('.item-device').value = originalProduct.DEVICE || '';
-                        updateDependentDropdowns(newIndex);
-                        itemElement.querySelector('.item-name').value = originalProduct.row_index;
-                        
-                        populateItemDetails(newIndex); 
-                        
-                        itemElement.querySelector('.item-quantity').value = itemData.quantity;
-                        itemElement.querySelector('.item-discount').value = itemData.discount;
-                        
-                        calculateItemTotal(newIndex);
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to edit this invoice? Any unsaved changes in the current form will be lost.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, edit it!',
+                cancelButtonText: 'No, cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const invoiceToEdit = invoiceHistory[index];
+                    if (!invoiceToEdit || !invoiceToEdit.fullInvoiceJSON) {
+                        showToast('Could not load invoice data.', 'error');
+                        return;
                     }
-                });
 
-                showToast(`Loaded Invoice ${invoiceData.invoiceNumber} for editing.`, 'info');
-                updateInvoicePreview();
+                    try {
+                        const fullData = JSON.parse(invoiceToEdit.fullInvoiceJSON);
+                        const invoiceData = fullData.invoiceData;
+                        const itemsData = fullData.items;
 
-            } catch (error) {
-                console.error("Error parsing invoice data for editing:", error);
-                showToast('Failed to parse invoice data.', 'error');
-            }
+                        showPage('create-invoice');
+                        window.location.hash = 'create-invoice';
+
+                        document.getElementById('invoice-number').value = invoiceData.invoiceNumber;
+                        document.getElementById('invoice-date').value = invoiceData.date;
+                        document.getElementById('customer-select').value = invoiceData.customerName;
+                        populateCustomerDetails();
+
+                        const container = document.getElementById('invoice-items-container');
+                        container.innerHTML = '';
+                        invoiceItems = [];
+
+                        itemsData.forEach(itemData => {
+                            addInvoiceItem();
+                            const newIndex = invoiceItems.length - 1;
+                            const itemElement = document.querySelector(`.invoice-item[data-index="${newIndex}"]`);
+                            
+                            const originalProduct = allProducts.find(p => p.uniqueItemName === itemData.description.split('_').slice(-2).join(' '));
+
+                            if (originalProduct) {
+                                itemElement.querySelector('.item-model').value = originalProduct.uniqueModel;
+                                updateDependentDropdowns(newIndex);
+                                itemElement.querySelector('.item-device').value = originalProduct.DEVICE || '';
+                                updateDependentDropdowns(newIndex);
+                                itemElement.querySelector('.item-name').value = originalProduct.row_index;
+                                
+                                populateItemDetails(newIndex); 
+                                
+                                itemElement.querySelector('.item-quantity').value = itemData.quantity;
+                                itemElement.querySelector('.item-discount').value = itemData.discount;
+                                
+                                calculateItemTotal(newIndex);
+                            }
+                        });
+
+                        showToast(`Loaded Invoice ${invoiceData.invoiceNumber} for editing.`, 'info');
+                        updateInvoicePreview();
+
+                    } catch (error) {
+                        console.error("Error parsing invoice data for editing:", error);
+                        showToast('Failed to parse invoice data.', 'error');
+                    }
+                }
+            });
         }
 
 
