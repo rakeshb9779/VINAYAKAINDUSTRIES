@@ -891,24 +891,16 @@
                 nameSelect.innerHTML += `<option value="${item.row_index}">${item.uniqueItemName}</option>`;
             });
 
-            // FIX: Explicitly set the value to empty and clear details
-            nameSelect.value = "";
-            populateItemDetails(index);
+            // Clear details when dropdowns change
+            itemElement.querySelector('.item-hsn').value = '';
+            itemElement.querySelector('.item-rate').value = '';
+            calculateItemTotal(index);
         }
 
         function populateItemDetails(index) {
             const itemElement = document.querySelector(`[data-index="${index}"]`);
             const nameSelect = itemElement.querySelector('.item-name');
             const selectedProductId = nameSelect.value;
-            
-            // If the user selects the placeholder, clear the fields
-            if (!selectedProductId) {
-                itemElement.querySelector('.item-hsn').value = '';
-                itemElement.querySelector('.item-rate').value = '';
-                calculateItemTotal(index);
-                return;
-            }
-
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
             itemElement.querySelector('.item-hsn').value = product ? '8431' : '';
