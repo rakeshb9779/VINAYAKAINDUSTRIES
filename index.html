@@ -326,31 +326,47 @@
                         </div>
                     </div>
                 </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="glass-card p-6 fade-in-up" style="animation-delay: 600ms;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-bold">Total GST Collected</h3>
+                            <select id="gst-month-filter" class="futuristic-select w-48">
+                                <option value="all">All Time</option>
+                                <option value="current">Current Month</option>
+                                <option value="0">January</option>
+                                <option value="1">February</option>
+                                <option value="2">March</option>
+                                <option value="3">April</option>
+                                <option value="4">May</option>
+                                <option value="5">June</option>
+                                <option value="6">July</option>
+                                <option value="7">August</option>
+                                <option value="8">September</option>
+                                <option value="9">October</option>
+                                <option value="10">November</option>
+                                <option value="11">December</option>
+                            </select>
+                        </div>
+                        <p class="text-4xl font-bold text-center py-4" id="stats-total-gst">₹0.00</p>
+                    </div>
 
-                <div class="glass-card p-6 fade-in-up" style="animation-delay: 600ms;">
-                    <h3 class="text-xl font-bold mb-4">Quick Actions</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <a href="#create-invoice" class="nav-link-action futuristic-btn p-6 rounded-lg flex flex-col items-start justify-between text-left h-40">
-                            <i data-lucide="file-plus" class="w-8 h-8 mb-4"></i>
-                            <div>
-                                <p class="font-bold text-lg">Create Invoice</p>
-                                <p class="text-sm font-normal text-white/70">Generate GST invoice</p>
-                            </div>
-                        </a>
-                        <a href="#customers" class="nav-link-action futuristic-btn futuristic-btn-secondary p-6 rounded-lg flex flex-col items-start justify-between text-left h-40">
-                            <i data-lucide="user-plus" class="w-8 h-8 mb-4"></i>
-                            <div>
-                                <p class="font-bold text-lg">Add Customer</p>
-                                <p class="text-sm font-normal text-white/70">Register new customer</p>
-                            </div>
-                        </a>
-                        <a href="#products" class="nav-link-action futuristic-btn futuristic-btn-tertiary p-6 rounded-lg flex flex-col items-start justify-between text-left h-40">
-                            <i data-lucide="package-plus" class="w-8 h-8 mb-4"></i>
-                            <div>
-                                <p class="font-bold text-lg">Add Product</p>
-                                <p class="text-sm font-normal text-white/70">Manage inventory</p>
-                            </div>
-                        </a>
+                    <div class="glass-card p-6 fade-in-up" style="animation-delay: 700ms;">
+                        <h3 class="text-xl font-bold mb-4">Quick Actions</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <a href="#create-invoice" class="nav-link-action futuristic-btn p-4 rounded-lg flex flex-col items-center justify-center text-center">
+                                <i data-lucide="file-plus" class="w-8 h-8 mb-2"></i>
+                                <span class="font-semibold">New Invoice</span>
+                            </a>
+                            <a href="#customers" class="nav-link-action futuristic-btn futuristic-btn-secondary p-4 rounded-lg flex flex-col items-center justify-center text-center">
+                                <i data-lucide="user-plus" class="w-8 h-8 mb-2"></i>
+                                <span class="font-semibold">Add Customer</span>
+                            </a>
+                            <a href="#products" class="nav-link-action futuristic-btn futuristic-btn-tertiary p-4 rounded-lg flex flex-col items-center justify-center text-center">
+                                <i data-lucide="package-plus" class="w-8 h-8 mb-2"></i>
+                                <span class="font-semibold">Add Product</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
