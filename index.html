@@ -209,82 +209,35 @@
             }
         }
 
-        /* --- GST Toggle Styles --- */
-        .gooey-wrapper { filter: url('#gooey-filter'); }
-        .toggle-container {
-            position: relative;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
+        /* --- Simple GST Toggle Styles --- */
+        .simple-toggle-container {
+            display: flex;
+            border-radius: 9999px;
+            background-color: rgba(51, 65, 85, 0.5);
+            padding: 0.25rem;
             width: 100%;
             max-width: 450px;
-            border-radius: 9999px;
-            background-color: rgba(31, 41, 55, 0.5); /* gray-800 with 50% opacity */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 0.375rem;
-            transition: background-color 0.3s ease;
-            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 10px 30px rgba(0,0,0,0.3);
         }
-        .toggle-radio { display: none; }
-        .toggle-label {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.875rem 1.25rem;
-            cursor: pointer;
-            color: #d1d5db; /* gray-300 */
-            font-weight: 500;
-            border-radius: 9999px;
-            transition: color 0.4s ease, opacity 0.4s ease, text-shadow 0.4s ease;
+        .simple-toggle-radio { display: none; }
+        .simple-toggle-label {
+            flex: 1;
             text-align: center;
-            white-space: nowrap;
-        }
-        .toggle-radio:checked + .toggle-label {
-            color: #ffffff;
-            font-weight: 700;
-            opacity: 1;
-            text-shadow: 0 0 12px rgba(236, 72, 153, 0.8);
-        }
-        .toggle-radio:not(:checked) + .toggle-label { opacity: 0.6; }
-        .toggle-slider {
-            position: absolute;
-            top: 0.375rem;
-            left: 0.375rem;
-            width: calc((100% - 0.75rem) / 3);
-            height: calc(100% - 0.75rem);
-            background: linear-gradient(45deg, #6366f1, #a855f7, #ec4899);
+            padding: 0.75rem 1rem;
             border-radius: 9999px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
-            transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1), left 0.5s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.5s ease;
-            background-size: 200% 200%;
-            animation: gradient-flow 4s ease infinite;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #94a3b8; /* text-muted-dark */
         }
-        @keyframes gradient-flow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .toggle-slider.is-moving {
-            transform: scale(0);
-            opacity: 0;
+        .simple-toggle-radio:checked + .simple-toggle-label {
+            background: linear-gradient(135deg, rgb(var(--primary-rgb)) 0%, rgb(var(--primary-dark-rgb)) 100%);
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(var(--primary-rgb), 0.2);
         }
     </style>
 </head>
 <body class="dark-theme">
-    <!-- SVG filter for the gooey effect -->
-    <svg style="position:absolute; width:0; height:0;">
-        <defs>
-            <filter id="gooey-filter">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
-                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -7" result="goo" />
-                <feBlend in="SourceGraphic" in2="goo" />
-            </filter>
-        </defs>
-    </svg>
-
     <div class="main-layout">
         <aside class="sidebar no-print">
             <div class="flex justify-between items-center mb-6">
@@ -462,23 +415,15 @@
                         <!-- GST Toggle Section -->
                         <div class="mt-8">
                             <h3 class="text-xl font-bold mb-4 text-center">GST Configuration</h3>
-                            <div class="gooey-wrapper">
-                                <div class="toggle-container mx-auto">
-                                    <input type="radio" id="gst-option1" name="gst_toggle" class="toggle-radio" value="100" checked>
-                                    <label for="gst-option1" class="toggle-label">100% GST</label>
+                            <div class="simple-toggle-container mx-auto">
+                                <input type="radio" id="gst-option1" name="gst_toggle" class="simple-toggle-radio" value="100" checked>
+                                <label for="gst-option1" class="simple-toggle-label">100% GST</label>
 
-                                    <input type="radio" id="gst-option2" name="gst_toggle" class="toggle-radio" value="50">
-                                    <label for="gst-option2" class="toggle-label">50% GST</label>
+                                <input type="radio" id="gst-option2" name="gst_toggle" class="simple-toggle-radio" value="50">
+                                <label for="gst-option2" class="simple-toggle-label">50% GST</label>
 
-                                    <input type="radio" id="gst-option3" name="gst_toggle" class="toggle-radio" value="custom">
-                                    <label for="gst-option3" class="toggle-label">Custom</label>
-
-                                    <div class="toggle-slider"></div>
-                                </div>
-                            </div>
-                            <div id="custom-gst-input-container" class="mt-4 hidden">
-                                <label class="block text-sm font-medium text-muted mb-2 text-center">Enter Target Invoice Value (₹)</label>
-                                <input id="custom-gst-value" type="number" class="futuristic-input max-w-xs mx-auto" placeholder="e.g., 500">
+                                <input type="radio" id="gst-option3" name="gst_toggle" class="simple-toggle-radio" value="custom">
+                                <label for="gst-option3" class="simple-toggle-label">Custom Rate</label>
                             </div>
                         </div>
 
@@ -903,6 +848,11 @@
             document.getElementById('invoice-next-number').addEventListener('input', updateInvoiceExample);
             document.getElementById('invoice-form').addEventListener('input', updateInvoicePreview);
             document.getElementById('customer-select').addEventListener('change', populateCustomerDetails);
+            
+            // GST Toggle Listener
+            document.querySelectorAll('input[name="gst_toggle"]').forEach(radio => {
+                radio.addEventListener('change', handleGstToggleChange);
+            });
         }
 
         function initializeInvoiceForm() {
@@ -1014,7 +964,9 @@
 
             itemElement.querySelector('.item-hsn').value = product ? '8431' : '';
             itemElement.querySelector('.item-rate').value = product ? (product.PRICE || '') : '';
-            calculateItemTotal(index);
+            
+            // Apply GST logic after populating
+            applyGstModeToItem(index);
         }
 
         function calculateItemTotal(index) {
@@ -1577,6 +1529,44 @@
                 showToast(`Could not fetch live data: ${error.message}`, "error");
             }
         }
+
+        // --- GST Toggle Functionality ---
+        function handleGstToggleChange() {
+            document.querySelectorAll('.invoice-item').forEach((item, index) => {
+                applyGstModeToItem(index);
+            });
+        }
+
+        function applyGstModeToItem(index) {
+            const itemElement = document.querySelector(`[data-index="${index}"]`);
+            const nameSelect = itemElement.querySelector('.item-name');
+            const selectedProductId = nameSelect.value;
+
+            if (!selectedProductId) return;
+
+            const product = allProducts.find(p => p.row_index == selectedProductId);
+            if (!product) return;
+
+            const rateInput = itemElement.querySelector('.item-rate');
+            const originalRate = parseFloat(product.PRICE || 0);
+
+            const gstMode = document.querySelector('input[name="gst_toggle"]:checked').value;
+
+            rateInput.readOnly = true; // Default to readonly
+
+            if (gstMode === '50') {
+                rateInput.value = (originalRate / 2).toFixed(2);
+            } else if (gstMode === 'custom') {
+                rateInput.readOnly = false;
+                // You might want to prompt the user for a value here, or let them edit it directly
+                // For now, we'll just make it editable.
+            } else { // 100%
+                rateInput.value = originalRate.toFixed(2);
+            }
+            
+            calculateItemTotal(index);
+        }
+
     </script>
 </body>
 </html>
