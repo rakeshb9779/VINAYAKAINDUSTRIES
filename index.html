@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iNvoice Generator Pro - Vinayaka Industries</title>
+    <title>voice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -417,13 +417,13 @@
                             <h3 class="text-xl font-bold mb-4 text-center">GST Configuration</h3>
                             <div class="simple-toggle-container mx-auto">
                                 <input type="radio" id="gst-option1" name="gst_toggle" class="simple-toggle-radio" value="100" checked>
-                                <label for="gst-option1" class="simple-toggle-label">100% GST</label>
+                                <label for="gst-option1" class="simple-toggle-label">1</label>
 
                                 <input type="radio" id="gst-option2" name="gst_toggle" class="simple-toggle-radio" value="50">
-                                <label for="gst-option2" class="simple-toggle-label">50% GST</label>
+                                <label for="gst-option2" class="simple-toggle-label">2</label>
 
                                 <input type="radio" id="gst-option3" name="gst_toggle" class="simple-toggle-radio" value="custom">
-                                <label for="gst-option3" class="simple-toggle-label">Custom Rate</label>
+                                <label for="gst-option3" class="simple-toggle-label">3</label>
                             </div>
                         </div>
 
@@ -873,7 +873,7 @@
                 <select class="item-name futuristic-select text-sm" onchange="populateItemDetails(${itemIndex})"><option value="">SELECT ITEM NAME</option></select>
                 <div class="grid grid-cols-6 gap-2 text-sm">
                     <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" readonly>
-                    <input type="number" class="item-rate futuristic-input" placeholder="Rate" readonly>
+                    <input type="number" class="item-rate futuristic-input" placeholder="Rate" oninput="calculateItemTotal(${itemIndex})" readonly>
                     <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex})" placeholder="Qty">
                     <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${itemIndex})" placeholder="Disc %">
                     <input type="number" class="item-tax-rate futuristic-input" value="18" oninput="calculateItemTotal(${itemIndex})" placeholder="Tax %">
