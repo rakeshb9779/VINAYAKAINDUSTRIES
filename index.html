@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -194,6 +194,9 @@
         
         .invoice-page {
              margin-bottom: 1rem;
+             border: 1px solid rgba(var(--primary-rgb), 0.3);
+             padding: 1.5rem;
+             border-radius: 1rem;
         }
 
         @media print {
@@ -217,6 +220,8 @@
             .invoice-page {
                 page-break-after: always;
                 margin-bottom: 0;
+                border: none;
+                padding: 0;
             }
              .invoice-page:last-child {
                 page-break-after: auto;
@@ -400,7 +405,7 @@
                     <div class="glass-card p-8">
                         <h3 class="text-xl font-bold mb-6">Invoice Details</h3>
                         <form id="invoice-form" class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
+                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-muted mb-2">Invoice Number</label>
                                     <div class="relative">
@@ -415,21 +420,34 @@
                                     <input id="invoice-date" type="date" class="futuristic-input" required>
                                 </div>
                             </div>
-                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Due Date</label>
+                                    <input id="due-date" type="date" class="futuristic-input">
+                                </div>
+                                 <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Salesman</label>
+                                    <input id="salesman-name" type="text" class="futuristic-input" placeholder="Enter salesman name">
+                                </div>
+                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-muted mb-2">Select Customer</label>
                                 <select id="customer-select" class="futuristic-select" required></select>
                             </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-muted mb-2">Customer GSTIN</label>
-                                <input id="customer-gstin-display" type="text" class="futuristic-input bg-opacity-50" readonly>
-                            </div>
-
                             <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Customer GSTIN</label>
+                                    <input id="customer-gstin-display" type="text" class="futuristic-input bg-opacity-50" readonly>
+                                </div>
                                 <div>
                                     <label class="block text-sm font-medium text-muted mb-2">Place of Supply</label>
                                     <input id="place-of-supply-display" type="text" class="futuristic-input bg-opacity-50" readonly>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Challan No.</label>
+                                    <input id="challan-number" type="text" class="futuristic-input" placeholder="Enter Challan Number">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-muted mb-2">Dispatch</label>
@@ -908,6 +926,9 @@
                     <select class="item-device futuristic-select text-sm" onchange="updateDependentDropdowns(${itemIndex})"><option value="">(BLANK)</option><option value="SWING DEVICE">SWING DEVICE</option><option value="TRAVEL DEVICE">TRAVEL DEVICE</option></select>
                 </div>
                 <select class="item-name futuristic-select text-sm" onchange="populateItemDetails(${itemIndex})"><option value="">SELECT ITEM NAME</option></select>
+                <div class="grid grid-cols-1 gap-2 text-sm">
+                    <textarea class="item-description futuristic-textarea" rows="2" placeholder="Item Description / Serial No."></textarea>
+                </div>
                 <div class="grid grid-cols-6 gap-2 text-sm">
                     <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" readonly>
                     <input type="number" class="item-rate futuristic-input" placeholder="Rate" oninput="calculateItemTotal(${itemIndex})" readonly>
@@ -918,7 +939,7 @@
                 <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" readonly>
             </div>`;
             container.insertAdjacentHTML('beforeend', itemHtml);
-            invoiceItems.push({ quantity: 1, rate: 0, discount: 0, taxRate: 18 });
+            invoiceItems.push({ quantity: 1, rate: 0, discount: 0, taxRate: 18, description: '' });
             lucide.createIcons();
             populateModelDropdown(itemIndex);
         }
@@ -983,10 +1004,12 @@
             const itemElement = document.querySelector(`[data-index="${index}"]`);
             const nameSelect = itemElement.querySelector('.item-name');
             const selectedProductId = nameSelect.value;
+            const descriptionTextarea = itemElement.querySelector('.item-description');
             
             if (!selectedProductId) {
                 itemElement.querySelector('.item-hsn').value = '';
                 itemElement.querySelector('.item-rate').value = '';
+                descriptionTextarea.value = '';
                 if (invoiceItems[index]) {
                     invoiceItems[index] = { quantity: 1, rate: 0, discount: 0, taxRate: 18, taxableAmount: 0, taxAmount: 0, total: 0, hsn: '', description: '' };
                 }
@@ -995,6 +1018,20 @@
             }
 
             const product = allProducts.find(p => p.row_index == selectedProductId);
+            
+            let fullDescription = '';
+            if (product) {
+                const descriptionParts = [
+                    product.MODEL,
+                    product['MODEL NUMBER'],
+                    product.DEVICE,
+                    product.SIZE,
+                    product['ITEM NAME']
+                ];
+                fullDescription = descriptionParts.filter(Boolean).join(' ');
+            }
+            descriptionTextarea.value = fullDescription;
+            invoiceItems[index].description = fullDescription;
 
             itemElement.querySelector('.item-hsn').value = product ? (product['HSN/SAC'] || '') : '';
             itemElement.querySelector('.item-rate').value = product ? (product.PRICE || '') : '';
@@ -1010,6 +1047,7 @@
             const rate = parseFloat(itemElement.querySelector('.item-rate').value || 0);
             const discount = parseFloat(itemElement.querySelector('.item-discount').value || 0);
             const taxRate = parseFloat(itemElement.querySelector('.item-tax-rate').value || 0);
+            const description = itemElement.querySelector('.item-description').value;
 
             const subTotal = quantity * rate;
             const discountAmount = subTotal * (discount / 100);
@@ -1021,18 +1059,7 @@
             
             if (invoiceItems[index]) {
                 const product = allProducts.find(p => p.row_index == itemElement.querySelector('.item-name').value);
-                let fullDescription = '';
-                if (product) {
-                    const descriptionParts = [
-                        product.MODEL,
-                        product['MODEL NUMBER'],
-                        product.DEVICE,
-                        product.SIZE,
-                        product['ITEM NAME']
-                    ];
-                    fullDescription = descriptionParts.filter(Boolean).join('_');
-                }
-                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxRate, taxableAmount, taxAmount, total, hsn: product ? (product['HSN/SAC'] || '') : '', description: fullDescription };
+                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxRate, taxableAmount, taxAmount, total, hsn: product ? (product['HSN/SAC'] || '') : '', description: description };
             }
             updateInvoicePreview();
         }
@@ -1061,139 +1088,10 @@
             updateInvoicePreview();
         }
         
-        function generateInvoicePageHtml(chunk, pageIndex, totalPages, allValidItems) {
-            const isLastPage = pageIndex === totalPages - 1;
-            const currentPage = pageIndex + 1;
-            const itemsPerPage = 10;
-            
-            const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
-            const bankSettings = JSON.parse(localStorage.getItem('bankSettings') || '{}');
-            const selectedCustomer = customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value);
-            const invoiceDate = document.getElementById('invoice-date').value;
-
-            const headerHtml = `
-                <header class="pb-4 mb-4 border-b-2 border-dotted"><div class="flex justify-between items-start">
-                    <div>
-                        <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Company Logo" class="h-16 mb-2">
-                        <p class="text-xs max-w-xs">${companySettings.address}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-gray-800">GSTIN: ${companySettings.gstin}</p>
-                        <h1 class="text-2xl font-bold mt-2 text-gray-800">TAX INVOICE</h1>
-                        ${totalPages > 1 ? `<p class="text-xs text-muted">Page ${currentPage} of ${totalPages}</p>` : ''}
-                    </div>
-                </div></header>
-                <div class="flex justify-between text-sm border-b-2 border-dotted pb-4 mb-4">
-                    <div class="w-1/2">
-                        <strong class="block mb-2">Bill To:</strong>
-                        <table><tbody>
-                            <tr><td class="pr-2 font-bold">Name</td><td>: ${selectedCustomer['Customer Name']}</td></tr>
-                            <tr><td class="pr-2 font-bold">Address</td><td>: ${selectedCustomer.Address}</td></tr>
-                            <tr><td class="pr-2 font-bold">GSTIN</td><td>: ${selectedCustomer['Customer GSTIN']}</td></tr>
-                        </tbody></table>
-                    </div>
-                    <div class="w-1/2">
-                            <table><tbody>
-                            <tr><td class="pr-2 font-bold">Invoice #</td><td>: ${document.getElementById('invoice-number').value}</td></tr>
-                            <tr><td class="pr-2 font-bold">Date</td><td>: ${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
-                            <tr><td class="pr-2 font-bold">Dispatch</td><td>: ${document.getElementById('dispatch-method').value}</td></tr>
-                            <tr><td class="pr-2 font-bold">Eway Bill #</td><td>: ${document.getElementById('eway-bill-number').value || '_________________'}</td></tr>
-                            </tbody></table>
-                    </div>
-                </div>`;
-
-            const itemsHtml = chunk.map((item, index) => {
-                const itemNumber = pageIndex * itemsPerPage + index + 1;
-                return `<tr class="border-b text-xs"><td class="p-2 text-center">${itemNumber}</td><td class="p-2">${item.description}</td><td class="p-2 text-center">${item.hsn}</td><td class="p-2 text-center">${item.quantity}</td><td class="p-2 text-right">₹${(item.rate || 0).toFixed(2)}</td><td class="p-2 text-right">₹${(item.taxableAmount || 0).toFixed(2)}</td></tr>`;
-            }).join('');
-
-            let totalsAndFooterHtml = '';
-            if (isLastPage) {
-                const totalTaxableAmount = allValidItems.reduce((sum, item) => sum + (item.taxableAmount || 0), 0);
-                const totalTax = allValidItems.reduce((sum, item) => sum + (item.taxAmount || 0), 0);
-                const grandTotal = allValidItems.reduce((sum, item) => sum + (item.total || 0), 0);
-                
-                const taxRate = allValidItems.length > 0 ? allValidItems[0].taxRate : 0;
-                const isIntraState = (companySettings.gstin || '').substring(0, 2) === (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
-                
-                let taxRows = isIntraState
-                    ? `<tr><td colspan="5" class="p-2 text-right font-semibold">CGST (${taxRate/2}%):</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>
-                        <tr><td colspan="5" class="p-2 text-right font-semibold">SGST (${taxRate/2}%):</td><td class="p-2 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>`
-                    : `<tr><td colspan="5" class="p-2 text-right font-semibold">IGST (${taxRate}%):</td><td class="p-2 text-right font-semibold">₹${totalTax.toFixed(2)}</td></tr>`;
-                
-                const grandTotalInWords = amountToWords(grandTotal);
-                const termsAndConditions = (companySettings.terms || ``).replace(/\n/g, '<br>');
-
-                const bankDetailsHtml = `
-                    <table class="text-xs w-full"><tbody>
-                        <tr><td class="font-bold pr-2">Name</td><td>: ${bankSettings.name || ''}</td></tr>
-                        <tr><td class="font-bold pr-2">IFSC Code</td><td>: ${bankSettings.ifsc || ''}</td></tr>
-                        <tr><td class="font-bold pr-2">Account No</td><td>: ${bankSettings.accountNumber || ''}</td></tr>
-                        <tr><td class="font-bold pr-2">Bank</td><td>: ${bankSettings.name || ''}</td></tr>
-                    </tbody></table>`;
-
-                const paymentQrCodeHtml = `
-                    <div class="text-center">
-                        <p class="font-bold text-sm">Payment QR Code</p>
-                        <p class="text-xs">UPI ID: ${bankSettings.upiId || ''}</p>
-                        <div id="qrcode" class="flex justify-center items-center my-2"></div>
-                    </div>`;
-
-                totalsAndFooterHtml = `
-                    <div class="flex justify-end">
-                        <table class="w-1/2 text-sm"><tbody>
-                            <tr><td colspan="5" class="p-2 text-right font-semibold border-t-2">Subtotal:</td><td class="p-2 text-right font-semibold border-t-2">₹${totalTaxableAmount.toFixed(2)}</td></tr>
-                            ${taxRows}
-                            <tr class="bg-blue-500/10"><td colspan="5" class="p-3 text-right text-lg font-bold">Grand Total:</td><td class="p-3 text-right text-lg font-bold">₹${grandTotal.toFixed(2)}</td></tr>
-                        </tbody></table>
-                    </div>
-                    <div class="border-t-2 border-dotted pt-2 mt-2 text-xs font-semibold">Amount in Words: ${grandTotalInWords}</div>
-                    <div class="mt-6 pt-4 border-t-2 border-dotted text-xs">
-                        <table class="w-full"><tbody>
-                            <tr>
-                                <td class="w-1/2 p-2 border border-gray-500 align-top">
-                                    <p class="font-bold mb-2">Bank Details:</p>
-                                    ${bankDetailsHtml}
-                                </td>
-                                <td class="w-1/2 p-2 border border-gray-500 align-top">
-                                    ${paymentQrCodeHtml}
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 border border-gray-500 align-top">
-                                    <p class="font-bold mb-2">Terms & Conditions:</p>
-                                    <div class="text-xs">${termsAndConditions}</div>
-                                </td>
-                                <td class="p-2 border border-gray-500 align-bottom text-center">
-                                    <div class="pt-8">
-                                        <p class="border-t pt-2">For Vinayaka Industries</p>
-                                        <p>(Authorized Signatory)</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody></table>
-                    </div>`;
-            } else {
-                totalsAndFooterHtml = `<div class="text-center text-muted p-4 border-t-2 border-dotted mt-4">... Continued on next page ...</div>`;
-            }
-
-            return `
-                <div class="invoice-page p-8 border-b-2 border-dashed border-gray-500">
-                    ${headerHtml}
-                    <table class="w-full text-sm mb-2">
-                        <thead><tr class="table-header text-xs"><th class="p-2 text-left">#</th><th class="p-2 text-left">Item</th><th class="p-2 text-center">HSN</th><th class="p-2 text-center">Qty</th><th class="p-2 text-right">Unit Price</th><th class="p-2 text-right">Taxable Amount</th></tr></thead>
-                        <tbody>${itemsHtml}</tbody>
-                    </table>
-                    ${totalsAndFooterHtml}
-                </div>`;
-        }
-
         function updateInvoicePreview() {
             const preview = document.getElementById('invoice-preview');
             const validItems = invoiceItems.filter(item => item.description);
             const selectedCustomer = customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value);
-            const bankSettings = JSON.parse(localStorage.getItem('bankSettings') || '{}');
-            const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
             
             if (!selectedCustomer || validItems.length === 0) {
                  preview.innerHTML = `<div class="p-6 flex flex-col justify-center items-center text-center text-muted h-full"><i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 opacity-50"></i><p>Invoice preview will appear here</p><p class="text-sm">Fill in the invoice details to see live preview</p></div>`;
@@ -1213,9 +1111,126 @@
             
             preview.innerHTML = allPagesHtml;
             
+            const bankSettings = JSON.parse(localStorage.getItem('bankSettings') || '{}');
+            const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
             if (bankSettings.upiId && document.getElementById('qrcode')) {
                 generateQRCode(bankSettings.upiId, companySettings.name);
             }
+        }
+
+        function generateInvoicePageHtml(chunk, pageIndex, totalPages, allValidItems) {
+            const isLastPage = pageIndex === totalPages - 1;
+            const currentPage = pageIndex + 1;
+            const itemsPerPage = 10;
+            
+            const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
+            const bankSettings = JSON.parse(localStorage.getItem('bankSettings') || '{}');
+            const selectedCustomer = customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value);
+            const invoiceDate = document.getElementById('invoice-date').value;
+            const dueDate = document.getElementById('due-date').value;
+            const salesman = document.getElementById('salesman-name').value;
+            const challanNo = document.getElementById('challan-number').value;
+
+            const headerHtml = `
+                <header class="pb-2 mb-2 border-b-2 border-black"><div class="flex justify-between items-start">
+                    <div class="w-2/3">
+                        <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Company Logo" class="h-20 mb-2">
+                        <p class="text-xs font-bold">${companySettings.name || 'Vinayaka Industries'}</p>
+                        <p class="text-xs" style="white-space: pre-line;">${companySettings.address}</p>
+                        <p class="text-xs"><b>GSTIN:</b> ${companySettings.gstin}</p>
+                    </div>
+                    <div class="w-1/3 text-right">
+                        <h1 class="text-3xl font-bold text-gray-800">TAX INVOICE</h1>
+                        ${totalPages > 1 ? `<p class="text-xs text-muted">Page ${currentPage} of ${totalPages}</p>` : ''}
+                    </div>
+                </div></header>
+                <div class="flex justify-between text-xs border-b-2 border-black pb-2 mb-2">
+                    <div class="w-1/2">
+                        <strong class="block mb-1">Bill To:</strong>
+                        <p class="font-bold">${selectedCustomer['Customer Name']}</p>
+                        <p style="white-space: pre-line;">${selectedCustomer.Address}</p>
+                        <p><b>GSTIN:</b> ${selectedCustomer['Customer GSTIN']}</p>
+                    </div>
+                    <div class="w-1/2">
+                        <table class="w-full"><tbody>
+                            <tr><td class="font-bold pr-2">Invoice No:</td><td>${document.getElementById('invoice-number').value}</td></tr>
+                            <tr><td class="font-bold pr-2">Invoice Date:</td><td>${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
+                            <tr><td class="font-bold pr-2">Due Date:</td><td>${dueDate ? new Date(dueDate).toLocaleDateString('en-GB') : ''}</td></tr>
+                            <tr><td class="font-bold pr-2">Salesman:</td><td>${salesman}</td></tr>
+                            <tr><td class="font-bold pr-2">Challan No:</td><td>${challanNo}</td></tr>
+                        </tbody></table>
+                    </div>
+                </div>`;
+
+            const itemsHtml = chunk.map((item, index) => {
+                const itemNumber = pageIndex * itemsPerPage + index + 1;
+                return `<tr class="border-b"><td class="p-1 text-center">${itemNumber}</td><td class="p-1" style="white-space: pre-line;">${item.description}</td><td class="p-1 text-center">${item.hsn}</td><td class="p-1 text-center">${item.quantity}</td><td class="p-1 text-right">₹${(item.rate || 0).toFixed(2)}</td><td class="p-1 text-right">₹${(item.taxableAmount || 0).toFixed(2)}</td></tr>`;
+            }).join('');
+
+            let totalsAndFooterHtml = '';
+            if (isLastPage) {
+                const totalTaxableAmount = allValidItems.reduce((sum, item) => sum + (item.taxableAmount || 0), 0);
+                const totalTax = allValidItems.reduce((sum, item) => sum + (item.taxAmount || 0), 0);
+                const grandTotal = allValidItems.reduce((sum, item) => sum + (item.total || 0), 0);
+                
+                const taxRate = allValidItems.length > 0 ? allValidItems[0].taxRate : 0;
+                const isIntraState = (companySettings.gstin || '').substring(0, 2) === (selectedCustomer['Customer GSTIN'] || '').substring(0, 2);
+                
+                let taxRows = isIntraState
+                    ? `<tr><td colspan="5" class="p-1 text-right font-semibold">CGST (${taxRate/2}%):</td><td class="p-1 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>
+                        <tr><td colspan="5" class="p-1 text-right font-semibold">SGST (${taxRate/2}%):</td><td class="p-1 text-right font-semibold">₹${(totalTax / 2).toFixed(2)}</td></tr>`
+                    : `<tr><td colspan="5" class="p-1 text-right font-semibold">IGST (${taxRate}%):</td><td class="p-1 text-right font-semibold">₹${totalTax.toFixed(2)}</td></tr>`;
+                
+                const grandTotalInWords = amountToWords(grandTotal);
+                const termsAndConditions = (companySettings.terms || ``).replace(/\n/g, '<br>');
+
+                const bankDetailsHtml = `<table class="text-xs w-full"><tbody>
+                        <tr><td class="font-bold pr-2">Name:</td><td>${bankSettings.name || ''}</td></tr>
+                        <tr><td class="font-bold pr-2">IFSC Code:</td><td>${bankSettings.ifsc || ''}</td></tr>
+                        <tr><td class="font-bold pr-2">Account No:</td><td>${bankSettings.accountNumber || ''}</td></tr>
+                        <tr><td class="font-bold pr-2">Bank:</td><td>${bankSettings.name || ''}</td></tr>
+                    </tbody></table>`;
+
+                const paymentQrCodeHtml = `<div class="text-center">
+                        <p class="font-bold text-xs">Payment QR Code</p>
+                        <p class="text-xs">UPI ID: ${bankSettings.upiId || ''}</p>
+                        <div id="qrcode" class="flex justify-center items-center my-1"></div>
+                    </div>`;
+
+                totalsAndFooterHtml = `
+                    <div class="flex justify-end mt-2">
+                        <table class="w-1/2 text-xs"><tbody>
+                            <tr><td colspan="5" class="p-1 text-right font-semibold border-t-2">Subtotal:</td><td class="p-1 text-right font-semibold border-t-2">₹${totalTaxableAmount.toFixed(2)}</td></tr>
+                            ${taxRows}
+                            <tr class="bg-gray-200 dark:bg-gray-700"><td colspan="5" class="p-2 text-right font-bold">Grand Total:</td><td class="p-2 text-right font-bold">₹${grandTotal.toFixed(2)}</td></tr>
+                        </tbody></table>
+                    </div>
+                    <div class="border-t-2 border-black pt-1 mt-2 text-xs font-semibold">Amount in Words: ${grandTotalInWords}</div>
+                    <div class="mt-4 pt-2 border-t-2 border-black text-xs">
+                        <table class="w-full"><tbody>
+                            <tr>
+                                <td class="w-1/2 p-1 border border-black align-top"><p class="font-bold mb-1">Bank Details:</p>${bankDetailsHtml}</td>
+                                <td class="w-1/2 p-1 border border-black align-top">${paymentQrCodeHtml}</td>
+                            </tr>
+                            <tr>
+                                <td class="p-1 border border-black align-top"><p class="font-bold mb-1">Terms & Conditions:</p><div class="text-xs">${termsAndConditions}</div></td>
+                                <td class="p-1 border border-black align-bottom text-center"><div class="pt-8"><p class="border-t pt-1">Authorised Signatory</p></div></td>
+                            </tr>
+                        </tbody></table>
+                    </div>`;
+            } else {
+                totalsAndFooterHtml = `<div class="text-center text-muted p-4 mt-4">... Continued on next page ...</div>`;
+            }
+
+            return `
+                <div class="invoice-page p-4">
+                    ${headerHtml}
+                    <table class="w-full text-xs" style="min-height: 450px;">
+                        <thead><tr class="table-header bg-gray-200 dark:bg-gray-700"><th class="p-1 text-left w-[5%]">S.No.</th><th class="p-1 text-left w-[45%]">Items</th><th class="p-1 text-center w-[10%]">HSN</th><th class="p-1 text-center w-[10%]">Qty</th><th class="p-1 text-right w-[15%]">Rate</th><th class="p-1 text-right w-[15%]">Amount</th></tr></thead>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+                    ${totalsAndFooterHtml}
+                </div>`;
         }
         
         function generateQRCode(upiId, name) {
@@ -1228,8 +1243,8 @@
             
             new QRCode(qrCodeElement, {
                 text: upiString,
-                width: 80,
-                height: 80,
+                width: 70,
+                height: 70,
                 colorDark : "#000000",
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H
