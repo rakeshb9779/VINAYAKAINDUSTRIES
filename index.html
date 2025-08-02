@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -727,7 +727,7 @@
     <footer class="fixed-footer no-print page-footer hidden" data-page="create-invoice">
         <a href="#settings" class="nav-link-action futuristic-btn futuristic-btn-neutral"><i data-lucide="settings" class="w-5 h-5"></i>Settings</a>
         <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-secondary"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
-        <button onclick="handleLoadData()" class="futuristic-btn futuristic-btn-neutral"><i data-lucide="upload-cloud" class="w-5 h-5"></i>Load Data</button>
+        <button onclick="handleSaveInvoice()" class="futuristic-btn"><i data-lucide="save" class="w-5 h-5"></i>Save Invoice</button>
         <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Generate</button>
     </footer>
      <footer class="fixed-footer no-print page-footer hidden" data-page="quotation">
@@ -982,7 +982,8 @@
 
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
-            itemElement.querySelector('.item-hsn').value = product ? '8431' : '';
+            // FIX: Use HSN/SAC from the product data
+            itemElement.querySelector('.item-hsn').value = product ? (product['HSN/SAC'] || '') : '';
             itemElement.querySelector('.item-rate').value = product ? (product.PRICE || '') : '';
             
             // Apply GST logic after populating
@@ -1019,7 +1020,8 @@
                     ];
                     fullDescription = descriptionParts.filter(Boolean).join('_');
                 }
-                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxRate, taxableAmount, taxAmount, total, hsn: "8431", description: fullDescription };
+                // FIX: Use HSN/SAC from the product data when saving
+                invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxRate, taxableAmount, taxAmount, total, hsn: product ? (product['HSN/SAC'] || '') : '', description: fullDescription };
             }
             updateInvoicePreview();
         }
@@ -1200,7 +1202,7 @@
             }
         }
         
-        async function handleLoadData() {
+        async function handleSaveInvoice() {
             const invoiceDataForPost = getInvoiceDataForPost();
             if (!invoiceDataForPost) return; 
 
@@ -1240,13 +1242,13 @@
                     }
                 });
             } else {
-                Swal.fire({ title: 'Loading Data...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                Swal.fire({ title: 'Saving Invoice...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                 try {
                     await saveInvoiceRecord(invoiceDataForPost, 'addInvoice');
                     Swal.close();
                 } catch(e) {
                      Swal.close();
-                     showToast('Load data failed!', 'error');
+                     showToast('Save failed!', 'error');
                 }
             }
         }
