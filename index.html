@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
@@ -206,6 +206,9 @@
             }
             .invoice-preview *, .invoice-preview .text-gray-800 {
                 color: black !important;
+            }
+            #qrcode img {
+                margin: 0 auto;
             }
         }
 
@@ -433,16 +436,16 @@
                         
                         <!-- GST Toggle Section -->
                         <div class="mt-8">
-                            <h3 class="text-xl font-bold mb-4 text-center">GST Configuration</h3>
+                            <h3 class="text-xl font-bold mb-4 text-center">Rate Configuration</h3>
                             <div class="simple-toggle-container mx-auto">
                                 <input type="radio" id="gst-option1" name="gst_toggle" class="simple-toggle-radio" value="100" checked>
-                                <label for="gst-option1" class="simple-toggle-label">1</label>
+                                <label for="gst-option1" class="simple-toggle-label">Full Rate</label>
 
                                 <input type="radio" id="gst-option2" name="gst_toggle" class="simple-toggle-radio" value="50">
-                                <label for="gst-option2" class="simple-toggle-label">2</label>
+                                <label for="gst-option2" class="simple-toggle-label">Half Rate</label>
 
                                 <input type="radio" id="gst-option3" name="gst_toggle" class="simple-toggle-radio" value="custom">
-                                <label for="gst-option3" class="simple-toggle-label">3</label>
+                                <label for="gst-option3" class="simple-toggle-label">Custom Rate</label>
                             </div>
                         </div>
 
@@ -490,7 +493,7 @@
                             <button class="px-4 py-1 text-sm rounded-md" data-type="quotations">Quotations</button>
                         </div>
                         <button onclick="syncData()" class="futuristic-btn futuristic-btn-neutral">
-                            <i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Load Data</span>
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Sync Data</span>
                         </button>
                     </div>
                 </div>
@@ -694,7 +697,7 @@
                     </div>
 
                     <div class="glass-card p-8">
-                        <h3 class="text-xl font-bold mb-6">Bank Details</h3>
+                        <h3 class="text-xl font-bold mb-6">Bank & Payment Details</h3>
                         <form id="bank-settings-form" class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-muted mb-2">Bank Name</label>
@@ -707,6 +710,10 @@
                             <div>
                                 <label class="block text-sm font-medium text-muted mb-2">IFSC Code</label>
                                 <input id="bank-ifsc-code" type="text" class="futuristic-input">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-muted mb-2">UPI ID</label>
+                                <input id="bank-upi-id" type="text" class="futuristic-input" placeholder="e.g. yourname@okbank">
                             </div>
                             <button type="submit" class="w-full futuristic-btn futuristic-btn-tertiary font-bold py-3 mt-4">Save Bank Details</button>
                         </form>
@@ -728,7 +735,7 @@
         <a href="#settings" class="nav-link-action futuristic-btn futuristic-btn-neutral"><i data-lucide="settings" class="w-5 h-5"></i>Settings</a>
         <button onclick="previewInvoice()" class="futuristic-btn futuristic-btn-secondary"><i data-lucide="eye" class="w-5 h-5"></i>Preview Live</button>
         <button onclick="handleSaveInvoice()" class="futuristic-btn"><i data-lucide="save" class="w-5 h-5"></i>Save Invoice</button>
-        <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Generate</button>
+        <button onclick="generatePDF()" class="futuristic-btn"><i data-lucide="file-down" class="w-5 h-5"></i>Generate PDF</button>
     </footer>
      <footer class="fixed-footer no-print page-footer hidden" data-page="quotation">
      </footer>
@@ -750,7 +757,7 @@
         const GET_API_URL = 'https://script.google.com/macros/s/AKfycbytvxDO1jlUxa289NXACCuRj0osY4Idep6WXaNC_rJ9WR_6h1pUYfWpBdtsI-AfuGkB/exec';
         const POST_API_URL = '/.netlify/functions/proxy'; 
 
-        let customers = [], allProducts = [], invoiceItems = [], invoiceHistory = [], quotationHistory = [], currentInvoiceNumber = 'VI-001';
+        let customers = [], allProducts = [], invoiceItems = [], invoiceHistory = [], quotationHistory = [], currentInvoiceNumber = 'VI-001', qrCodeInstance = null;
 
         window.onload = () => {
             try {
@@ -958,7 +965,6 @@
                 nameSelect.innerHTML += `<option value="${item.row_index}">${item.uniqueItemName}</option>`;
             });
 
-            // FIX: Explicitly set the value to empty and clear details
             nameSelect.value = "";
             populateItemDetails(index);
         }
@@ -968,11 +974,9 @@
             const nameSelect = itemElement.querySelector('.item-name');
             const selectedProductId = nameSelect.value;
             
-            // If the user selects the placeholder, clear the fields
             if (!selectedProductId) {
                 itemElement.querySelector('.item-hsn').value = '';
                 itemElement.querySelector('.item-rate').value = '';
-                // Reset the corresponding data object
                 if (invoiceItems[index]) {
                     invoiceItems[index] = { quantity: 1, rate: 0, discount: 0, taxRate: 18, taxableAmount: 0, taxAmount: 0, total: 0, hsn: '', description: '' };
                 }
@@ -982,11 +986,9 @@
 
             const product = allProducts.find(p => p.row_index == selectedProductId);
 
-            // FIX: Use HSN/SAC from the product data
             itemElement.querySelector('.item-hsn').value = product ? (product['HSN/SAC'] || '') : '';
             itemElement.querySelector('.item-rate').value = product ? (product.PRICE || '') : '';
             
-            // Apply GST logic after populating
             applyGstModeToItem(index);
         }
 
@@ -1020,7 +1022,6 @@
                     ];
                     fullDescription = descriptionParts.filter(Boolean).join('_');
                 }
-                // FIX: Use HSN/SAC from the product data when saving
                 invoiceItems[index] = { ...invoiceItems[index], quantity, rate, discount, taxRate, taxableAmount, taxAmount, total, hsn: product ? (product['HSN/SAC'] || '') : '', description: fullDescription };
             }
             updateInvoicePreview();
@@ -1085,6 +1086,25 @@
 2. Interest @18% p.a. will be charged if the bill is not paid within 30 days.
 3. All disputes are subject to jurisdiction of local courts.`).replace(/\n/g, '<br>');
 
+            const bankDetailsHtml = `
+                <table class="text-xs w-full">
+                    <tbody>
+                        <tr><td class="font-bold pr-2">Name</td><td>: ${bankSettings.name || ''}</td></tr>
+                        <tr><td class="font-bold pr-2">IFSC Code</td><td>: ${bankSettings.ifsc || ''}</td></tr>
+                        <tr><td class="font-bold pr-2">Account No</td><td>: ${bankSettings.accountNumber || ''}</td></tr>
+                        <tr><td class="font-bold pr-2">Bank</td><td>: ${bankSettings.name || ''}</td></tr>
+                    </tbody>
+                </table>
+            `;
+
+            const paymentQrCodeHtml = `
+                <div class="text-center">
+                    <p class="font-bold text-sm">Payment QR Code</p>
+                    <p class="text-xs">UPI ID: ${bankSettings.upiId || ''}</p>
+                    <div id="qrcode" class="flex justify-center items-center my-2"></div>
+                </div>
+            `;
+
             preview.innerHTML = `<div class="p-8">
                 <header class="pb-4 mb-4 border-b-2 border-dotted"><div class="flex justify-between items-start">
                     <div class="flex items-start space-x-4">
@@ -1131,17 +1151,60 @@
                     </table>
                 </div>
                 <div class="border-t-2 border-dotted pt-2 mt-2 text-xs font-semibold">Amount in Words: ${grandTotalInWords}</div>
+                
+                <!-- NEW FOOTER SECTION -->
                 <div class="mt-6 pt-4 border-t-2 border-dotted text-xs">
-                    <p class="font-bold mb-2">Terms & Conditions:</p>
-                    <p>${termsAndConditions}</p>
-                </div>
-                <div class="flex justify-between mt-8">
-                    <div class="text-xs"><p class="font-bold">Bank Details:</p><div><p>Bank: ${bankSettings.name || ''}</p><p>Acc No: ${bankSettings.accountNumber || ''}</p><p>IFSC: ${bankSettings.ifsc || ''}</p></div></div>
-                    <div class="text-center text-xs pt-8">
-                        <p class="border-t pt-2">For Vinayaka Industries</p><p>(Authorized Signatory)</p>
-                    </div>
+                    <table class="w-full">
+                        <tbody>
+                            <tr>
+                                <td class="w-1/2 p-2 border border-gray-500 align-top">
+                                    <p class="font-bold mb-2">Bank Details:</p>
+                                    ${bankDetailsHtml}
+                                </td>
+                                <td class="w-1/2 p-2 border border-gray-500 align-top">
+                                    ${paymentQrCodeHtml}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-2 border border-gray-500 align-top">
+                                    <p class="font-bold mb-2">Terms & Conditions:</p>
+                                    <div class="text-xs">${termsAndConditions}</div>
+                                </td>
+                                <td class="p-2 border border-gray-500 align-bottom text-center">
+                                    <div class="pt-8">
+                                        <p class="border-t pt-2">For Vinayaka Industries</p>
+                                        <p>(Authorized Signatory)</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>`;
+            
+            // Generate QR Code after the HTML is rendered
+            if (bankSettings.upiId) {
+                generateQRCode(bankSettings.upiId, companySettings.name);
+            }
+        }
+        
+        function generateQRCode(upiId, name) {
+            const qrCodeElement = document.getElementById('qrcode');
+            if (!qrCodeElement) return;
+            
+            // Clear previous QR code
+            qrCodeElement.innerHTML = '';
+            
+            const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name || 'Vinayaka Industries')}&cu=INR`;
+            
+            new QRCode(qrCodeElement, {
+                text: upiString,
+                width: 80,
+                height: 80,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
         }
 
         async function generatePDF() {
@@ -1441,7 +1504,8 @@
             const bankData = {
                 name: document.getElementById('bank-name').value, 
                 accountNumber: document.getElementById('bank-account-number').value,
-                ifsc: document.getElementById('bank-ifsc-code').value
+                ifsc: document.getElementById('bank-ifsc-code').value,
+                upiId: document.getElementById('bank-upi-id').value
             };
             localStorage.setItem('bankSettings', JSON.stringify(bankData));
             showToast('Bank details saved!');
@@ -1469,6 +1533,7 @@
             document.getElementById('bank-name').value = settings.name || '';
             document.getElementById('bank-account-number').value = settings.accountNumber || '';
             document.getElementById('bank-ifsc-code').value = settings.ifsc || '';
+            document.getElementById('bank-upi-id').value = settings.upiId || '';
         }
 
         function updateInvoiceExample() {
@@ -1500,7 +1565,7 @@
             let decimalInWords = inWords(decimal);
             
             let result = mainInWords ? mainInWords.trim() + ' rupees' : '';
-            if(decimalInWords) {
+            if(decimal > 0 && decimalInWords) {
                 result += (result ? ' and ' : '') + decimalInWords.trim() + ' paise';
             }
             return result.toUpperCase() + ' ONLY';
@@ -1581,8 +1646,6 @@
                 rateInput.value = (originalRate / 2).toFixed(2);
             } else if (gstMode === 'custom') {
                 rateInput.readOnly = false;
-                // You might want to prompt the user for a value here, or let them edit it directly
-                // For now, we'll just make it editable.
             } else { // 100%
                 rateInput.value = originalRate.toFixed(2);
             }
@@ -1604,7 +1667,6 @@
                 const monthIndex = parseInt(filter);
                 filteredInvoices = invoiceHistory.filter(inv => {
                     const invDate = new Date(inv.date);
-                    // Check for valid date before getting month
                     return invDate && !isNaN(invDate) && invDate.getMonth() === monthIndex && invDate.getFullYear() === now.getFullYear();
                 });
             }
