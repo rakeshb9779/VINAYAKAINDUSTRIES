@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ivoice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -420,16 +420,6 @@
                                     <input id="invoice-date" type="date" class="futuristic-input" required>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-muted mb-2">Due Date</label>
-                                    <input id="due-date" type="date" class="futuristic-input">
-                                </div>
-                                 <div>
-                                    <label class="block text-sm font-medium text-muted mb-2">Salesman</label>
-                                    <input id="salesman-name" type="text" class="futuristic-input" placeholder="Enter salesman name">
-                                </div>
-                            </div>
                             <div>
                                 <label class="block text-sm font-medium text-muted mb-2">Select Customer</label>
                                 <select id="customer-select" class="futuristic-select" required></select>
@@ -446,20 +436,16 @@
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-muted mb-2">Challan No.</label>
-                                    <input id="challan-number" type="text" class="futuristic-input" placeholder="Enter Challan Number">
-                                </div>
-                                <div>
                                     <label class="block text-sm font-medium text-muted mb-2">Dispatch</label>
                                     <select id="dispatch-method" class="futuristic-select">
                                         <option>By Transport</option>
                                         <option>By Self</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-muted mb-2">Eway Bill #</label>
-                                <input id="eway-bill-number" type="text" class="futuristic-input" placeholder="Enter E-Way Bill Number if applicable">
+                                <div>
+                                    <label class="block text-sm font-medium text-muted mb-2">Eway Bill #</label>
+                                    <input id="eway-bill-number" type="text" class="futuristic-input" placeholder="Enter E-Way Bill Number">
+                                </div>
                             </div>
                         </form>
                         
@@ -927,7 +913,7 @@
                 </div>
                 <select class="item-name futuristic-select text-sm" onchange="populateItemDetails(${itemIndex})"><option value="">SELECT ITEM NAME</option></select>
                 <div class="grid grid-cols-1 gap-2 text-sm">
-                    <textarea class="item-description futuristic-textarea" rows="2" placeholder="Item Description / Serial No."></textarea>
+                    <textarea class="item-description futuristic-textarea" rows="2" placeholder="Item Description / Serial No." oninput="calculateItemTotal(${itemIndex})"></textarea>
                 </div>
                 <div class="grid grid-cols-6 gap-2 text-sm">
                     <input type="text" class="item-hsn futuristic-input col-span-2" placeholder="HSN/SAC" readonly>
@@ -957,7 +943,7 @@
                 element.querySelector('.item-model').setAttribute('onchange', `updateDependentDropdowns(${newIndex})`);
                 element.querySelector('.item-device').setAttribute('onchange', `updateDependentDropdowns(${newIndex})`);
                 element.querySelector('.item-name').setAttribute('onchange', `populateItemDetails(${newIndex})`);
-                element.querySelectorAll('input[oninput]').forEach(inp => inp.setAttribute('oninput', `calculateItemTotal(${newIndex})`));
+                element.querySelectorAll('input[oninput], textarea[oninput]').forEach(inp => inp.setAttribute('oninput', `calculateItemTotal(${newIndex})`));
             });
 
             if (invoiceItems.length === 0) addInvoiceItem();
@@ -1090,7 +1076,7 @@
         
         function updateInvoicePreview() {
             const preview = document.getElementById('invoice-preview');
-            const validItems = invoiceItems.filter(item => item.description);
+            const validItems = invoiceItems.filter(item => item.description && item.description.trim() !== '');
             const selectedCustomer = customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value);
             
             if (!selectedCustomer || validItems.length === 0) {
@@ -1113,8 +1099,9 @@
             
             const bankSettings = JSON.parse(localStorage.getItem('bankSettings') || '{}');
             const companySettings = JSON.parse(localStorage.getItem('companySettings') || '{}');
-            if (bankSettings.upiId && document.getElementById('qrcode')) {
-                generateQRCode(bankSettings.upiId, companySettings.name);
+            const qrCodeElement = document.getElementById('qrcode');
+            if (bankSettings.upiId && qrCodeElement) {
+                generateQRCode(bankSettings.upiId, companySettings.name, qrCodeElement);
             }
         }
 
@@ -1127,24 +1114,26 @@
             const bankSettings = JSON.parse(localStorage.getItem('bankSettings') || '{}');
             const selectedCustomer = customers.find(c => c['Customer Name'] === document.getElementById('customer-select').value);
             const invoiceDate = document.getElementById('invoice-date').value;
-            const dueDate = document.getElementById('due-date').value;
-            const salesman = document.getElementById('salesman-name').value;
-            const challanNo = document.getElementById('challan-number').value;
+            const dispatchMethod = document.getElementById('dispatch-method').value;
+            const ewayBill = document.getElementById('eway-bill-number').value;
 
             const headerHtml = `
-                <header class="pb-2 mb-2 border-b-2 border-black"><div class="flex justify-between items-start">
-                    <div class="w-2/3">
-                        <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Company Logo" class="h-20 mb-2">
-                        <p class="text-xs font-bold">${companySettings.name || 'Vinayaka Industries'}</p>
-                        <p class="text-xs" style="white-space: pre-line;">${companySettings.address}</p>
-                        <p class="text-xs"><b>GSTIN:</b> ${companySettings.gstin}</p>
+                <header class="flex justify-between items-start pb-2">
+                    <div class="w-1/2">
+                        <img src="https://drive.google.com/uc?id=1L_NG4hUWi56GAaSTWBYFyau5cpG2Pb7W" alt="Company Logo" class="h-16 mb-2">
+                        <div class="text-xs">
+                            <p style="white-space: pre-line;">${companySettings.address}</p>
+                            <p><b>Ph:</b> ${companySettings.contact}</p>
+                            <p><b>Mail:</b> ${companySettings.email}</p>
+                        </div>
                     </div>
-                    <div class="w-1/3 text-right">
-                        <h1 class="text-3xl font-bold text-gray-800">TAX INVOICE</h1>
-                        ${totalPages > 1 ? `<p class="text-xs text-muted">Page ${currentPage} of ${totalPages}</p>` : ''}
+                    <div class="w-1/2 text-right">
+                        <p class="font-bold">GSTIN: ${companySettings.gstin}</p>
+                        <h1 class="text-2xl font-bold mt-2">TAX INVOICE</h1>
                     </div>
-                </div></header>
-                <div class="flex justify-between text-xs border-b-2 border-black pb-2 mb-2">
+                </header>
+                <hr class="border-black my-2">
+                <div class="flex justify-between text-xs pb-2">
                     <div class="w-1/2">
                         <strong class="block mb-1">Bill To:</strong>
                         <p class="font-bold">${selectedCustomer['Customer Name']}</p>
@@ -1155,16 +1144,17 @@
                         <table class="w-full"><tbody>
                             <tr><td class="font-bold pr-2">Invoice No:</td><td>${document.getElementById('invoice-number').value}</td></tr>
                             <tr><td class="font-bold pr-2">Invoice Date:</td><td>${new Date(invoiceDate).toLocaleDateString('en-GB')}</td></tr>
-                            <tr><td class="font-bold pr-2">Due Date:</td><td>${dueDate ? new Date(dueDate).toLocaleDateString('en-GB') : ''}</td></tr>
-                            <tr><td class="font-bold pr-2">Salesman:</td><td>${salesman}</td></tr>
-                            <tr><td class="font-bold pr-2">Challan No:</td><td>${challanNo}</td></tr>
+                            <tr><td class="font-bold pr-2">Dispatch:</td><td>${dispatchMethod}</td></tr>
+                            <tr><td class="font-bold pr-2">E-Way Bill #:</td><td>${ewayBill}</td></tr>
                         </tbody></table>
                     </div>
-                </div>`;
+                </div>
+                <hr class="border-black my-2">
+                `;
 
             const itemsHtml = chunk.map((item, index) => {
                 const itemNumber = pageIndex * itemsPerPage + index + 1;
-                return `<tr class="border-b"><td class="p-1 text-center">${itemNumber}</td><td class="p-1" style="white-space: pre-line;">${item.description}</td><td class="p-1 text-center">${item.hsn}</td><td class="p-1 text-center">${item.quantity}</td><td class="p-1 text-right">₹${(item.rate || 0).toFixed(2)}</td><td class="p-1 text-right">₹${(item.taxableAmount || 0).toFixed(2)}</td></tr>`;
+                return `<tr class="border-b"><td class="p-1 text-center align-top">${itemNumber}</td><td class="p-1 align-top" style="white-space: pre-line;">${item.description}</td><td class="p-1 text-center align-top">${item.hsn}</td><td class="p-1 text-center align-top">${item.quantity}</td><td class="p-1 text-right align-top">₹${(item.rate || 0).toFixed(2)}</td><td class="p-1 text-right align-top">₹${(item.taxableAmount || 0).toFixed(2)}</td></tr>`;
             }).join('');
 
             let totalsAndFooterHtml = '';
@@ -1219,13 +1209,13 @@
                         </tbody></table>
                     </div>`;
             } else {
-                totalsAndFooterHtml = `<div class="text-center text-muted p-4 mt-4">... Continued on next page ...</div>`;
+                totalsAndFooterHtml = `<div class="text-center text-muted p-4 mt-auto">... Continued on next page ...</div>`;
             }
 
             return `
-                <div class="invoice-page p-4">
+                <div class="invoice-page p-4 flex flex-col" style="height: 1123px;">
                     ${headerHtml}
-                    <table class="w-full text-xs" style="min-height: 450px;">
+                    <table class="w-full text-xs flex-grow">
                         <thead><tr class="table-header bg-gray-200 dark:bg-gray-700"><th class="p-1 text-left w-[5%]">S.No.</th><th class="p-1 text-left w-[45%]">Items</th><th class="p-1 text-center w-[10%]">HSN</th><th class="p-1 text-center w-[10%]">Qty</th><th class="p-1 text-right w-[15%]">Rate</th><th class="p-1 text-right w-[15%]">Amount</th></tr></thead>
                         <tbody>${itemsHtml}</tbody>
                     </table>
@@ -1233,15 +1223,10 @@
                 </div>`;
         }
         
-        function generateQRCode(upiId, name) {
-            const qrCodeElement = document.getElementById('qrcode');
-            if (!qrCodeElement) return;
-            
-            qrCodeElement.innerHTML = '';
-            
+        function generateQRCode(upiId, name, element) {
+            element.innerHTML = '';
             const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name || 'Vinayaka Industries')}&cu=INR`;
-            
-            new QRCode(qrCodeElement, {
+            new QRCode(element, {
                 text: upiString,
                 width: 70,
                 height: 70,
