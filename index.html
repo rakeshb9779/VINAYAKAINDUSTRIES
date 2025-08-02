@@ -192,6 +192,10 @@
         }
         .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
         
+        .invoice-page {
+             margin-bottom: 1rem;
+        }
+
         @media print {
             .no-print { display: none !important; }
             .sidebar, .main-content > .flex.justify-between, .fixed-footer { display: none !important; }
@@ -211,10 +215,11 @@
                 margin: 0 auto;
             }
             .invoice-page {
-                page-break-before: always;
+                page-break-after: always;
+                margin-bottom: 0;
             }
-             .invoice-page:first-child {
-                page-break-before: auto;
+             .invoice-page:last-child {
+                page-break-after: auto;
             }
         }
 
@@ -1084,6 +1089,7 @@
             itemChunks.forEach((chunk, pageIndex) => {
                 const isLastPage = pageIndex === totalPages - 1;
                 const invoiceDate = document.getElementById('invoice-date').value;
+                const currentPage = pageIndex + 1;
 
                 const headerHtml = `
                     <header class="pb-4 mb-4 border-b-2 border-dotted"><div class="flex justify-between items-start">
@@ -1094,6 +1100,7 @@
                         <div class="text-right">
                             <p class="font-bold text-gray-800">GSTIN: ${companySettings.gstin}</p>
                             <h1 class="text-2xl font-bold mt-2 text-gray-800">TAX INVOICE</h1>
+                            ${totalPages > 1 ? `<p class="text-xs text-muted">Page ${currentPage} of ${totalPages}</p>` : ''}
                         </div>
                     </div></header>
                     <div class="flex justify-between text-sm border-b-2 border-dotted pb-4 mb-4">
@@ -1197,7 +1204,7 @@
                 }
 
                 allPagesHtml += `
-                    <div class="invoice-page p-8" style="${pageIndex > 0 ? 'margin-top: 1rem; padding-top: 1rem;' : ''}">
+                    <div class="invoice-page p-8">
                         ${headerHtml}
                         <table class="w-full text-sm mb-2">
                             <thead><tr class="table-header text-xs"><th class="p-2 text-left">#</th><th class="p-2 text-left">Item</th><th class="p-2 text-center">HSN</th><th class="p-2 text-center">Qty</th><th class="p-2 text-right">Unit Price</th><th class="p-2 text-right">Taxable Amount</th></tr></thead>
@@ -1705,4 +1712,4 @@
 
     </script>
 </body>
-</ht
+</html>
