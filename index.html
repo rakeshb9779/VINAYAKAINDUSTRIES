@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -615,6 +615,25 @@
                 </div>
             </div>
 
+            <!-- NEW LOGISTICS HUB PAGE -->
+            <div id="logistics" class="page hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold">Logistics Hub</h2>
+                        <p class="text-muted">Quickly find and share logistics details for dispatch.</p>
+                    </div>
+                </div>
+                <div class="mb-8">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted"></i>
+                        <input id="logistics-search" type="search" placeholder="Search by Destination or Logistics Name..." class="futuristic-input text-lg p-4 pl-12">
+                    </div>
+                </div>
+                <div id="logistics-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Logistics cards will be injected here by JavaScript -->
+                </div>
+            </div>
+
             <div id="reports" class="page hidden">
                  <div class="flex justify-between items-center mb-8">
                     <div>
@@ -751,7 +770,7 @@
         const GET_API_URL = 'https://script.google.com/macros/s/AKfycbytvxDO1jlUxa289NXACCuRj0osY4Idep6WXaNC_rJ9WR_6h1pUYfWpBdtsI-AfuGkB/exec';
         const POST_API_URL = '/.netlify/functions/proxy'; 
 
-        let customers = [], allProducts = [], invoiceItems = [], invoiceHistory = [], quotationHistory = [], currentInvoiceNumber = 'VI-001';
+        let customers = [], allProducts = [], invoiceItems = [], invoiceHistory = [], quotationHistory = [], logistics = [], currentInvoiceNumber = 'VI-001';
 
         window.onload = () => {
             try {
@@ -819,31 +838,32 @@
         function processAllData(data, isInitialLoad = false) {
              customers = data.customers || [];
              allProducts = (data.products || []).map((p, index) => ({
-                ...p, 
-                row_index: index,
-                uniqueModel: `${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}`.trim().toUpperCase(),
-                uniqueItemName: `${p.SIZE || ''} ${p['ITEM NAME'] || ''}`.trim().toUpperCase()
-            }));
+                 ...p, 
+                 row_index: index,
+                 uniqueModel: `${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}`.trim().toUpperCase(),
+                 uniqueItemName: `${p.SIZE || ''} ${p['ITEM NAME'] || ''}`.trim().toUpperCase()
+             }));
 
              invoiceHistory = data.invoiceHistory || [];
              quotationHistory = data.quotationHistory || [];
+             logistics = data.logistics || [];
              
              // Only set a new invoice number on initial load or after a reset
              if (isInitialLoad) {
-                const settings = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
-                const prefix = settings.prefix || 'VI-';
-                let nextNum;
+                 const settings = JSON.parse(localStorage.getItem('invoiceConfig') || '{}');
+                 const prefix = settings.prefix || 'VI-';
+                 let nextNum;
 
-                const latestNumStr = String(data.latestInvoiceNumber || '');
-                if (latestNumStr) {
-                    const numericPart = parseInt(latestNumStr.replace(/[^0-9]/g, ''), 10);
-                    nextNum = isNaN(numericPart) ? (settings.nextNumber || 1) : numericPart + 1;
-                } else {
-                    nextNum = settings.nextNumber || (invoiceHistory.length + 1);
-                }
-                
-                currentInvoiceNumber = `${prefix}${String(nextNum).padStart(3, '0')}`;
-                document.getElementById('invoice-number').value = currentInvoiceNumber;
+                 const latestNumStr = String(data.latestInvoiceNumber || '');
+                 if (latestNumStr) {
+                     const numericPart = parseInt(latestNumStr.replace(/[^0-9]/g, ''), 10);
+                     nextNum = isNaN(numericPart) ? (settings.nextNumber || 1) : numericPart + 1;
+                 } else {
+                     nextNum = settings.nextNumber || (invoiceHistory.length + 1);
+                 }
+                 
+                 currentInvoiceNumber = `${prefix}${String(nextNum).padStart(3, '0')}`;
+                 document.getElementById('invoice-number').value = currentInvoiceNumber;
              }
              
              renderCustomerList();
@@ -851,9 +871,10 @@
              updateDashboardStats();
              populateCustomerSelect();
              renderInvoiceHistory();
+             renderLogistics();
 
              document.querySelectorAll('.invoice-item').forEach((item, index) => {
-                 populateModelDropdown(index);
+                  populateModelDropdown(index);
              });
         }
 
@@ -869,6 +890,7 @@
             document.getElementById('invoice-form').addEventListener('input', updateInvoicePreview);
             document.getElementById('customer-select').addEventListener('change', populateCustomerDetails);
             document.getElementById('gst-month-filter').addEventListener('change', updateGstStat);
+            document.getElementById('logistics-search').addEventListener('input', (e) => renderLogistics(e.target.value));
 
             // GST Toggle Listener
             document.querySelectorAll('input[name="gst_toggle"]').forEach(radio => {
@@ -1190,14 +1212,14 @@
 
         async function saveInvoiceRecord(invoiceDataForPost, action = 'addInvoice') {
              try {
-                const response = await postData({ action: action, data: invoiceDataForPost });
-                if (response.status === 'success') {
-                    await syncData(); 
-                    showToast(`Invoice ${action === 'addInvoice' ? 'added' : 'updated'} successfully!`, 'success');
-                } else { throw new Error(response.message || 'Failed to save on server.'); }
+                 const response = await postData({ action: action, data: invoiceDataForPost });
+                 if (response.status === 'success') {
+                     await syncData(); 
+                     showToast(`Invoice ${action === 'addInvoice' ? 'added' : 'updated'} successfully!`, 'success');
+                 } else { throw new Error(response.message || 'Failed to save on server.'); }
             } catch (error) {
-                showToast(`Save failed: ${error.message}`, 'error');
-                throw error; 
+                 showToast(`Save failed: ${error.message}`, 'error');
+                 throw error; 
             }
         }
         
@@ -1580,8 +1602,6 @@
                 rateInput.value = (originalRate / 2).toFixed(2);
             } else if (gstMode === 'custom') {
                 rateInput.readOnly = false;
-                // You might want to prompt the user for a value here, or let them edit it directly
-                // For now, we'll just make it editable.
             } else { // 100%
                 rateInput.value = originalRate.toFixed(2);
             }
@@ -1603,7 +1623,6 @@
                 const monthIndex = parseInt(filter);
                 filteredInvoices = invoiceHistory.filter(inv => {
                     const invDate = new Date(inv.date);
-                    // Check for valid date before getting month
                     return invDate && !isNaN(invDate) && invDate.getMonth() === monthIndex && invDate.getFullYear() === now.getFullYear();
                 });
             }
@@ -1613,6 +1632,61 @@
             }, 0);
 
             animateCountUp(document.getElementById('stats-total-gst'), totalGst, true);
+        }
+
+        // --- NEW LOGISTICS HUB FUNCTIONS ---
+        function renderLogistics(searchTerm = '') {
+            const listEl = document.getElementById('logistics-list');
+            if (!listEl) return;
+
+            const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
+
+            const filteredLogistics = logistics.filter(l => {
+                if (!l) return false;
+                const nameMatch = (l.LOGISTICS_NAME || '').toLowerCase().includes(lowerCaseSearchTerm);
+                const destinationMatch = (l.DESTINATIONS || '').toLowerCase().includes(lowerCaseSearchTerm);
+                return nameMatch || destinationMatch;
+            });
+
+            if (filteredLogistics.length === 0) {
+                listEl.innerHTML = `<div class="col-span-full text-center p-8 text-muted"><i data-lucide="search-x" class="w-12 h-12 mx-auto mb-4"></i><p>No logistics found for "${searchTerm}"</p></div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            listEl.innerHTML = filteredLogistics.map((l) => {
+                return `
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-bold">${l.LOGISTICS_NAME}</h3>
+                        <p class="text-muted text-sm">Servicing: ${l.DESTINATIONS}</p>
+                        <div class="mt-4 space-y-2 text-sm">
+                            <p><i data-lucide="user" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l.CONTACT_PERSON || 'N/A'}</p>
+                            <p><i data-lucide="phone" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l.PHONE_NUMBER || 'N/A'}</p>
+                            <p><a href="${l.MAPS_LINK}" target="_blank" class="text-blue-400 hover:underline"><i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>View on Map</a></p>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button onclick="shareOnWhatsApp('${l.LOGISTICS_NAME}', '${l.MAPS_LINK}')" class="w-full futuristic-btn futuristic-btn-secondary">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            <span>Share on WhatsApp</span>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function shareOnWhatsApp(logisticsName, mapsLink) {
+            if (!logisticsName || !mapsLink) {
+                showToast('Missing logistics details to share.', 'error');
+                return;
+            }
+            const message = `Hi, please deliver this parcel to:\n\n*${logisticsName}*\n\nLocation: ${mapsLink}`;
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            window.open(whatsappUrl, '_blank');
         }
 
     </script>
