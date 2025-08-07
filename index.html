@@ -1676,8 +1676,9 @@
 
             const filteredLogistics = logistics.filter(l => {
                 if (!l) return false;
-                const nameMatch = (l['LOGISTICS NAME'] || '').toLowerCase().includes(lowerCaseSearchTerm);
-                const destinationMatch = (l['DESTINATIONS'] || '').toLowerCase().includes(lowerCaseSearchTerm);
+                // FIX: Use the exact headers from the Google Sheet, including casing
+                const nameMatch = (l['Logistics Name'] || '').toLowerCase().includes(lowerCaseSearchTerm);
+                const destinationMatch = (l['Serviceable Locations'] || '').toLowerCase().includes(lowerCaseSearchTerm);
                 return nameMatch || destinationMatch;
             });
 
@@ -1688,19 +1689,20 @@
             }
 
             listEl.innerHTML = filteredLogistics.map((l) => {
+                // FIX: Use the exact headers from the Google Sheet for all properties
                 return `
                 <div class="glass-card p-6 flex flex-col justify-between">
                     <div>
-                        <h3 class="text-xl font-bold">${l['LOGISTICS NAME']}</h3>
-                        <p class="text-muted text-sm">Servicing: ${l['DESTINATIONS']}</p>
+                        <h3 class="text-xl font-bold">${l['Logistics Name']}</h3>
+                        <p class="text-muted text-sm">Servicing: ${l['Serviceable Locations']}</p>
                         <div class="mt-4 space-y-2 text-sm">
-                            <p><i data-lucide="user" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l['CONTACT PERSON'] || 'N/A'}</p>
-                            <p><i data-lucide="phone" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l['PHONE NUMBER'] || 'N/A'}</p>
-                            <p><a href="${l['MAPS LINK']}" target="_blank" class="text-blue-400 hover:underline"><i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>View on Map</a></p>
+                            <p><i data-lucide="user" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l['Contact Person'] || 'N/A'}</p>
+                            <p><i data-lucide="phone" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l['Contact Number'] || 'N/A'}</p>
+                            <p><a href="${l['Google Maps Link']}" target="_blank" class="text-blue-400 hover:underline"><i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>View on Map</a></p>
                         </div>
                     </div>
                     <div class="mt-6">
-                        <button onclick="shareOnWhatsApp('${l['LOGISTICS NAME']}', '${l['MAPS LINK']}')" class="w-full futuristic-btn futuristic-btn-secondary">
+                        <button onclick="shareOnWhatsApp('${l['Logistics Name']}', '${l['Google Maps Link']}')" class="w-full futuristic-btn futuristic-btn-secondary">
                             <i data-lucide="send" class="w-4 h-4"></i>
                             <span>Share on WhatsApp</span>
                         </button>
