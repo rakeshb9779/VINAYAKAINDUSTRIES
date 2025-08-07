@@ -741,7 +741,7 @@
                         <p class="text-muted">Generate a new estimate for a customer</p>
                     </div>
                 </div>
-                 </div>
+             </div>
         </main>
     </div>
     <footer class="fixed-footer no-print page-footer hidden" data-page="create-invoice">
@@ -874,7 +874,7 @@
              renderLogistics();
 
              document.querySelectorAll('.invoice-item').forEach((item, index) => {
-                  populateModelDropdown(index);
+                 populateModelDropdown(index);
              });
         }
 
@@ -1217,10 +1217,10 @@
                      await syncData(); 
                      showToast(`Invoice ${action === 'addInvoice' ? 'added' : 'updated'} successfully!`, 'success');
                  } else { throw new Error(response.message || 'Failed to save on server.'); }
-            } catch (error) {
+             } catch (error) {
                  showToast(`Save failed: ${error.message}`, 'error');
                  throw error; 
-            }
+             }
         }
         
         async function handleLoadData() {
@@ -1553,24 +1553,41 @@
 
         async function syncData(isInitialLoad = false) {
             showToast('Syncing from Google Sheets...', 'info');
+            console.log('Attempting to sync data from Google Sheets...');
 
             if (!GET_API_URL || GET_API_URL.includes('PASTE_YOUR')) {
                 showToast('API URL is not configured. Please edit the HTML file.', 'error');
+                console.error('GET_API_URL is not set.');
                 return;
             }
 
             try {
                 const result = await fetchJSONP(`${GET_API_URL}?action=getAllData`);
+                
+                // --- DEBUGGING ---
+                console.log("--- Full API Response Received ---");
+                console.log(result);
+                // --- END DEBUGGING ---
 
                 if (result.status !== 'success') {
                     throw new Error(result.message || 'Failed to fetch data from API');
                 }
                 
+                // --- DEBUGGING ---
+                if (result.data && result.data.logistics) {
+                    console.log("✅ Logistics data successfully fetched from API:", result.data.logistics);
+                } else {
+                    console.error("❌ Logistics data is MISSING from the API response. Check your Apps Script and the 'Logistics' sheet in Google Sheets.");
+                }
+                // --- END DEBUGGING ---
+                
                 processAllData(result.data, isInitialLoad);
                 showToast('Live data loaded!', 'success');
             } catch (error) {
+                console.error("--- Data Sync FAILED ---");
                 console.error("Error fetching live data:", error);
                 showToast(`Could not fetch live data: ${error.message}`, "error");
+                console.error("Suggestion: Check that your Apps Script is deployed correctly and the URL in the HTML is the correct deployment URL.");
             }
         }
 
@@ -1639,12 +1656,20 @@
             const listEl = document.getElementById('logistics-list');
             if (!listEl) return;
 
+            // --- DEBUGGING ---
+            console.log("Rendering logistics list. Received data:", logistics);
+            if (!Array.isArray(logistics) || logistics.length === 0) {
+                console.warn("Cannot render logistics: The 'logistics' array is empty or not an array.");
+            }
+            // --- END DEBUGGING ---
+
             const lowerCaseSearchTerm = searchTerm.toLowerCase().trim();
 
             const filteredLogistics = logistics.filter(l => {
                 if (!l) return false;
-                const nameMatch = (l.LOGISTICS_NAME || '').toLowerCase().includes(lowerCaseSearchTerm);
-                const destinationMatch = (l.DESTINATIONS || '').toLowerCase().includes(lowerCaseSearchTerm);
+                // FIX: Use bracket notation for headers with spaces
+                const nameMatch = (l['LOGISTICS NAME'] || '').toLowerCase().includes(lowerCaseSearchTerm);
+                const destinationMatch = (l['DESTINATIONS'] || '').toLowerCase().includes(lowerCaseSearchTerm);
                 return nameMatch || destinationMatch;
             });
 
@@ -1655,19 +1680,20 @@
             }
 
             listEl.innerHTML = filteredLogistics.map((l) => {
+                // FIX: Use bracket notation for all properties from the sheet
                 return `
                 <div class="glass-card p-6 flex flex-col justify-between">
                     <div>
-                        <h3 class="text-xl font-bold">${l.LOGISTICS_NAME}</h3>
-                        <p class="text-muted text-sm">Servicing: ${l.DESTINATIONS}</p>
+                        <h3 class="text-xl font-bold">${l['LOGISTICS NAME']}</h3>
+                        <p class="text-muted text-sm">Servicing: ${l['DESTINATIONS']}</p>
                         <div class="mt-4 space-y-2 text-sm">
-                            <p><i data-lucide="user" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l.CONTACT_PERSON || 'N/A'}</p>
-                            <p><i data-lucide="phone" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l.PHONE_NUMBER || 'N/A'}</p>
-                            <p><a href="${l.MAPS_LINK}" target="_blank" class="text-blue-400 hover:underline"><i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>View on Map</a></p>
+                            <p><i data-lucide="user" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l['CONTACT PERSON'] || 'N/A'}</p>
+                            <p><i data-lucide="phone" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l['PHONE NUMBER'] || 'N/A'}</p>
+                            <p><a href="${l['MAPS LINK']}" target="_blank" class="text-blue-400 hover:underline"><i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>View on Map</a></p>
                         </div>
                     </div>
                     <div class="mt-6">
-                        <button onclick="shareOnWhatsApp('${l.LOGISTICS_NAME}', '${l.MAPS_LINK}')" class="w-full futuristic-btn futuristic-btn-secondary">
+                        <button onclick="shareOnWhatsApp('${l['LOGISTICS NAME']}', '${l['MAPS LINK']}')" class="w-full futuristic-btn futuristic-btn-secondary">
                             <i data-lucide="send" class="w-4 h-4"></i>
                             <span>Share on WhatsApp</span>
                         </button>
