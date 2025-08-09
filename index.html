@@ -1818,10 +1818,11 @@
                 return;
             }
             
-            let message = `--- *Parcel Dispatch Details* ---\n\nPlease deliver to the following logistics provider:\n\n*Transport Name:* ${name}\n`;
+            let message = `--- 📦*Parcel Dispatch Details*📦 ---\n\nPlease deliver to the following logistics provider:\n\n*Transport Name:* ${name}\n`;
             if (person) message += `*Contact Person:* ${person}\n`;
             if (number) message += `*Contact Number:* ${number}\n\n`;
             if (mapLink) message += `*Location:*\n${mapLink}\n\n`;
+            message += `Thank you.`;
             message += `Thank you.`;
 
             const encodedMessage = encodeURIComponent(message);
