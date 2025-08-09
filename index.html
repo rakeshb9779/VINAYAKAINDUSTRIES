@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ivoice Generator Pro - Vinayaka Industries</title>
+    <title>Invoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1659,16 +1659,15 @@
 
             animateCountUp(document.getElementById('stats-total-gst'), totalGst, true);
         }
+        
+        // --- NEW AND IMPROVED LOGISTICS HUB FUNCTIONS ---
 
-        // --- NEW LOGISTICS HUB FUNCTIONS ---
         function renderLogistics(searchTerm = '') {
             const listEl = document.getElementById('logistics-list');
             if (!listEl) return;
 
-            console.log("Rendering logistics list. Current data:", logistics);
             if (!Array.isArray(logistics)) {
-                console.error("Cannot render logistics: The 'logistics' data is not an array.");
-                listEl.innerHTML = `<div class="col-span-full text-center p-8 text-red-400"><p>Error: Logistics data is invalid.</p></div>`;
+                listEl.innerHTML = `<div class="col-span-full text-center p-8 text-red-400"><p>Error: Logistics data is not available.</p></div>`;
                 return;
             }
 
@@ -1676,7 +1675,6 @@
 
             const filteredLogistics = logistics.filter(l => {
                 if (!l) return false;
-                // FINAL FIX: Use the exact, case-sensitive headers from the Google Sheet
                 const nameMatch = (l['Logistics Name'] || '').toLowerCase().includes(lowerCaseSearchTerm);
                 const destinationMatch = (l['Serviceable Locations'] || '').toLowerCase().includes(lowerCaseSearchTerm);
                 return nameMatch || destinationMatch;
@@ -1689,22 +1687,39 @@
             }
 
             listEl.innerHTML = filteredLogistics.map((l) => {
-                // FINAL FIX: Use the exact, case-sensitive headers for all properties
+                const name = l['Logistics Name'] || '';
+                const locations = l['Serviceable Locations'] || '';
+                const person = l['Contact Person'] || '';
+                const number = l['Contact Number'] || '';
+                const mapLink = l['Google Maps Link'] || '';
+                const notes = l['Notes'] || '';
+
+                // Create data attributes for the buttons, ensuring strings are properly escaped
+                const dataAttrs = `data-name="${name.replace(/"/g, '&quot;')}" data-person="${person.replace(/"/g, '&quot;')}" data-number="${number}" data-maplink="${mapLink}"`;
+
                 return `
                 <div class="glass-card p-6 flex flex-col justify-between">
                     <div>
-                        <h3 class="text-xl font-bold">${l['Logistics Name']}</h3>
-                        <p class="text-muted text-sm">Servicing: ${l['Serviceable Locations']}</p>
-                        <div class="mt-4 space-y-2 text-sm">
-                            <p><i data-lucide="user" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l['Contact Person'] || 'N/A'}</p>
-                            <p><i data-lucide="phone" class="inline-block w-4 h-4 mr-2 text-blue-400"></i>${l['Contact Number'] || 'N/A'}</p>
-                            <p><a href="${l['Google Maps Link']}" target="_blank" class="text-blue-400 hover:underline"><i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>View on Map</a></p>
+                        <h3 class="text-xl font-bold">${name}</h3>
+                        <p class="text-muted text-sm mb-4">Servicing: ${locations}</p>
+                        
+                        <div class="space-y-2 text-sm">
+                            <p class="${person ? '' : 'text-muted'}"><i data-lucide="user" class="inline-block w-4 h-4 mr-2 ${person ? 'text-blue-400' : ''}"></i>${person || 'N/A'}</p>
+                            <p class="${number ? '' : 'text-muted'}"><i data-lucide="phone" class="inline-block w-4 h-4 mr-2 ${number ? 'text-blue-400' : ''}"></i>${number || 'N/A'}</p>
+                            <p class="${mapLink ? '' : 'text-muted'}">
+                                <a href="${mapLink}" target="_blank" class="${mapLink ? 'text-blue-400 hover:underline' : 'pointer-events-none'}">
+                                    <i data-lucide="map-pin" class="inline-block w-4 h-4 mr-2"></i>View on Map
+                                </a>
+                            </p>
+                            <p class="${notes ? 'pt-2 border-t border-white/10' : 'text-muted'}"><i data-lucide="clipboard-list" class="inline-block w-4 h-4 mr-2 ${notes ? 'text-blue-400' : ''}"></i>${notes || 'No notes'}</p>
                         </div>
                     </div>
-                    <div class="mt-6">
-                        <button onclick="shareOnWhatsApp('${l['Logistics Name']}', '${l['Google Maps Link']}')" class="w-full futuristic-btn futuristic-btn-secondary">
-                            <i data-lucide="send" class="w-4 h-4"></i>
-                            <span>Share on WhatsApp</span>
+                    <div class="mt-6 flex gap-2">
+                        <button onclick="copyLogisticsDetails(this)" ${dataAttrs} class="w-full futuristic-btn futuristic-btn-neutral">
+                            <i data-lucide="copy" class="w-4 h-4"></i><span>Copy</span>
+                        </button>
+                        <button onclick="shareOnWhatsApp(this)" ${dataAttrs} class="w-full futuristic-btn futuristic-btn-secondary">
+                            <i data-lucide="send" class="w-4 h-4"></i><span>Share</span>
                         </button>
                     </div>
                 </div>
@@ -1713,12 +1728,44 @@
             lucide.createIcons();
         }
 
-        function shareOnWhatsApp(logisticsName, mapsLink) {
-            if (!logisticsName || !mapsLink) {
+        function copyLogisticsDetails(buttonElement) {
+            const name = buttonElement.dataset.name;
+            const person = buttonElement.dataset.person || 'N/A';
+            const number = buttonElement.dataset.number || 'N/A';
+
+            const textToCopy = `Transport Name: ${name}\nContact Person: ${person}\nContact Number: ${number}`;
+            
+            // Using a temporary textarea element for broader browser support
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Details copied!', 'success');
+            } catch (err) {
+                showToast('Failed to copy details.', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function shareOnWhatsApp(buttonElement) {
+            const name = buttonElement.dataset.name;
+            const person = buttonElement.dataset.person;
+            const number = buttonElement.dataset.number;
+            const mapLink = buttonElement.dataset.maplink;
+
+            if (!name || !mapLink) {
                 showToast('Missing logistics details to share.', 'error');
                 return;
             }
-            const message = `Hi, please deliver this parcel to:\n\n*${logisticsName}*\n\nLocation: ${mapsLink}`;
+            
+            let message = `--- Parcel Dispatch Details ---\n\nPlease deliver to the following logistics provider:\n\n*Transport Name:* ${name}\n`;
+            if (person) message += `*Contact Person:* ${person}\n`;
+            if (number) message += `*Contact Number:* ${number}\n\n`;
+            message += `*Location:*\n${mapLink}\n\nThank you.`;
+
             const encodedMessage = encodeURIComponent(message);
             const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
             window.open(whatsappUrl, '_blank');
