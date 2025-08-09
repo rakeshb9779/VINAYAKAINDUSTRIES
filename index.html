@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice Generator Pro - Vinayaka Industries</title>
+    <title>Ivoice Generator Pro - Vinayaka Industries</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
-    <style> 
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         :root {
@@ -1676,7 +1676,7 @@
 
             const filteredLogistics = logistics.filter(l => {
                 if (!l) return false;
-                // FIX: Use the exact headers from the Google Sheet, including casing
+                // FINAL FIX: Use the exact, case-sensitive headers from the Google Sheet
                 const nameMatch = (l['Logistics Name'] || '').toLowerCase().includes(lowerCaseSearchTerm);
                 const destinationMatch = (l['Serviceable Locations'] || '').toLowerCase().includes(lowerCaseSearchTerm);
                 return nameMatch || destinationMatch;
@@ -1689,7 +1689,7 @@
             }
 
             listEl.innerHTML = filteredLogistics.map((l) => {
-                // FIX: Use the exact headers from the Google Sheet for all properties
+                // FINAL FIX: Use the exact, case-sensitive headers for all properties
                 return `
                 <div class="glass-card p-6 flex flex-col justify-between">
                     <div>
