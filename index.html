@@ -853,7 +853,7 @@
         let invoiceHistory = [], quotationHistory = [];
         let invoiceItems = [], quotationItems = [];
         let currentInvoiceNumber = '001', currentQuotationNumber = 'Q-001';
-        let currentEditingInvoiceIndex = null; // To track which invoice is being edited
+        let currentEditingInvoiceIndex = null;
 
         // --- INITIALIZATION ---
         window.onload = () => {
@@ -874,7 +874,7 @@
             loadBankSettings();
             initializeInvoiceForm();
             initializeQuotationForm();
-            await syncData(true); // true for initial load
+            await syncData(true);
         }
 
         // --- THEME & UI ---
@@ -980,8 +980,10 @@
             customers = data.customers || [];
             allProducts = (data.products || []).map((p, index) => ({
                 ...p, 
-                row_index: index + 2, // Use sheet row number as permanent ID
-                search_term: `${p.MODEL || ''} ${p['MODEL NUMBER'] || ''} ${p.DEVICE || ''} ${p.SIZE || ''} ${p['ITEM NAME'] || ''}`.toLowerCase().trim()
+                row_index: index + 2,
+                // Create combined fields for easier filtering and display
+                uniqueModel: `${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}`.trim(),
+                uniqueItemName: `${p.SIZE || ''} ${p['ITEM NAME'] || ''}`.trim()
             })); 
             invoiceHistory = data.invoiceHistory || [];
             quotationHistory = data.quotationHistory || [];
@@ -995,7 +997,7 @@
             renderProductList();
             updateDashboardStats();
             populateCustomerSelects();
-            renderHistory('invoices'); // Default view
+            renderHistory('invoices');
             renderLogistics();
         }
 
@@ -1041,45 +1043,197 @@
             });
         }
 
-        // --- INVOICE SECTION ---
+        // --- ITEM MANAGEMENT (REFACTORED) ---
+        function createItemHTML(itemIndex, type) {
+            const removeFnName = type === 'invoice' ? 'removeInvoiceItem' : 'removeQuotationItem';
+            const calculateFnName = 'calculateItemTotal';
+            
+            return `
+            <div class="${type}-item bg-black/10 dark:bg-white/5 p-4 rounded-xl space-y-3" data-index="${itemIndex}">
+                <div class="flex justify-between items-center">
+                    <h4 class="font-semibold">Item ${itemIndex + 1}</h4>
+                    <button type="button" onclick="${removeFnName}(${itemIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <select class="item-model futuristic-select text-sm" onchange="populateDependentDropdowns(${itemIndex}, '${type}')"><option value="">SELECT MODEL</option></select>
+                    <select class="item-device futuristic-select text-sm" onchange="populateDependentDropdowns(${itemIndex}, '${type}')"><option value="">SELECT DEVICE</option></select>
+                </div>
+                
+                <div class="searchable-dropdown">
+                    <input type="text" class="item-search futuristic-input" placeholder="Search for Item Name..." oninput="filterItemNames(this, ${itemIndex}, '${type}')" onfocus="filterItemNames(this, ${itemIndex}, '${type}')" autocomplete="off">
+                    <div class="searchable-dropdown-results hidden"></div>
+                </div>
+
+                <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 text-sm">
+                    <input type="text" class="item-hsn futuristic-input col-span-1" placeholder="HSN/SAC" readonly>
+                    <input type="number" class="item-rate futuristic-input col-span-2 sm:col-span-1" placeholder="Rate" readonly>
+                    <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="${calculateFnName}(${itemIndex}, '${type}')" placeholder="Qty">
+                    <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="${calculateFnName}(${itemIndex}, '${type}')" placeholder="Disc %">
+                    <input type="number" class="item-tax-rate futuristic-input" value="18" oninput="${calculateFnName}(${itemIndex}, '${type}')" placeholder="Tax %">
+                </div>
+                <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" readonly>
+            </div>`;
+        }
+
+        function addItem(type) {
+            const items = type === 'invoice' ? invoiceItems : quotationItems;
+            const container = document.getElementById(`${type}-items-container`);
+            const itemIndex = items.length;
+            
+            container.insertAdjacentHTML('beforeend', createItemHTML(itemIndex, type));
+            items.push({ productId: null, quantity: 1, rate: 0, discount: 0, taxRate: 18 });
+            lucide.createIcons();
+            populateDependentDropdowns(itemIndex, type, true); // Populate top-level dropdowns
+        }
+
+        function removeItem(index, type) {
+            const items = type === 'invoice' ? invoiceItems : quotationItems;
+            items.splice(index, 1);
+            const container = document.getElementById(`${type}-items-container`);
+            container.innerHTML = '';
+            items.forEach((_, i) => container.insertAdjacentHTML('beforeend', createItemHTML(i, type)));
+            lucide.createIcons();
+            // Re-populate all fields for the remaining items
+            items.forEach((itemData, i) => {
+                populateDependentDropdowns(i, type, true);
+                if (itemData.productId) {
+                    selectProduct(itemData.productId, i, type, false); // false to not reset other fields
+                }
+            });
+            if (type === 'invoice') updateInvoicePreview(); else updateQuotationPreview();
+        }
+
+        function addInvoiceItem() { addItem('invoice'); }
+        function removeInvoiceItem(index) { removeItem(index, 'invoice'); }
+        function addQuotationItem() { addItem('quotation'); }
+        function removeQuotationItem(index) { removeItem(index, 'quotation'); }
+
+        // --- INVOICE & QUOTATION FORMS ---
         function initializeInvoiceForm() {
             document.getElementById('invoice-date').value = new Date().toISOString().split('T')[0];
             if (invoiceItems.length === 0) addInvoiceItem();
         }
 
-        function addInvoiceItem() {
-            const container = document.getElementById('invoice-items-container');
-            const itemIndex = invoiceItems.length;
-            const itemHtml = `
-            <div class="invoice-item bg-black/10 dark:bg-white/5 p-4 rounded-xl space-y-3" data-index="${itemIndex}">
-                <div class="flex justify-between items-center">
-                    <h4 class="font-semibold">Item ${itemIndex + 1}</h4>
-                    <button type="button" onclick="removeInvoiceItem(${itemIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
-                </div>
-                <div class="searchable-dropdown">
-                    <input type="text" class="item-search futuristic-input" placeholder="Start typing to search for a product..." oninput="filterProducts(this, ${itemIndex})" onfocus="filterProducts(this, ${itemIndex})" autocomplete="off">
-                    <div class="searchable-dropdown-results hidden"></div>
-                </div>
-                <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 text-sm">
-                    <input type="text" class="item-hsn futuristic-input col-span-1" placeholder="HSN/SAC" readonly>
-                    <input type="number" class="item-rate futuristic-input col-span-2 sm:col-span-1" placeholder="Rate" readonly>
-                    <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex}, 'invoice')" placeholder="Qty">
-                    <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${itemIndex}, 'invoice')" placeholder="Disc %">
-                    <input type="number" class="item-tax-rate futuristic-input" value="18" oninput="calculateItemTotal(${itemIndex}, 'invoice')" placeholder="Tax %">
-                </div>
-                <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" readonly>
-            </div>`;
-            container.insertAdjacentHTML('beforeend', itemHtml);
-            invoiceItems.push({ productId: null, quantity: 1, rate: 0, discount: 0, taxRate: 18 });
-            lucide.createIcons();
+        function initializeQuotationForm() {
+            document.getElementById('quotation-date').value = new Date().toISOString().split('T')[0];
+            if (quotationItems.length === 0) addQuotationItem();
         }
-        
-        function removeInvoiceItem(index) {
-            invoiceItems.splice(index, 1);
-            renderAllItems('invoice');
+
+        function resetInvoiceForm() {
+            document.getElementById('invoice-form').reset();
+            populateCustomerDetails();
+            invoiceItems = [];
+            document.getElementById('invoice-items-container').innerHTML = '';
+            initializeInvoiceForm();
             updateInvoicePreview();
+            refreshInvoiceNumber();
+            currentEditingInvoiceIndex = null;
+        }
+
+        function resetQuotationForm() {
+            document.getElementById('quotation-form').reset();
+            quotationItems = [];
+            document.getElementById('quotation-items-container').innerHTML = '';
+            initializeQuotationForm();
+            updateQuotationPreview();
+            refreshQuotationNumber();
         }
         
+        // --- ITEM SELECTION LOGIC (REFACTORED) ---
+        function populateDependentDropdowns(itemIndex, type, isInitial = false) {
+            const itemElement = document.querySelector(`.${type}-item[data-index="${itemIndex}"]`);
+            if (!itemElement) return;
+
+            const modelSelect = itemElement.querySelector('.item-model');
+            const deviceSelect = itemElement.querySelector('.item-device');
+            const itemNameSearch = itemElement.querySelector('.item-search');
+
+            const selectedModel = modelSelect.value;
+            const selectedDevice = deviceSelect.value;
+
+            if (isInitial) {
+                const models = [...new Set(allProducts.map(p => p.uniqueModel))];
+                modelSelect.innerHTML = '<option value="">SELECT MODEL</option>' + models.map(m => `<option value="${m}">${m}</option>`).join('');
+            }
+
+            let filteredProducts = allProducts;
+            if (selectedModel) {
+                filteredProducts = filteredProducts.filter(p => p.uniqueModel === selectedModel);
+            }
+
+            const devices = [...new Set(filteredProducts.map(p => p.DEVICE || 'N/A'))];
+            deviceSelect.innerHTML = '<option value="">SELECT DEVICE</option>' + devices.map(d => `<option value="${d}">${d}</option>`).join('');
+            
+            // Restore previous selections if they exist
+            modelSelect.value = selectedModel;
+            deviceSelect.value = selectedDevice;
+
+            // Clear subsequent fields
+            itemNameSearch.value = '';
+            if (isInitial) { // Only clear underlying data if it's a top-level change
+                const items = type === 'invoice' ? invoiceItems : quotationItems;
+                if(items[itemIndex]) items[itemIndex].productId = null;
+                calculateItemTotal(itemIndex, type);
+            }
+        }
+
+        function filterItemNames(inputElement, itemIndex, type) {
+            const itemElement = document.querySelector(`.${type}-item[data-index="${itemIndex}"]`);
+            const model = itemElement.querySelector('.item-model').value;
+            const device = itemElement.querySelector('.item-device').value;
+            const searchTerm = inputElement.value.toLowerCase();
+            const resultsContainer = inputElement.nextElementSibling;
+            
+            let filtered = allProducts.filter(p => {
+                const modelMatch = !model || p.uniqueModel === model;
+                const deviceMatch = !device || (p.DEVICE || 'N/A') === device;
+                const nameMatch = p.uniqueItemName.toLowerCase().includes(searchTerm);
+                return modelMatch && deviceMatch && nameMatch;
+            }).slice(0, 50);
+            
+            if (filtered.length > 0) {
+                resultsContainer.innerHTML = filtered.map(p => 
+                    `<div class="searchable-dropdown-item" onclick="selectProduct(${p.row_index}, ${itemIndex}, '${type}')">
+                        <p class="font-semibold">${p.uniqueItemName}</p>
+                        <p class="text-sm text-muted">₹${p.PRICE}</p>
+                    </div>`
+                ).join('');
+                resultsContainer.classList.remove('hidden');
+            } else {
+                resultsContainer.innerHTML = '<div class="p-3 text-muted">No items found.</div>';
+                resultsContainer.classList.remove('hidden');
+            }
+        }
+
+        function selectProduct(productId, itemIndex, type, resetFields = true) {
+            const items = type === 'invoice' ? invoiceItems : quotationItems;
+            const itemElement = document.querySelector(`.${type}-item[data-index="${itemIndex}"]`);
+            const product = allProducts.find(p => p.row_index == productId);
+
+            if (product && itemElement) {
+                items[itemIndex].productId = productId;
+                
+                if (resetFields) {
+                    itemElement.querySelector('.item-model').value = product.uniqueModel;
+                    itemElement.querySelector('.item-device').value = product.DEVICE || 'N/A';
+                }
+                itemElement.querySelector('.item-search').value = product.uniqueItemName;
+                itemElement.querySelector('.item-hsn').value = product['HSN/SAC'] || '8413';
+                itemElement.querySelector('.item-rate').value = product.PRICE || 0;
+                itemElement.querySelector('.searchable-dropdown-results').classList.add('hidden');
+                calculateItemTotal(itemIndex, type);
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            document.querySelectorAll('.searchable-dropdown').forEach(dropdown => {
+                if (!dropdown.contains(event.target)) {
+                    dropdown.querySelector('.searchable-dropdown-results').classList.add('hidden');
+                }
+            });
+        });
+
         function calculateItemTotal(index, type) {
             const items = type === 'invoice' ? invoiceItems : quotationItems;
             const itemElement = document.querySelector(`.${type}-item[data-index="${index}"]`);
@@ -1099,17 +1253,20 @@
             itemElement.querySelector('.item-total').value = total > 0 ? total.toFixed(2) : '';
             
             const product = allProducts.find(p => p.row_index == items[index].productId);
+            const fullDescription = product ? `${product.uniqueModel} ${product.DEVICE || ''} ${product.uniqueItemName}`.trim().replace(/\s+/g, ' ') : '';
+
             items[index] = { 
                 ...items[index], quantity, rate, discount, taxRate, 
                 taxableAmount, taxAmount, total, 
                 hsn: product ? (product['HSN/SAC'] || '8413') : '', 
-                description: product ? product.search_term.replace(/\b\w/g, l => l.toUpperCase()) : '' // Title Case
+                description: fullDescription
             };
 
             if (type === 'invoice') updateInvoicePreview();
             else updateQuotationPreview();
         }
 
+        // --- PREVIEW & PDF ---
         function updateInvoicePreview() {
             const preview = document.getElementById('invoice-preview');
             const customerName = document.getElementById('customer-select').value;
@@ -1201,57 +1358,7 @@
                 </div>
             </div>`;
         }
-
-        function resetInvoiceForm() {
-            document.getElementById('invoice-form').reset();
-            populateCustomerDetails();
-            invoiceItems = [];
-            renderAllItems('invoice');
-            initializeInvoiceForm();
-            updateInvoicePreview();
-            refreshInvoiceNumber();
-            currentEditingInvoiceIndex = null;
-        }
-
-        // --- QUOTATION SECTION ---
-        function initializeQuotationForm() {
-            document.getElementById('quotation-date').value = new Date().toISOString().split('T')[0];
-            if (quotationItems.length === 0) addQuotationItem();
-        }
-
-        function addQuotationItem() {
-            const container = document.getElementById('quotation-items-container');
-            const itemIndex = quotationItems.length;
-            const itemHtml = `
-            <div class="quotation-item bg-black/10 dark:bg-white/5 p-4 rounded-xl space-y-3" data-index="${itemIndex}">
-                <div class="flex justify-between items-center">
-                    <h4 class="font-semibold">Item ${itemIndex + 1}</h4>
-                    <button type="button" onclick="removeQuotationItem(${itemIndex})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
-                </div>
-                <div class="searchable-dropdown">
-                    <input type="text" class="item-search futuristic-input" placeholder="Start typing to search for a product..." oninput="filterProducts(this, ${itemIndex}, 'quotation')" onfocus="filterProducts(this, ${itemIndex}, 'quotation')" autocomplete="off">
-                    <div class="searchable-dropdown-results hidden"></div>
-                </div>
-                <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 text-sm">
-                    <input type="text" class="item-hsn futuristic-input col-span-1" placeholder="HSN/SAC" readonly>
-                    <input type="number" class="item-rate futuristic-input col-span-2 sm:col-span-1" placeholder="Rate" readonly>
-                    <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${itemIndex}, 'quotation')" placeholder="Qty">
-                    <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${itemIndex}, 'quotation')" placeholder="Disc %">
-                    <input type="number" class="item-tax-rate futuristic-input" value="18" oninput="calculateItemTotal(${itemIndex}, 'quotation')" placeholder="Tax %">
-                </div>
-                <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" readonly>
-            </div>`;
-            container.insertAdjacentHTML('beforeend', itemHtml);
-            quotationItems.push({ productId: null, quantity: 1, rate: 0, discount: 0, taxRate: 18 });
-            lucide.createIcons();
-        }
-
-        function removeQuotationItem(index) {
-            quotationItems.splice(index, 1);
-            renderAllItems('quotation');
-            updateQuotationPreview();
-        }
-
+        
         function updateQuotationPreview() {
             const preview = document.getElementById('quotation-preview');
             const customerName = document.getElementById('quotation-customer-select').value;
@@ -1319,70 +1426,24 @@
             </div>`;
         }
 
-        function resetQuotationForm() {
-            document.getElementById('quotation-form').reset();
-            quotationItems = [];
-            renderAllItems('quotation');
-            initializeQuotationForm();
-            updateQuotationPreview();
-            refreshQuotationNumber();
-        }
-
-        // --- SEARCHABLE DROPDOWN ---
-        function filterProducts(inputElement, itemIndex, type = 'invoice') {
-            const searchTerm = inputElement.value.toLowerCase();
-            const resultsContainer = inputElement.nextElementSibling;
+        function generatePDF(elementId) {
+            Swal.fire({ title: 'Generating PDF...', text: 'Please wait.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            const element = document.getElementById(elementId);
+            const docNumber = elementId === 'invoice-preview' ? document.getElementById('invoice-number').value : document.getElementById('quotation-number').value;
+            const opt = { margin: 0.25, filename: `${docNumber}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
             
-            if (searchTerm.length < 1) {
-                resultsContainer.innerHTML = '';
-                resultsContainer.classList.add('hidden');
-                return;
-            }
-
-            const filtered = allProducts.filter(p => p.search_term.includes(searchTerm)).slice(0, 50);
-            
-            if (filtered.length > 0) {
-                resultsContainer.innerHTML = filtered.map(p => 
-                    `<div class="searchable-dropdown-item" onclick="selectProduct(${p.row_index}, ${itemIndex}, '${type}')">
-                        <p class="font-semibold">${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}</p>
-                        <p class="text-sm text-muted">${p['ITEM NAME'] || ''} - ₹${p.PRICE}</p>
-                    </div>`
-                ).join('');
-                resultsContainer.classList.remove('hidden');
-            } else {
-                resultsContainer.innerHTML = '<div class="p-3 text-muted">No products found.</div>';
-                resultsContainer.classList.remove('hidden');
-            }
-        }
-
-        function selectProduct(productId, itemIndex, type) {
-            const items = type === 'invoice' ? invoiceItems : quotationItems;
-            const itemElement = document.querySelector(`.${type}-item[data-index="${itemIndex}"]`);
-            const product = allProducts.find(p => p.row_index == productId);
-
-            if (product && itemElement) {
-                items[itemIndex].productId = productId;
-                itemElement.querySelector('.item-search').value = product.search_term.replace(/\b\w/g, l => l.toUpperCase());
-                itemElement.querySelector('.item-hsn').value = product['HSN/SAC'] || '8413';
-                itemElement.querySelector('.item-rate').value = product.PRICE || 0;
-                itemElement.querySelector('.searchable-dropdown-results').classList.add('hidden');
-                calculateItemTotal(itemIndex, type);
-            }
-        }
-
-        document.addEventListener('click', function(event) {
-            document.querySelectorAll('.searchable-dropdown').forEach(dropdown => {
-                if (!dropdown.contains(event.target)) {
-                    dropdown.querySelector('.searchable-dropdown-results').classList.add('hidden');
-                }
+            html2pdf().set(opt).from(element).save().then(() => {
+                Swal.close();
+                showToast('PDF Generated Successfully!', 'success');
+            }).catch(error => {
+                Swal.close();
+                showToast('PDF generation failed. Check console.', 'error');
+                console.error("PDF Generation Error:", error);
             });
-        });
+        }
 
         // --- SAVING & LOADING DATA ---
         async function postData(payload) {
-            // This function would ideally use a proper proxy/backend in a real production environment
-            // For this setup, we'll continue with the JSONP pattern for GET and simulate POST logic
-            // The actual POST is handled by the Apps Script `doPost`
             return fetchJSONP(`${GET_API_URL}?action=${payload.action}&data=${encodeURIComponent(JSON.stringify(payload.data))}`);
         }
         
@@ -1484,7 +1545,6 @@
                     totalIGST: (!isIntraState && type === 'invoice' ? totalTax : 0).toFixed(2),
                     grandTotal: grandTotal.toFixed(2),
                     status: type === 'invoice' ? 'unpaid' : 'pending',
-                    // If it's an update, include the original row index
                     rowIndex: type === 'invoice' && currentEditingInvoiceIndex !== null ? invoiceHistory[currentEditingInvoiceIndex].row_index : null
                 },
                 items: JSON.parse(JSON.stringify(items))
@@ -1509,9 +1569,8 @@
                         const docData = fullData.docData;
                         const itemsData = fullData.items;
 
-                        resetInvoiceForm(); // Clear the form first
-                        currentEditingInvoiceIndex = index; // Set the editing index
-
+                        resetInvoiceForm();
+                        currentEditingInvoiceIndex = index;
                         showPage('create-invoice');
                         
                         document.getElementById('invoice-number').value = docData.docNumber;
@@ -1519,17 +1578,17 @@
                         document.getElementById('customer-select').value = docData.customerName;
                         populateCustomerDetails();
 
-                        invoiceItems = []; // Clear current items
+                        invoiceItems = [];
                         const container = document.getElementById('invoice-items-container');
-                        container.innerHTML = ''; // Clear display
+                        container.innerHTML = '';
 
                         itemsData.forEach(itemData => {
                             addInvoiceItem();
                             const newIndex = invoiceItems.length - 1;
-                            selectProduct(itemData.productId, newIndex, 'invoice');
-                            
                             const itemElement = document.querySelector(`.invoice-item[data-index="${newIndex}"]`);
-                            if(itemElement) {
+                            
+                            if (itemData.productId && itemElement) {
+                                selectProduct(itemData.productId, newIndex, 'invoice');
                                 itemElement.querySelector('.item-quantity').value = itemData.quantity;
                                 itemElement.querySelector('.item-discount').value = itemData.discount;
                                 itemElement.querySelector('.item-tax-rate').value = itemData.taxRate;
@@ -1549,38 +1608,6 @@
         }
         
         // --- RENDER FUNCTIONS ---
-        function renderAllItems(type) {
-            const container = document.getElementById(`${type}-items-container`);
-            const items = type === 'invoice' ? invoiceItems : quotationItems;
-            const addFn = type === 'invoice' ? addInvoiceItem : addQuotationItem;
-            const removeFn = type === 'invoice' ? removeInvoiceItem : removeQuotationItem;
-
-            container.innerHTML = '';
-            items.forEach((item, index) => {
-                const itemHtml = `
-                <div class="${type}-item bg-black/10 dark:bg-white/5 p-4 rounded-xl space-y-3" data-index="${index}">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-semibold">Item ${index + 1}</h4>
-                        <button type="button" onclick="${removeFn.name}(${index})" class="text-red-400 hover:text-red-300"><i data-lucide="x-circle" class="w-5 h-5"></i></button>
-                    </div>
-                    <div class="searchable-dropdown">
-                        <input type="text" class="item-search futuristic-input" placeholder="Start typing to search for a product..." oninput="filterProducts(this, ${index}, '${type}')" onfocus="filterProducts(this, ${index}, '${type}')" autocomplete="off">
-                        <div class="searchable-dropdown-results hidden"></div>
-                    </div>
-                    <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 text-sm">
-                        <input type="text" class="item-hsn futuristic-input col-span-1" placeholder="HSN/SAC" readonly>
-                        <input type="number" class="item-rate futuristic-input col-span-2 sm:col-span-1" placeholder="Rate" readonly>
-                        <input type="number" class="item-quantity futuristic-input" value="1" min="1" oninput="calculateItemTotal(${index}, '${type}')" placeholder="Qty">
-                        <input type="number" class="item-discount futuristic-input" value="0" min="0" max="100" oninput="calculateItemTotal(${index}, '${type}')" placeholder="Disc %">
-                        <input type="number" class="item-tax-rate futuristic-input" value="18" oninput="calculateItemTotal(${index}, '${type}')" placeholder="Tax %">
-                    </div>
-                    <input type="number" class="item-total futuristic-input bg-opacity-50" placeholder="Total" readonly>
-                </div>`;
-                container.insertAdjacentHTML('beforeend', itemHtml);
-            });
-            lucide.createIcons();
-        }
-
         function renderHistory(type) {
             const tbody = document.getElementById('history-table-body');
             const historyData = type === 'invoices' ? invoiceHistory : quotationHistory;
@@ -1615,7 +1642,7 @@
 
         function renderProductList() {
             const listEl = document.getElementById('existing-products-list');
-            if(listEl) listEl.innerHTML = allProducts.map(p => `<div class="p-4 rounded-lg bg-black/10 dark:hover:bg-white/5 flex justify-between items-center"><div><p class="font-bold">${p.MODEL || ''} ${p['MODEL NUMBER'] || ''}</p><p class="text-sm text-muted">${p.DEVICE || ''} - ${p['ITEM NAME'] || ''}</p><p class="text-lg font-semibold text-amber-400">₹${(p.PRICE || 0).toFixed(2)}</p></div><p class="text-sm text-muted">HSN: ${p['HSN/SAC'] || 'N/A'}</p></div>`).join('');
+            if(listEl) listEl.innerHTML = allProducts.map(p => `<div class="p-4 rounded-lg bg-black/10 dark:hover:bg-white/5 flex justify-between items-center"><div><p class="font-bold">${p.uniqueModel}</p><p class="text-sm text-muted">${p.DEVICE || ''} - ${p.uniqueItemName}</p><p class="text-lg font-semibold text-amber-400">₹${(p.PRICE || 0).toFixed(2)}</p></div><p class="text-sm text-muted">HSN: ${p['HSN/SAC'] || 'N/A'}</p></div>`).join('');
         }
         
         function renderLogistics(searchTerm = '') {
@@ -1729,22 +1756,6 @@
             }
             return result.toUpperCase() + ' ONLY';
         }
-
-        function generatePDF(elementId) {
-            Swal.fire({ title: 'Generating PDF...', text: 'Please wait.', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-            const element = document.getElementById(elementId);
-            const docNumber = elementId === 'invoice-preview' ? document.getElementById('invoice-number').value : document.getElementById('quotation-number').value;
-            const opt = { margin: 0.25, filename: `${docNumber}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, logging: false, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }};
-            
-            html2pdf().set(opt).from(element).save().then(() => {
-                Swal.close();
-                showToast('PDF Generated Successfully!', 'success');
-            }).catch(error => {
-                Swal.close();
-                showToast('PDF generation failed. Check console.', 'error');
-                console.error("PDF Generation Error:", error);
-            });
-        }
         
         function getLogisticsText(buttonElement) {
             const name = buttonElement.dataset.name;
@@ -1761,7 +1772,7 @@
         }
 
         function copyLogisticsDetails(buttonElement) {
-            const textToCopy = getLogisticsText(buttonElement).replace(/\*/g, ''); // Remove markdown for plain text copy
+            const textToCopy = getLogisticsText(buttonElement).replace(/\*/g, '');
             const textArea = document.createElement("textarea");
             textArea.value = textToCopy;
             document.body.appendChild(textArea);
@@ -1877,6 +1888,7 @@
             const prefix = settings.quotationPrefix || 'Q-';
             let nextNum;
             if (latestNumFromServer) {
+                // FIX: Corrected the invalid regular expression here
                 const numericPart = parseInt(String(latestNumFromServer).replace(/[^0-9]/g, ''), 10);
                 nextNum = isNaN(numericPart) ? (settings.quotationNextNumber || 1) : numericPart + 1;
             } else {
